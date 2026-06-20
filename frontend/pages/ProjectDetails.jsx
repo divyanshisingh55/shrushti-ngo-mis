@@ -28,7 +28,8 @@ import {
   Close as CloseIcon,
   FolderOpen as FolderIcon,
   AssignmentTurnedIn as CompleteIcon,
-  PendingActions as PendingIcon
+  PendingActions as PendingIcon,
+  SmartToy as AiIcon
 } from "@mui/icons-material";
 
 export default function ProjectDetails() {
@@ -40,6 +41,27 @@ export default function ProjectDetails() {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // AI Suggestion states
+  const [aiSuggestion, setAiSuggestion] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const fetchAiSuggestion = async () => {
+    setAiLoading(true);
+    try {
+      const res = await axios.post(`http://localhost:5000/ai-classify/${id}/suggest`);
+      if (res.data.success) {
+        setAiSuggestion(res.data.suggestion);
+      } else {
+        alert("Failed to fetch AI classification suggestions");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error fetching AI suggestions");
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   // DB Dropdowns
   const [themes, setThemes] = useState([]);
@@ -280,11 +302,11 @@ export default function ProjectDetails() {
           </Typography>
           <Box component="form" onSubmit={handleUpdateDetails}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField fullWidth label="Project Name" required value={editName} onChange={(e) => setEditName(e.target.value)} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Agency</InputLabel>
                   <Select value={agencySelect} label="Agency" onChange={(e) => setAgencySelect(e.target.value)}>
@@ -298,11 +320,11 @@ export default function ProjectDetails() {
                 )}
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Financial Year" value={editYear} onChange={(e) => setEditYear(e.target.value)} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Funding Source</InputLabel>
                   <Select value={fundingSelect} label="Funding Source" onChange={(e) => setFundingSelect(e.target.value)}>
@@ -316,7 +338,7 @@ export default function ProjectDetails() {
                 )}
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>State</InputLabel>
                   <Select value={stateSelect} label="State" onChange={(e) => setStateSelect(e.target.value)}>
@@ -330,15 +352,15 @@ export default function ProjectDetails() {
                 )}
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField fullWidth label="Approval Date" type="date" InputLabelProps={{ shrink: true }} value={editApprovalDate} onChange={(e) => setEditApprovalDate(e.target.value)} />
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField fullWidth label="Approval Date" type="date" slotProps={{ inputLabel: { shrink: true } }} value={editApprovalDate} onChange={(e) => setEditApprovalDate(e.target.value)} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Sanctioned Amount (Rs.)" type="number" value={editSanctionedAmount} onChange={(e) => setEditSanctionedAmount(e.target.value)} />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Implementation Status</InputLabel>
                   <Select value={editStatusId} label="Implementation Status" onChange={(e) => setEditStatusId(e.target.value)}>
@@ -348,11 +370,11 @@ export default function ProjectDetails() {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField fullWidth multiline rows={3} label="Remarks" value={editRemarks} onChange={(e) => setEditRemarks(e.target.value)} />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Button type="submit" variant="contained" color="success" startIcon={<SaveIcon />} sx={{ textTransform: "none", fontWeight: "bold" }}>
                   Save Core Details
                 </Button>
@@ -383,35 +405,35 @@ export default function ProjectDetails() {
             <Divider sx={{ my: 2 }} />
             
             <Grid container spacing={2} sx={{ mb: 2 }}>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Executing Agency</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.agency_name || "-"}</Typography>
               </Grid>
-              <Grid item xs={6} sm={6} md={4}>
+              <Grid size={{ xs: 6, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Financial Year</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.year || "-"}</Typography>
               </Grid>
-              <Grid item xs={6} sm={6} md={4}>
+              <Grid size={{ xs: 6, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>State Location</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.state_name || "-"}</Typography>
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Funding Source</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.funding_source || "-"}</Typography>
               </Grid>
-              <Grid item xs={6} sm={6} md={4}>
+              <Grid size={{ xs: 6, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Approval Date</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>
                   {project.approval_date ? new Date(project.approval_date).toLocaleDateString() : "-"}
                 </Typography>
               </Grid>
-              <Grid item xs={6} sm={6} md={4}>
+              <Grid size={{ xs: 6, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Sanctioned Amount</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>
                   {project.sanctioned_amount ? `Rs. ${Number(project.sanctioned_amount).toLocaleString()}` : "-"}
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Implementation Status</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.project_status || "-"}</Typography>
               </Grid>
@@ -428,17 +450,128 @@ export default function ProjectDetails() {
       )}
 
       {/* ------------------ CLASSIFICATION INTERFACE ------------------ */}
-      <Paper sx={{ p: 4, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
-        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1, color: "#1e293b" }}>
-          Assign Project Classification
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#64748b", mb: 4 }}>
-          Categorize the NGO project by selecting its primary theme and adding sub-themes, target beneficiaries, and activity types.
-        </Typography>
+      <Paper sx={{ p: 4, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", mb: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4, flexWrap: "wrap", gap: 2 }}>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+              Assign Project Classification
+            </Typography>
+            <Typography variant="body2" sx={{ color: "#64748b" }}>
+              Categorize the NGO project by selecting its primary theme and adding sub-themes, target beneficiaries, and activity types.
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<AiIcon />}
+            onClick={fetchAiSuggestion}
+            disabled={aiLoading}
+            sx={{
+              textTransform: "none",
+              fontWeight: "bold",
+              borderRadius: "8px",
+              backgroundColor: "#8b5cf6",
+              "&:hover": { backgroundColor: "#7c3aed" }
+            }}
+          >
+            {aiLoading ? <CircularProgress size={20} color="inherit" /> : "🤖 Get AI Suggestion"}
+          </Button>
+        </Box>
+
+        {aiSuggestion && (
+          <Box sx={{ mb: 4, p: 3, border: "1px solid #ddd6fe", borderRadius: "12px", backgroundColor: "#f5f3ff" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 2 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: "#6d28d9", display: "flex", alignItems: "center", gap: 1 }}>
+                <AiIcon /> AI Suggested Classifications
+              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Typography variant="body2" sx={{ fontWeight: "600", color: "#4c1d95" }}>
+                  Overall Confidence:
+                </Typography>
+                <Chip
+                  label={`${aiSuggestion.confidence}%`}
+                  color={aiSuggestion.confidence >= 70 ? "success" : "warning"}
+                  size="small"
+                  sx={{ fontWeight: "bold" }}
+                />
+              </Stack>
+            </Box>
+
+            {aiSuggestion.confidence < 70 && (
+              <Alert severity="warning" sx={{ mb: 3, borderRadius: "8px", fontWeight: "600" }}>
+                Needs Manual Review (Confidence score is below 70%)
+              </Alert>
+            )}
+
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                  <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Theme Suggestion (Confidence: {aiSuggestion.themeConfidence}%)</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155", mt: 0.5 }}>
+                    {aiSuggestion.themeName || themes.find(t => t.theme_id === aiSuggestion.themeId)?.theme_name || "None"}
+                  </Typography>
+                </Paper>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                  <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Sub-Themes Suggestion (Confidence: {aiSuggestion.subThemeConfidence}%)</Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
+                    {aiSuggestion.subThemeIds.length === 0 ? "-" : aiSuggestion.subThemeIds.map(stId => {
+                      const st = subThemes.find(x => x.sub_theme_id === stId);
+                      return st ? <Chip key={stId} label={st.sub_theme_name} size="small" variant="outlined" /> : null;
+                    })}
+                  </Box>
+                </Paper>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                  <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Target Groups Suggestion (Confidence: {aiSuggestion.targetGroupConfidence}%)</Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
+                    {aiSuggestion.targetGroupIds.length === 0 ? "-" : aiSuggestion.targetGroupIds.map(tgId => {
+                      const tg = targetGroups.find(x => x.target_group_id === tgId);
+                      return tg ? <Chip key={tgId} label={`${tg.main_group} - ${tg.sub_group}`} size="small" variant="outlined" /> : null;
+                    })}
+                  </Box>
+                </Paper>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                  <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Activity Types Suggestion (Confidence: {aiSuggestion.activityConfidence}%)</Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
+                    {aiSuggestion.activityTypeIds.length === 0 ? "-" : aiSuggestion.activityTypeIds.map(atId => {
+                      const at = activityTypes.find(x => x.activity_type_id === atId);
+                      return at ? <Chip key={atId} label={at.activity_type_name} size="small" variant="outlined" /> : null;
+                    })}
+                  </Box>
+                </Paper>
+              </Grid>
+            </Grid>
+
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => {
+                setSelectedTheme(aiSuggestion.themeId || "");
+                setSelectedSubThemes(aiSuggestion.subThemeIds || []);
+                setSelectedTargetGroups(aiSuggestion.targetGroupIds || []);
+                setSelectedActivityTypes(aiSuggestion.activityTypeIds || []);
+              }}
+              sx={{
+                textTransform: "none",
+                fontWeight: "bold",
+                borderRadius: "8px",
+                backgroundColor: "#7c3aed",
+                "&:hover": { backgroundColor: "#6d28d9" }
+              }}
+            >
+              Accept AI Suggestions & Auto-Fill
+            </Button>
+          </Box>
+        )}
 
         <Grid container spacing={4}>
           {/* Primary Theme */}
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
               1. Primary Thematic Area *
             </Typography>
@@ -462,7 +595,7 @@ export default function ProjectDetails() {
           </Grid>
 
           {/* Sub Themes */}
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
               2. Sub-Themes
             </Typography>
@@ -507,7 +640,7 @@ export default function ProjectDetails() {
           </Grid>
 
           {/* Target Groups */}
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
               3. Target Groups (Beneficiaries)
             </Typography>
@@ -546,7 +679,7 @@ export default function ProjectDetails() {
           </Grid>
 
           {/* Activity Types */}
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
               4. Activity Types
             </Typography>
@@ -585,7 +718,7 @@ export default function ProjectDetails() {
           </Grid>
 
           {/* Save Button */}
-          <Grid item xs={12} sx={{ mt: 2 }}>
+          <Grid size={12} sx={{ mt: 2 }}>
             <Button
               variant="contained"
               color="success"

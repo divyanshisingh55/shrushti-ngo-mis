@@ -24,6 +24,10 @@ const fundingSourceRoutes = require("./routes/fundingsources");
 const statusRoutes = require("./routes/statuses");
 const stateRoutes = require("./routes/states");
 const reportsRoutes = require("./routes/reports");
+const aiClassificationRoutes = require("./routes/aiClassification");
+const districtRoutes = require("./routes/districts");
+const blockRoutes = require("./routes/blocks");
+const sdgRoutes = require("./routes/sdgs");
 
 app.use(cors());
 app.use(express.json());
@@ -41,6 +45,10 @@ app.use("/fundingsources", fundingSourceRoutes);
 app.use("/statuses", statusRoutes);
 app.use("/states", stateRoutes);
 app.use("/reports", reportsRoutes);
+app.use("/ai-classify", aiClassificationRoutes);
+app.use("/districts", districtRoutes);
+app.use("/blocks", blockRoutes);
+app.use("/sdgs", sdgRoutes);
 
 app.get("/", async (req, res) => {
   try {

@@ -28,12 +28,26 @@ router.get("/summary", async (req, res) => {
       SELECT COUNT(*) FROM agencies
     `);
 
+    const aiClassified = await pool.query(`
+      SELECT COUNT(*)
+      FROM projects
+      WHERE classification_status = 'Completed' AND classification_method = 'AI'
+    `);
+
+    const manualClassified = await pool.query(`
+      SELECT COUNT(*)
+      FROM projects
+      WHERE classification_status = 'Completed' AND classification_method = 'Manual'
+    `);
+
     res.json({
       totalProjects: Number(totalProjects.rows[0].count),
       pendingProjects: Number(pendingProjects.rows[0].count),
       completedProjects: Number(completedProjects.rows[0].count),
       totalThemes: Number(totalThemes.rows[0].count),
-      totalAgencies: Number(totalAgencies.rows[0].count)
+      totalAgencies: Number(totalAgencies.rows[0].count),
+      aiClassifiedProjects: Number(aiClassified.rows[0].count),
+      manualClassifiedProjects: Number(manualClassified.rows[0].count)
     });
 
   } catch (error) {
@@ -83,11 +97,30 @@ router.get("/charts", async (req, res) => {
       ORDER BY count DESC
     `);
 
+    // 5. Projects by Classification Status
+    const statusRes = await pool.query(`
+      SELECT classification_status, COUNT(*)::integer as count
+      FROM projects
+      GROUP BY classification_status
+    `);
+
+    // 6. Funding Source Distribution (Top 10)
+    const fundingRes = await pool.query(`
+      SELECT fs.source_name, COUNT(p.project_id)::integer as count
+      FROM projects p
+      JOIN funding_sources fs ON p.funding_source_id = fs.funding_source_id
+      GROUP BY fs.source_name
+      ORDER BY count DESC
+      LIMIT 10
+    `);
+
     res.json({
       projectsByTheme: themeRes.rows,
       projectsByYear: yearRes.rows,
       projectsByAgency: agencyRes.rows,
-      projectsByState: stateRes.rows
+      projectsByState: stateRes.rows,
+      projectsByStatus: statusRes.rows,
+      fundingSourceDistribution: fundingRes.rows
     });
   } catch (error) {
     console.error("Dashboard Charts Error:", error);

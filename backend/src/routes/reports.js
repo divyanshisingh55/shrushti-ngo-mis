@@ -5,10 +5,20 @@ const XLSX = require("xlsx");
 
 // Helper function to build the base query and parameters
 function buildQuery(req) {
-  const { year, theme_id, agency_id, status } = req.query;
+  const {
+    year,
+    theme_id,
+    agency_id,
+    status,
+    sub_theme_id,
+    target_group_id,
+    state_id,
+    district_id,
+    is_archived
+  } = req.query;
 
   let query = `
-    SELECT 
+    SELECT DISTINCT
       p.project_id,
       p.doc_no,
       p.project_name,
@@ -53,6 +63,12 @@ function buildQuery(req) {
   const values = [];
   let paramCount = 1;
 
+  if (String(is_archived) === 'true') {
+    query += ` AND p.is_archived = true`;
+  } else {
+    query += ` AND p.is_archived = false`;
+  }
+
   if (year) {
     query += ` AND p.year = $${paramCount}`;
     values.push(year);
@@ -71,6 +87,37 @@ function buildQuery(req) {
   if (status) {
     query += ` AND p.classification_status = $${paramCount}`;
     values.push(status);
+    paramCount++;
+  }
+  if (state_id) {
+    query += ` AND p.state_id = $${paramCount}`;
+    values.push(Number(state_id));
+    paramCount++;
+  }
+  if (sub_theme_id) {
+    query += ` AND EXISTS (
+      SELECT 1 FROM project_sub_themes pst 
+      WHERE pst.project_id = p.project_id AND pst.sub_theme_id = $${paramCount}
+    )`;
+    values.push(Number(sub_theme_id));
+    paramCount++;
+  }
+  if (target_group_id) {
+    query += ` AND EXISTS (
+      SELECT 1 FROM project_target_groups ptg 
+      WHERE ptg.project_id = p.project_id AND ptg.target_group_id = $${paramCount}
+    )`;
+    values.push(Number(target_group_id));
+    paramCount++;
+  }
+  if (district_id) {
+    query += ` AND EXISTS (
+      SELECT 1 FROM project_locations pl 
+      JOIN locations loc ON pl.location_id = loc.location_id 
+      JOIN blocks b ON loc.block_id = b.block_id
+      WHERE pl.project_id = p.project_id AND b.district_id = $${paramCount}
+    )`;
+    values.push(Number(district_id));
     paramCount++;
   }
 
