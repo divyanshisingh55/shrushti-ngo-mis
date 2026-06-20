@@ -14,16 +14,16 @@ const themeRoutes = require("./routes/themes");
 const pool = require("./config/db");
 const dashboardRoutes = require("./routes/dashboard");
 const app = express();
-const projectDetailsRoutes =
-  require("./routes/projectDetails");
-const subThemeRoutes =
-  require("./routes/subthemes");
-const targetGroupRoutes =
-  require("./routes/targetgroups");
-const activityTypeRoutes =
-  require("./routes/activitytypes");
-  const classifyProjectRoutes =
-  require("./routes/classifyProject");
+const projectDetailsRoutes = require("./routes/projectDetails");
+const subThemeRoutes = require("./routes/subthemes");
+const targetGroupRoutes = require("./routes/targetgroups");
+const activityTypeRoutes = require("./routes/activitytypes");
+const classifyProjectRoutes = require("./routes/classifyProject");
+const agencyRoutes = require("./routes/agencies");
+const fundingSourceRoutes = require("./routes/fundingsources");
+const statusRoutes = require("./routes/statuses");
+const stateRoutes = require("./routes/states");
+const reportsRoutes = require("./routes/reports");
 
 app.use(cors());
 app.use(express.json());
@@ -35,6 +35,12 @@ app.use("/subthemes", subThemeRoutes);
 app.use("/targetgroups", targetGroupRoutes);
 app.use("/activitytypes", activityTypeRoutes);
 app.use("/classifyProject", classifyProjectRoutes);
+app.use("/classify-project", classifyProjectRoutes);
+app.use("/agencies", agencyRoutes);
+app.use("/fundingsources", fundingSourceRoutes);
+app.use("/statuses", statusRoutes);
+app.use("/states", stateRoutes);
+app.use("/reports", reportsRoutes);
 
 app.get("/", async (req, res) => {
   try {

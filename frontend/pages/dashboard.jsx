@@ -1,53 +1,320 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { 
+  Grid, 
+  Card, 
+  CardContent, 
+  Typography, 
+  Box, 
+  CircularProgress,
+  Divider,
+  Paper
+} from "@mui/material";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  LineChart,
+  Line,
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell
+} from "recharts";
+import {
+  FolderSpecial as FolderIcon,
+  HourglassEmpty as PendingIcon,
+  CheckCircleOutlined as CompletedIcon
+} from "@mui/icons-material";
+
+const COLORS = ["#1abc9c", "#3498db", "#9b59b6", "#e67e22", "#e74c3c", "#2ecc71", "#34495e", "#16a085", "#2980b9", "#8e44ad"];
 
 export default function Dashboard() {
-
   const [summary, setSummary] = useState({
     totalProjects: 0,
     pendingProjects: 0,
     completedProjects: 0
   });
 
+  const [charts, setCharts] = useState({
+    projectsByTheme: [],
+    projectsByYear: [],
+    projectsByAgency: [],
+    projectsByState: []
+  });
+
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-
-    axios
-      .get("http://localhost:5000/dashboard/summary")
-      .then((response) => {
-        setSummary(response.data);
-      })
-      .catch(console.error);
-
+    loadDashboardData();
   }, []);
 
+  const loadDashboardData = async () => {
+    try {
+      const [summaryRes, chartsRes] = await Promise.all([
+        axios.get("http://localhost:5000/dashboard/summary"),
+        axios.get("http://localhost:5000/dashboard/charts")
+      ]);
+
+      setSummary(summaryRes.data);
+      setCharts(chartsRes.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+        <CircularProgress size={50} />
+      </Box>
+    );
+  }
+
+  // Format agency and theme charts to handle long names cleanly
+  const formattedThemeData = charts.projectsByTheme.map(d => ({
+    name: d.theme_name ? (d.theme_name.length > 25 ? d.theme_name.substring(0, 25) + "..." : d.theme_name) : "Unclassified",
+    fullName: d.theme_name || "Unclassified",
+    count: d.count
+  }));
+
+  const formattedAgencyData = charts.projectsByAgency.map(d => ({
+    name: d.agency_name ? (d.agency_name.length > 20 ? d.agency_name.substring(0, 20) + "..." : d.agency_name) : "Unknown",
+    fullName: d.agency_name || "Unknown",
+    count: d.count
+  }));
+
   return (
-    <div style={{ padding: "30px" }}>
+    <Box sx={{ flexGrow: 1, p: 1 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0f172a", mb: 1 }}>
+          Dashboard Analytics
+        </Typography>
+        <Typography variant="body1" sx={{ color: "#64748b" }}>
+          Operations Overview and Project Classification Statistics.
+        </Typography>
+      </Box>
 
-      <h1>Shrushti MIS Dashboard</h1>
+      {/* KPI Cards Grid */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {/* Total Projects */}
+        <Grid item xs={12} sm={4}>
+          <Card sx={{ 
+            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+            borderRadius: "12px", 
+            borderLeft: "6px solid #3b82f6",
+            position: "relative",
+            overflow: "visible"
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    Total Projects
+                  </Typography>
+                  <Typography variant="h3" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                    {summary.totalProjects}
+                  </Typography>
+                </Box>
+                <Box sx={{ 
+                  backgroundColor: "#dbeafe", 
+                  color: "#3b82f6", 
+                  p: 1.5, 
+                  borderRadius: "12px",
+                  display: "flex",
+                  alignItems: "center"
+                }}>
+                  <FolderIcon fontSize="large" />
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
 
-      <div style={{
-        display: "flex",
-        gap: "20px",
-        marginTop: "30px"
-      }}>
+        {/* Pending Classification */}
+        <Grid item xs={12} sm={4}>
+          <Card sx={{ 
+            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+            borderRadius: "12px", 
+            borderLeft: "6px solid #f59e0b",
+            position: "relative",
+            overflow: "visible"
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    Pending Classification
+                  </Typography>
+                  <Typography variant="h3" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                    {summary.pendingProjects}
+                  </Typography>
+                </Box>
+                <Box sx={{ 
+                  backgroundColor: "#fef3c7", 
+                  color: "#f59e0b", 
+                  p: 1.5, 
+                  borderRadius: "12px",
+                  display: "flex",
+                  alignItems: "center"
+                }}>
+                  <PendingIcon fontSize="large" />
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        <div>
-          <h2>Total Projects</h2>
-          <h1>{summary.totalProjects}</h1>
-        </div>
+        {/* Completed Classification */}
+        <Grid item xs={12} sm={4}>
+          <Card sx={{ 
+            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+            borderRadius: "12px", 
+            borderLeft: "6px solid #10b981",
+            position: "relative",
+            overflow: "visible"
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    Completed Projects
+                  </Typography>
+                  <Typography variant="h3" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                    {summary.completedProjects}
+                  </Typography>
+                </Box>
+                <Box sx={{ 
+                  backgroundColor: "#d1fae5", 
+                  color: "#10b981", 
+                  p: 1.5, 
+                  borderRadius: "12px",
+                  display: "flex",
+                  alignItems: "center"
+                }}>
+                  <CompletedIcon fontSize="large" />
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
-        <div>
-          <h2>Pending</h2>
-          <h1>{summary.pendingProjects}</h1>
-        </div>
+      {/* Recharts Sections Grid */}
+      <Grid container spacing={3}>
+        {/* Projects By Primary Theme */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
+              Projects by Primary Theme
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ width: "100%", height: 300 }}>
+              <ResponsiveContainer>
+                <BarChart
+                  data={formattedThemeData}
+                  layout="vertical"
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                  <XAxis type="number" />
+                  <YAxis dataKey="name" type="category" width={120} style={{ fontSize: "11px" }} />
+                  <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
+                  <Bar dataKey="count" fill="#14b8a6" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
+        </Grid>
 
-        <div>
-          <h2>Completed</h2>
-          <h1>{summary.completedProjects}</h1>
-        </div>
+        {/* Projects By Financial Year */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
+              Projects by Financial Year
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ width: "100%", height: 300 }}>
+              <ResponsiveContainer>
+                <LineChart
+                  data={charts.projectsByYear}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="year" style={{ fontSize: "11px" }} />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="count" name="Projects Count" stroke="#3b82f6" strokeWidth={3} activeDot={{ r: 8 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
+        </Grid>
 
-      </div>
+        {/* Projects By Top Agencies */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
+              Top 10 Agencies
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ width: "100%", height: 300 }}>
+              <ResponsiveContainer>
+                <BarChart
+                  data={formattedAgencyData}
+                  layout="vertical"
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                  <XAxis type="number" />
+                  <YAxis dataKey="name" type="category" width={120} style={{ fontSize: "11px" }} />
+                  <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
+                  <Bar dataKey="count" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
+        </Grid>
 
-    </div>
+        {/* Projects By State */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
+              Geographical Distribution (States)
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ width: "100%", height: 300, display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={charts.projectsByState}
+                    dataKey="count"
+                    nameKey="state_name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    fill="#3b82f6"
+                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    style={{ fontSize: "11px", fontWeight: "600" }}
+                  >
+                    {charts.projectsByState.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
