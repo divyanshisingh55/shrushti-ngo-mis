@@ -400,7 +400,7 @@ export default function Projects() {
 
   return (
     <Box sx={{ flexGrow: 1, p: 1 }}>
-      
+
       {/* Header Panel */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4, flexWrap: "wrap", gap: 2 }}>
         <Box>
@@ -647,29 +647,81 @@ export default function Projects() {
       </Accordion>
 
       {/* Table section */}
-      {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 5 }}>
-          <CircularProgress size={40} />
+      <Box sx={{ position: "relative", width: "100%" }}>
+        {/* Loading Progress Bar at the top of the table to prevent layout shifts */}
+        <Box sx={{ height: "4px", width: "100%", mb: 1 }}>
+          {loading && <LinearProgress color="primary" />}
         </Box>
-      ) : (
-        <TableContainer component={Paper} sx={{ borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", overflow: "hidden" }}>
-          <Table>
+
+        <TableContainer
+          component={Paper}
+          sx={{
+            borderRadius: "12px",
+            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
+            overflowX: "hidden",
+            width: "100%",
+            opacity: loading ? 0.6 : 1,
+            transition: "opacity 0.2s ease-in-out"
+          }}
+        >
+          <Table
+            sx={{
+              tableLayout: "fixed",
+              width: "100%"
+            }}
+          >
             <TableHead sx={{ backgroundColor: "#f8fafc" }}>
               <TableRow>
                 <TableCell padding="checkbox">
                   <Checkbox
-                    indeterminate={selectedIds.length > 0 && selectedIds.length < projects.length}
-                    checked={projects.length > 0 && selectedIds.length === projects.length}
+                    indeterminate={
+                      selectedIds.length > 0 &&
+                      selectedIds.length < projects.length
+                    }
+                    checked={
+                      projects.length > 0 &&
+                      selectedIds.length === projects.length
+                    }
                     onChange={handleSelectAll}
                   />
                 </TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>Project Name</TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>Year</TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>Agency</TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>State</TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>Classification Status</TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#475569", textAlign: "center" }}>Actions</TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>
+                  ID
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>
+                  Project Name
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>
+                  Year
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>
+                  Agency
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>
+                  State
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>
+                  Classification Status
+                </TableCell>
+
+                <TableCell
+                  sx={{
+                    width: "220px",
+                    minWidth: "220px",
+                    fontWeight: "bold",
+                    color: "#475569",
+                    textAlign: "center"
+                  }}
+                >
+                  Actions
+                </TableCell>
+
               </TableRow>
             </TableHead>
             <TableBody>
@@ -688,7 +740,16 @@ export default function Projects() {
                         <Checkbox checked={isChecked} onChange={(e) => handleSelectRow(e, project.project_id)} />
                       </TableCell>
                       <TableCell>{project.project_id}</TableCell>
-                      <TableCell sx={{ fontWeight: "600", color: "#1e293b", maxWidth: "300px" }}>
+                      <TableCell
+                        sx={{
+                          maxWidth: "250px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          fontWeight: 600
+                        }}
+                        title={project.project_name}
+                      >
                         {project.project_name}
                       </TableCell>
                       <TableCell>{project.year || "-"}</TableCell>
@@ -702,42 +763,50 @@ export default function Projects() {
                           sx={{ fontWeight: "bold", px: 0.5 }}
                         />
                       </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: "flex", gap: 1, justifyContent: "center" }}>
+                      <TableCell
+                        sx={{
+                          width: "220px",
+                          minWidth: "220px"
+                        }}
+                      >
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          justifyContent="center"
+                          alignItems="center"
+                        >
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() =>
+                              navigate(`/project/${project.project_id}`)
+                            }
+                          >
+                            View Details
+                          </Button>
                           <Button
                             variant="outlined"
                             size="small"
-                            startIcon={<ViewIcon />}
-                            onClick={() => navigate(`/project/${project.project_id}`)}
-                            sx={{ textTransform: "none", fontWeight: "bold" }}
+                            onClick={() =>
+                              navigate(`/project/${project.project_id}`)
+                            }
                           >
-                            View & Classify
+                            Classify
                           </Button>
-                          <IconButton
-                            color="primary"
-                            size="small"
-                            title="Duplicate Project"
-                            onClick={() => handleDuplicate(project.project_id)}
-                          >
-                            <DuplicateIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            color={project.is_archived ? "success" : "warning"}
-                            size="small"
-                            title={project.is_archived ? "Restore Project" : "Archive Project"}
-                            onClick={() => handleArchiveToggle(project.project_id, project.is_archived)}
-                          >
-                            {project.is_archived ? <UnarchiveIcon fontSize="small" /> : <ArchiveIcon fontSize="small" />}
-                          </IconButton>
                           <IconButton
                             color="error"
                             size="small"
                             title="Delete Project"
-                            onClick={() => handleDelete(project.project_id, project.project_name)}
+                            onClick={() =>
+                              handleDelete(
+                                project.project_id,
+                                project.project_name
+                              )
+                            }
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
-                        </Box>
+                        </Stack>
                       </TableCell>
                     </TableRow>
                   );
@@ -746,12 +815,12 @@ export default function Projects() {
             </TableBody>
           </Table>
         </TableContainer>
-      )}
+      </Box>
 
       {/* --- BULK AI CLASSIFY DIALOG MODAL --- */}
       <Dialog open={bulkOpen} onClose={() => !bulkLoading && setBulkOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle sx={{ fontWeight: "bold", color: "#0f172a" }}>
-          🤖 AI Bulk Classification Pipeline
+          AI Bulk Classification Pipeline
         </DialogTitle>
         <DialogContent>
           {bulkLoading ? (
@@ -820,6 +889,6 @@ export default function Projects() {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Box >
   );
 }

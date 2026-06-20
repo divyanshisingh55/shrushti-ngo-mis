@@ -13,11 +13,11 @@ export default function Navbar() {
       fontFamily: "sans-serif"
     }}>
       <div style={{ fontSize: "20px", fontWeight: "bold", color: "#3498db" }}>
-        Shrushti NGO MIS
+        Shrushti MIS
       </div>
       <div style={{ display: "flex", gap: "20px" }}>
-        <NavLink 
-          to="/" 
+        <NavLink
+          to="/"
           style={({ isActive }) => ({
             color: isActive ? "#3498db" : "#bdc3c7",
             textDecoration: "none",
@@ -27,9 +27,9 @@ export default function Navbar() {
         >
           Dashboard
         </NavLink>
-        
-        <NavLink 
-          to="/projects" 
+
+        <NavLink
+          to="/projects"
           end
           style={({ isActive }) => ({
             color: isActive ? "#3498db" : "#bdc3c7",
@@ -41,8 +41,8 @@ export default function Navbar() {
           Projects List
         </NavLink>
 
-        <NavLink 
-          to="/classify-projects" 
+        <NavLink
+          to="/classify-projects"
           style={({ isActive }) => ({
             color: isActive ? "#3498db" : "#bdc3c7",
             textDecoration: "none",
@@ -53,8 +53,8 @@ export default function Navbar() {
           Classify Queue
         </NavLink>
 
-        <NavLink 
-          to="/projects/add" 
+        <NavLink
+          to="/projects/add"
           style={({ isActive }) => ({
             color: isActive ? "#3498db" : "#bdc3c7",
             textDecoration: "none",
@@ -65,8 +65,8 @@ export default function Navbar() {
           Add New Project
         </NavLink>
 
-        <NavLink 
-          to="/reports" 
+        <NavLink
+          to="/reports"
           style={({ isActive }) => ({
             color: isActive ? "#3498db" : "#bdc3c7",
             textDecoration: "none",

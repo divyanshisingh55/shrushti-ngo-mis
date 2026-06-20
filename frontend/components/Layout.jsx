@@ -45,15 +45,15 @@ export default function Layout({ children }) {
     <Box sx={{ height: "100%", backgroundColor: "#0f172a", color: "#f8fafc" }}>
       <Toolbar style={{ backgroundColor: "#0b1329", color: "#f8fafc" }}>
         <Typography variant="h6" noWrap component="div" sx={{ fontWeight: "bold", color: "#14b8a6" }}>
-          Shrushti NGO MIS
+          Shrushti MIS
         </Typography>
       </Toolbar>
       <Divider sx={{ borderColor: "#1e293b" }} />
       <List sx={{ p: 1 }}>
         {menuItems.map((item) => {
-          const isActive = location.pathname === item.path || 
+          const isActive = location.pathname === item.path ||
             (item.path !== "/" && location.pathname.startsWith(item.path));
-          
+
           return (
             <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
@@ -72,13 +72,13 @@ export default function Layout({ children }) {
                 <ListItemIcon sx={{ color: isActive ? "#14b8a6" : "#64748b", minWidth: "40px" }}>
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText 
-                  primary={item.text} 
-                  primaryTypographyProps={{ 
+                <ListItemText
+                  primary={item.text}
+                  primaryTypographyProps={{
                     fontWeight: isActive ? "bold" : "500",
                     color: isActive ? "#14b8a6" : "#94a3b8",
                     fontSize: "14px"
-                  }} 
+                  }}
                 />
               </ListItemButton>
             </ListItem>
@@ -111,7 +111,7 @@ export default function Layout({ children }) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: "bold" }}>
-            NGO Management Information System
+            Management Information System
           </Typography>
         </Toolbar>
       </AppBar>
