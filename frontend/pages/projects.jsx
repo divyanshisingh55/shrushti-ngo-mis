@@ -140,7 +140,6 @@ export default function Projects() {
             label="Classification Status"
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="">All Statuses</option>
             <MenuItem value="">All Statuses</MenuItem>
             <MenuItem value="Pending">Pending</MenuItem>
             <MenuItem value="Completed">Completed</MenuItem>
