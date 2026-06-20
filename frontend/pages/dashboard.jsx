@@ -28,7 +28,9 @@ import {
 import {
   FolderSpecial as FolderIcon,
   HourglassEmpty as PendingIcon,
-  CheckCircleOutlined as CompletedIcon
+  CheckCircleOutlined as CompletedIcon,
+  Category as ThemesIcon,
+  Business as AgenciesIcon
 } from "@mui/icons-material";
 
 const COLORS = ["#1abc9c", "#3498db", "#9b59b6", "#e67e22", "#e74c3c", "#2ecc71", "#34495e", "#16a085", "#2980b9", "#8e44ad"];
@@ -37,7 +39,9 @@ export default function Dashboard() {
   const [summary, setSummary] = useState({
     totalProjects: 0,
     pendingProjects: 0,
-    completedProjects: 0
+    completedProjects: 0,
+    totalThemes: 0,
+    totalAgencies: 0
   });
 
   const [charts, setCharts] = useState({
@@ -104,7 +108,7 @@ export default function Dashboard() {
       {/* KPI Cards Grid */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {/* Total Projects */}
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={6} md={2.4}>
           <Card sx={{ 
             boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
             borderRadius: "12px", 
@@ -115,10 +119,10 @@ export default function Dashboard() {
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "11px" }}>
                     Total Projects
                   </Typography>
-                  <Typography variant="h3" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                  <Typography variant="h4" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
                     {summary.totalProjects}
                   </Typography>
                 </Box>
@@ -130,7 +134,7 @@ export default function Dashboard() {
                   display: "flex",
                   alignItems: "center"
                 }}>
-                  <FolderIcon fontSize="large" />
+                  <FolderIcon fontSize="medium" />
                 </Box>
               </Box>
             </CardContent>
@@ -138,7 +142,7 @@ export default function Dashboard() {
         </Grid>
 
         {/* Pending Classification */}
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={6} md={2.4}>
           <Card sx={{ 
             boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
             borderRadius: "12px", 
@@ -149,10 +153,10 @@ export default function Dashboard() {
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                    Pending Classification
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "11px" }}>
+                    Pending Classify
                   </Typography>
-                  <Typography variant="h3" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                  <Typography variant="h4" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
                     {summary.pendingProjects}
                   </Typography>
                 </Box>
@@ -164,7 +168,7 @@ export default function Dashboard() {
                   display: "flex",
                   alignItems: "center"
                 }}>
-                  <PendingIcon fontSize="large" />
+                  <PendingIcon fontSize="medium" />
                 </Box>
               </Box>
             </CardContent>
@@ -172,7 +176,7 @@ export default function Dashboard() {
         </Grid>
 
         {/* Completed Classification */}
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={6} md={2.4}>
           <Card sx={{ 
             boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
             borderRadius: "12px", 
@@ -183,10 +187,10 @@ export default function Dashboard() {
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                    Completed Projects
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "11px" }}>
+                    Completed
                   </Typography>
-                  <Typography variant="h3" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                  <Typography variant="h4" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
                     {summary.completedProjects}
                   </Typography>
                 </Box>
@@ -198,7 +202,75 @@ export default function Dashboard() {
                   display: "flex",
                   alignItems: "center"
                 }}>
-                  <CompletedIcon fontSize="large" />
+                  <CompletedIcon fontSize="medium" />
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Total Themes */}
+        <Grid item xs={12} sm={6} md={2.4}>
+          <Card sx={{ 
+            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+            borderRadius: "12px", 
+            borderLeft: "6px solid #14b8a6",
+            position: "relative",
+            overflow: "visible"
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "11px" }}>
+                    Total Themes
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                    {summary.totalThemes}
+                  </Typography>
+                </Box>
+                <Box sx={{ 
+                  backgroundColor: "#ccfbf1", 
+                  color: "#14b8a6", 
+                  p: 1.5, 
+                  borderRadius: "12px",
+                  display: "flex",
+                  alignItems: "center"
+                }}>
+                  <ThemesIcon fontSize="medium" />
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Total Agencies */}
+        <Grid item xs={12} sm={6} md={2.4}>
+          <Card sx={{ 
+            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+            borderRadius: "12px", 
+            borderLeft: "6px solid #4f46e5",
+            position: "relative",
+            overflow: "visible"
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "11px" }}>
+                    Total Agencies
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                    {summary.totalAgencies}
+                  </Typography>
+                </Box>
+                <Box sx={{ 
+                  backgroundColor: "#e0e7ff", 
+                  color: "#4f46e5", 
+                  p: 1.5, 
+                  borderRadius: "12px",
+                  display: "flex",
+                  alignItems: "center"
+                }}>
+                  <AgenciesIcon fontSize="medium" />
                 </Box>
               </Box>
             </CardContent>

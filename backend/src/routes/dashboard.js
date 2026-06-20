@@ -20,10 +20,20 @@ router.get("/summary", async (req, res) => {
       WHERE classification_status = 'Completed'
     `);
 
+    const totalThemes = await pool.query(`
+      SELECT COUNT(*) FROM themes
+    `);
+
+    const totalAgencies = await pool.query(`
+      SELECT COUNT(*) FROM agencies
+    `);
+
     res.json({
       totalProjects: Number(totalProjects.rows[0].count),
       pendingProjects: Number(pendingProjects.rows[0].count),
-      completedProjects: Number(completedProjects.rows[0].count)
+      completedProjects: Number(completedProjects.rows[0].count),
+      totalThemes: Number(totalThemes.rows[0].count),
+      totalAgencies: Number(totalAgencies.rows[0].count)
     });
 
   } catch (error) {

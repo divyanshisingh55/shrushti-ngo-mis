@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
 
-/*
 // Helper function to resolve or create agency
 async function getOrCreateAgency(agency) {
   if (!agency) return null;

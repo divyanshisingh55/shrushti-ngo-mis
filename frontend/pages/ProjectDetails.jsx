@@ -18,7 +18,8 @@ import {
   Chip,
   CircularProgress,
   Stack,
-  Alert
+  Alert,
+  Autocomplete
 } from "@mui/material";
 import {
   ArrowBack as BackIcon,
@@ -435,28 +436,29 @@ export default function ProjectDetails() {
           Categorize the NGO project by selecting its primary theme and adding sub-themes, target beneficiaries, and activity types.
         </Typography>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={4}>
           {/* Primary Theme */}
           <Grid item xs={12}>
             <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
               1. Primary Thematic Area *
             </Typography>
-            <FormControl fullWidth size="small">
-              <InputLabel>Select Primary Theme</InputLabel>
-              <Select
-                value={selectedTheme}
-                label="Select Primary Theme"
-                onChange={(e) => {
-                  setSelectedTheme(e.target.value);
-                  setSelectedSubThemes([]);
-                }}
-              >
-                <MenuItem value="">Select Primary Theme</MenuItem>
-                {themes.map((theme) => (
-                  <MenuItem key={theme.theme_id} value={theme.theme_id}>{theme.theme_name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              options={themes}
+              getOptionLabel={(option) => option.theme_name || ""}
+              value={themes.find((theme) => theme.theme_id === selectedTheme) || null}
+              onChange={(event, newValue) => {
+                setSelectedTheme(newValue ? newValue.theme_id : "");
+                setSelectedSubThemes([]);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select Primary Theme"
+                  size="small"
+                  required
+                />
+              )}
+            />
           </Grid>
 
           {/* Sub Themes */}
@@ -469,38 +471,38 @@ export default function ProjectDetails() {
                 Please select a Primary Theme first to unlock available sub-themes.
               </Alert>
             ) : (
-              <Box>
-                <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                  <InputLabel>-- Choose Sub Theme --</InputLabel>
-                  <Select onChange={handleAddSubTheme} value="" label="-- Choose Sub Theme --">
-                    <MenuItem value="">-- Choose Sub Theme --</MenuItem>
-                    {availableSubThemes.map((st) => (
-                      <MenuItem key={st.sub_theme_id} value={st.sub_theme_id}>{st.sub_theme_name}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                  {selectedSubThemes.length === 0 ? (
-                    <Typography variant="body2" sx={{ color: "#94a3b8", fontStyle: "italic" }}>No sub-themes linked.</Typography>
-                  ) : (
-                    selectedSubThemes.map((stId) => {
-                      const st = subThemes.find(x => x.sub_theme_id === stId);
-                      return st ? (
-                        <Chip
-                          key={stId}
-                          label={st.sub_theme_name}
-                          onDelete={() => handleRemoveSubTheme(stId)}
-                          color="primary"
-                          variant="outlined"
-                          size="small"
-                          sx={{ fontWeight: "500" }}
-                        />
-                      ) : null;
-                    })
-                  )}
-                </Box>
-              </Box>
+              <Autocomplete
+                multiple
+                options={subThemes.filter(st => st.theme_id === Number(selectedTheme) && !selectedSubThemes.includes(st.sub_theme_id))}
+                getOptionLabel={(option) => option.sub_theme_name || ""}
+                value={subThemes.filter(st => selectedSubThemes.includes(st.sub_theme_id))}
+                onChange={(event, newValue) => {
+                  setSelectedSubThemes(newValue.map(option => option.sub_theme_id));
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Choose Sub Themes"
+                    placeholder="Select sub-themes..."
+                    size="small"
+                  />
+                )}
+                renderTags={(tagValue, getTagProps) =>
+                  tagValue.map((option, index) => {
+                    const { key, ...chipProps } = getTagProps({ index });
+                    return (
+                      <Chip
+                        key={key || option.sub_theme_id}
+                        label={option.sub_theme_name}
+                        {...chipProps}
+                        color="primary"
+                        variant="outlined"
+                        size="small"
+                      />
+                    );
+                  })
+                }
+              />
             )}
           </Grid>
 
@@ -509,38 +511,38 @@ export default function ProjectDetails() {
             <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
               3. Target Groups (Beneficiaries)
             </Typography>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel>-- Choose Target Group --</InputLabel>
-              <Select onChange={handleAddTargetGroup} value="" label="-- Choose Target Group --">
-                <MenuItem value="">-- Choose Target Group --</MenuItem>
-                {availableTargetGroups.map((tg) => (
-                  <MenuItem key={tg.target_group_id} value={tg.target_group_id}>
-                    {tg.main_group} - {tg.sub_group}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {selectedTargetGroups.length === 0 ? (
-                <Typography variant="body2" sx={{ color: "#94a3b8", fontStyle: "italic" }}>No target groups linked.</Typography>
-              ) : (
-                selectedTargetGroups.map((tgId) => {
-                  const tg = targetGroups.find(x => x.target_group_id === tgId);
-                  return tg ? (
+            <Autocomplete
+              multiple
+              options={targetGroups.filter(tg => !selectedTargetGroups.includes(tg.target_group_id))}
+              getOptionLabel={(option) => option ? `${option.main_group} - ${option.sub_group}` : ""}
+              value={targetGroups.filter(tg => selectedTargetGroups.includes(tg.target_group_id))}
+              onChange={(event, newValue) => {
+                setSelectedTargetGroups(newValue.map(option => option.target_group_id));
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Choose Target Groups"
+                  placeholder="Select target groups..."
+                  size="small"
+                />
+              )}
+              renderTags={(tagValue, getTagProps) =>
+                tagValue.map((option, index) => {
+                  const { key, ...chipProps } = getTagProps({ index });
+                  return (
                     <Chip
-                      key={tgId}
-                      label={`${tg.main_group} - ${tg.sub_group}`}
-                      onDelete={() => handleRemoveTargetGroup(tgId)}
+                      key={key || option.target_group_id}
+                      label={`${option.main_group} - ${option.sub_group}`}
+                      {...chipProps}
                       color="secondary"
                       variant="outlined"
                       size="small"
-                      sx={{ fontWeight: "500" }}
                     />
-                  ) : null;
+                  );
                 })
-              )}
-            </Box>
+              }
+            />
           </Grid>
 
           {/* Activity Types */}
@@ -548,36 +550,38 @@ export default function ProjectDetails() {
             <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
               4. Activity Types
             </Typography>
-            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-              <InputLabel>-- Choose Activity Type --</InputLabel>
-              <Select onChange={handleAddActivityType} value="" label="-- Choose Activity Type --">
-                <MenuItem value="">-- Choose Activity Type --</MenuItem>
-                {availableActivityTypes.map((at) => (
-                  <MenuItem key={at.activity_type_id} value={at.activity_type_id}>{at.activity_type_name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {selectedActivityTypes.length === 0 ? (
-                <Typography variant="body2" sx={{ color: "#94a3b8", fontStyle: "italic" }}>No activity types linked.</Typography>
-              ) : (
-                selectedActivityTypes.map((atId) => {
-                  const at = activityTypes.find(x => x.activity_type_id === atId);
-                  return at ? (
+            <Autocomplete
+              multiple
+              options={activityTypes.filter(at => !selectedActivityTypes.includes(at.activity_type_id))}
+              getOptionLabel={(option) => option.activity_type_name || ""}
+              value={activityTypes.filter(at => selectedActivityTypes.includes(at.activity_type_id))}
+              onChange={(event, newValue) => {
+                setSelectedActivityTypes(newValue.map(option => option.activity_type_id));
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Choose Activity Types"
+                  placeholder="Select activity types..."
+                  size="small"
+                />
+              )}
+              renderTags={(tagValue, getTagProps) =>
+                tagValue.map((option, index) => {
+                  const { key, ...chipProps } = getTagProps({ index });
+                  return (
                     <Chip
-                      key={atId}
-                      label={at.activity_type_name}
-                      onDelete={() => handleRemoveActivityType(atId)}
+                      key={key || option.activity_type_id}
+                      label={option.activity_type_name}
+                      {...chipProps}
                       color="info"
                       variant="outlined"
                       size="small"
-                      sx={{ fontWeight: "500" }}
                     />
-                  ) : null;
+                  );
                 })
-              )}
-            </Box>
+              }
+            />
           </Grid>
 
           {/* Save Button */}

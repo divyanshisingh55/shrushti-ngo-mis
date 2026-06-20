@@ -42,13 +42,13 @@ export default function Layout({ children }) {
   ];
 
   const drawer = (
-    <div>
-      <Toolbar style={{ backgroundColor: "#0f172a", color: "#f8fafc" }}>
-        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: "bold", color: "#38bdf8" }}>
+    <Box sx={{ height: "100%", backgroundColor: "#0f172a", color: "#f8fafc" }}>
+      <Toolbar style={{ backgroundColor: "#0b1329", color: "#f8fafc" }}>
+        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: "bold", color: "#14b8a6" }}>
           Shrushti NGO MIS
         </Typography>
       </Toolbar>
-      <Divider />
+      <Divider sx={{ borderColor: "#1e293b" }} />
       <List sx={{ p: 1 }}>
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path || 
@@ -61,20 +61,22 @@ export default function Layout({ children }) {
                 to={item.path}
                 sx={{
                   borderRadius: "8px",
-                  backgroundColor: isActive ? "#e2e8f0" : "transparent",
+                  backgroundColor: isActive ? "rgba(20, 184, 166, 0.15)" : "transparent",
+                  color: isActive ? "#14b8a6" : "#94a3b8",
                   "&:hover": {
-                    backgroundColor: "#f1f5f9"
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    color: "#f8fafc"
                   }
                 }}
               >
-                <ListItemIcon sx={{ color: isActive ? "#0f172a" : "#64748b", minWidth: "40px" }}>
+                <ListItemIcon sx={{ color: isActive ? "#14b8a6" : "#64748b", minWidth: "40px" }}>
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText 
                   primary={item.text} 
                   primaryTypographyProps={{ 
                     fontWeight: isActive ? "bold" : "500",
-                    color: isActive ? "#0f172a" : "#475569",
+                    color: isActive ? "#14b8a6" : "#94a3b8",
                     fontSize: "14px"
                   }} 
                 />
@@ -83,7 +85,7 @@ export default function Layout({ children }) {
           );
         })}
       </List>
-    </div>
+    </Box>
   );
 
   return (
@@ -127,7 +129,7 @@ export default function Layout({ children }) {
           }}
           sx={{
             display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth }
+            "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, backgroundColor: "#0f172a", borderRight: "1px solid #1e293b" }
           }}
         >
           {drawer}
@@ -137,7 +139,7 @@ export default function Layout({ children }) {
           variant="permanent"
           sx={{
             display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth }
+            "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, backgroundColor: "#0f172a", borderRight: "1px solid #1e293b" }
           }}
           open
         >
