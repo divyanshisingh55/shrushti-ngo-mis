@@ -20,6 +20,10 @@ import {
   Save as SaveIcon,
   Cancel as CancelIcon
 } from "@mui/icons-material";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 
 export default function AddProject() {
   const navigate = useNavigate();
@@ -76,12 +80,24 @@ export default function AddProject() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // 7. Validation: Project Name, Agency, and Financial Year are required.
     if (!projectName.trim()) {
       setError("Project Name is required.");
       return;
     }
 
     const agencyVal = agencySelect === "custom" ? customAgency : agencySelect;
+    if (!agencyVal || !agencyVal.toString().trim()) {
+      setError("Agency is required.");
+      return;
+    }
+
+    if (!year.trim()) {
+      setError("Financial Year is required.");
+      return;
+    }
+
     const fundingVal = fundingSelect === "custom" ? customFunding : fundingSelect;
     const stateVal = stateSelect === "custom" ? customState : stateSelect;
 
@@ -115,7 +131,7 @@ export default function AddProject() {
   }
 
   return (
-    <Box sx={{ flexGrow: 1, p: 1, maxWidth: "800px", mx: "auto" }}>
+    <Box sx={{ flexGrow: 1, p: 1, maxWidth: "900px", mx: "auto" }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0f172a", mb: 1 }}>
           Add New Project
@@ -134,8 +150,8 @@ export default function AddProject() {
       <Paper sx={{ p: 4, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
         <Box component="form" onSubmit={handleSubmit}>
           <Grid container spacing={3}>
-            {/* Project Name */}
-            <Grid item xs={12}>
+            {/* Project Name (Full Width) */}
+            <Grid size={12}>
               <TextField
                 fullWidth
                 label="Project Name"
@@ -146,9 +162,9 @@ export default function AddProject() {
               />
             </Grid>
 
-            {/* Agency Select */}
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
+            {/* Agency (Full Width) */}
+            <Grid size={12}>
+              <FormControl fullWidth required>
                 <InputLabel>Agency</InputLabel>
                 <Select
                   value={agencySelect}
@@ -178,11 +194,12 @@ export default function AddProject() {
               )}
             </Grid>
 
-            {/* Financial Year */}
-            <Grid item xs={12} sm={6}>
+            {/* Financial Year (Normal Width) */}
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="Financial Year (e.g. 2024-25)"
+                required
                 variant="outlined"
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
@@ -190,8 +207,8 @@ export default function AddProject() {
               />
             </Grid>
 
-            {/* Funding Source Select */}
-            <Grid item xs={12} sm={6}>
+            {/* Funding Source (Normal Width) */}
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Funding Source</InputLabel>
                 <Select
@@ -222,8 +239,8 @@ export default function AddProject() {
               )}
             </Grid>
 
-            {/* State Select */}
-            <Grid item xs={12} sm={6}>
+            {/* State (Normal Width) */}
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>State</InputLabel>
                 <Select
@@ -254,20 +271,29 @@ export default function AddProject() {
               )}
             </Grid>
 
-            {/* Date of Approval */}
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Date of Approval"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                value={approvalDate}
-                onChange={(e) => setApprovalDate(e.target.value)}
-              />
+            {/* Date of Approval (Normal Width with proper DatePicker component) */}
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Date of Approval"
+                  format="DD/MM/YYYY"
+                  value={approvalDate ? dayjs(approvalDate) : null}
+                  onChange={(newValue) => {
+                    setApprovalDate(newValue && newValue.isValid() ? newValue.format("YYYY-MM-DD") : "");
+                  }}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      variant: "outlined",
+                      placeholder: "DD/MM/YYYY"
+                    }
+                  }}
+                />
+              </LocalizationProvider>
             </Grid>
 
-            {/* Sanctioned Amount */}
-            <Grid item xs={12} sm={6}>
+            {/* Sanctioned Amount (Normal Width) */}
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="Sanctioned Amount (Rs.)"
@@ -277,8 +303,8 @@ export default function AddProject() {
               />
             </Grid>
 
-            {/* Implementation Status Select */}
-            <Grid item xs={12} sm={6}>
+            {/* Implementation Status (Normal Width) */}
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Implementation Status</InputLabel>
                 <Select
@@ -294,8 +320,8 @@ export default function AddProject() {
               </FormControl>
             </Grid>
 
-            {/* Remarks */}
-            <Grid item xs={12}>
+            {/* Remarks (Full Width Textarea) */}
+            <Grid size={12}>
               <TextField
                 fullWidth
                 multiline
@@ -308,7 +334,7 @@ export default function AddProject() {
             </Grid>
 
             {/* Buttons Panel */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
                 <Button
                   type="submit"
