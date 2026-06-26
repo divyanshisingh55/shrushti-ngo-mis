@@ -30,11 +30,18 @@ export default function AddProject() {
 
   // Form states
   const [projectName, setProjectName] = useState("");
+  const [docNo, setDocNo] = useState("");
   const [year, setYear] = useState("");
   const [approvalDate, setApprovalDate] = useState("");
   const [sanctionedAmount, setSanctionedAmount] = useState("");
   const [statusId, setStatusId] = useState("");
   const [remarks, setRemarks] = useState("");
+  const [fundingType, setFundingType] = useState("");
+  const [donorAgencyName, setDonorAgencyName] = useState("");
+  const [donorCategory, setDonorCategory] = useState("");
+  const [durationMonths, setDurationMonths] = useState("");
+  const [district, setDistrict] = useState("");
+  const [blockVillageUlb, setBlockVillageUlb] = useState("");
 
   // Metadata selectors
   const [agencySelect, setAgencySelect] = useState("");
@@ -93,7 +100,7 @@ export default function AddProject() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // 7. Validation: Project Name, Agency, and Financial Year are required.
     if (!projectName.trim()) {
       setError("Project Name is required.");
@@ -112,7 +119,7 @@ export default function AddProject() {
     }
 
     const fundingVal = fundingSelect === "custom" ? customFunding : fundingSelect;
-    
+
     // Resolve states array
     const resolvedStates = selectedStates.map(stObj => {
       return stObj.state_id === "custom" ? stObj.custom_name : stObj.state_id;
@@ -133,7 +140,14 @@ export default function AddProject() {
         sanctioned_amount: sanctionedAmount || null,
         status_id: statusId || null,
         state: resolvedStates,
-        remarks: remarks
+        remarks: remarks,
+        funding_type: fundingType || null,
+        donor_agency_name: donorAgencyName || null,
+        donor_category: donorCategory || null,
+        duration_months: durationMonths ? Number(durationMonths) : null,
+        district: district || null,
+        block_village_ulb: blockVillageUlb || null,
+        doc_no: docNo || null
       });
 
       alert("Project added successfully!");
@@ -172,8 +186,15 @@ export default function AddProject() {
       <Paper sx={{ p: 4, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
         <Box component="form" onSubmit={handleSubmit}>
           <Grid container spacing={3}>
-            {/* Project Name (Full Width) */}
+            {/* Project Basic Details Section */}
             <Grid size={12}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b", mb: 1, borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+                1. Basic Project Details
+              </Typography>
+            </Grid>
+
+            {/* Project Name (Width 8) */}
+            <Grid size={{ xs: 12, sm: 8 }}>
               <TextField
                 fullWidth
                 label="Project Name"
@@ -181,6 +202,17 @@ export default function AddProject() {
                 variant="outlined"
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
+              />
+            </Grid>
+
+            {/* Doc Number (Width 4) */}
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                label="Document Number / Doc No."
+                variant="outlined"
+                value={docNo}
+                onChange={(e) => setDocNo(e.target.value)}
               />
             </Grid>
 
@@ -217,7 +249,7 @@ export default function AddProject() {
             </Grid>
 
             {/* Financial Year (Normal Width) */}
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <TextField
                 fullWidth
                 label="Financial Year (e.g. 2024-25)"
@@ -227,6 +259,73 @@ export default function AddProject() {
                 onChange={(e) => setYear(e.target.value)}
                 placeholder="e.g. 2024-25"
               />
+            </Grid>
+
+            {/* Date of Approval (Normal Width with proper DatePicker component) */}
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Date of Approval"
+                  format="DD/MM/YYYY"
+                  value={approvalDate ? dayjs(approvalDate) : null}
+                  onChange={(newValue) => {
+                    setApprovalDate(newValue && newValue.isValid() ? newValue.format("YYYY-MM-DD") : "");
+                  }}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      variant: "outlined",
+                      placeholder: "DD/MM/YYYY"
+                    }
+                  }}
+                />
+              </LocalizationProvider>
+            </Grid>
+
+            {/* Sanctioned Amount (Normal Width) */}
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                label="Sanctioned Amount (Rs.)"
+                type="number"
+                value={sanctionedAmount}
+                onChange={(e) => setSanctionedAmount(e.target.value)}
+              />
+            </Grid>
+
+            {/* Implementation Status (Normal Width) */}
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormControl fullWidth>
+                <InputLabel>Implementation Status</InputLabel>
+                <Select
+                  value={statusId}
+                  label="Implementation Status"
+                  onChange={(e) => setStatusId(e.target.value)}
+                >
+                  <MenuItem value="">Select Status</MenuItem>
+                  {statuses.map((s) => (
+                    <MenuItem key={s.status_id} value={s.status_id}>{s.status_name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            {/* Duration (Months) */}
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Duration (in Months)"
+                type="number"
+                value={durationMonths}
+                onChange={(e) => setDurationMonths(e.target.value)}
+              />
+            </Grid>
+
+            {/* Funding details section */}
+            <Grid size={12}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b", mt: 2, mb: 1, borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+                2. Funding & Donor Details
+              </Typography>
             </Grid>
 
             {/* Funding Source (Normal Width) */}
@@ -259,6 +358,57 @@ export default function AddProject() {
                   onChange={(e) => setCustomFunding(e.target.value)}
                 />
               )}
+            </Grid>
+
+            {/* Funding Type */}
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormControl fullWidth>
+                <InputLabel>Funding Type</InputLabel>
+                <Select
+                  value={fundingType}
+                  label="Funding Type"
+                  onChange={(e) => setFundingType(e.target.value)}
+                >
+                  <MenuItem value="">Select Funding Type</MenuItem>
+                  {["Grant", "Donation", "CSR", "Government", "Other"].map(type => (
+                    <MenuItem key={type} value={type}>{type}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            {/* Donor Agency Name */}
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Donor Agency Name"
+                value={donorAgencyName}
+                onChange={(e) => setDonorAgencyName(e.target.value)}
+              />
+            </Grid>
+
+            {/* Donor Category */}
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormControl fullWidth>
+                <InputLabel>Donor Category</InputLabel>
+                <Select
+                  value={donorCategory}
+                  label="Donor Category"
+                  onChange={(e) => setDonorCategory(e.target.value)}
+                >
+                  <MenuItem value="">Select Donor Category</MenuItem>
+                  {["Corporate", "Individual", "Trust/Foundation", "Government Agency", "International Donor", "Other"].map(cat => (
+                    <MenuItem key={cat} value={cat}>{cat}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            {/* Geography section */}
+            <Grid size={12}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b", mt: 2, mb: 1, borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+                3. Geography
+              </Typography>
             </Grid>
 
             {/* State (Multiple Selection) */}
@@ -324,53 +474,24 @@ export default function AddProject() {
               </Button>
             </Grid>
 
-            {/* Date of Approval (Normal Width with proper DatePicker component) */}
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Date of Approval"
-                  format="DD/MM/YYYY"
-                  value={approvalDate ? dayjs(approvalDate) : null}
-                  onChange={(newValue) => {
-                    setApprovalDate(newValue && newValue.isValid() ? newValue.format("YYYY-MM-DD") : "");
-                  }}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      variant: "outlined",
-                      placeholder: "DD/MM/YYYY"
-                    }
-                  }}
-                />
-              </LocalizationProvider>
-            </Grid>
-
-            {/* Sanctioned Amount (Normal Width) */}
+            {/* District */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
-                label="Sanctioned Amount (Rs.)"
-                type="number"
-                value={sanctionedAmount}
-                onChange={(e) => setSanctionedAmount(e.target.value)}
+                label="District"
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
               />
             </Grid>
 
-            {/* Implementation Status (Normal Width) */}
+            {/* Block/Village/ULB */}
             <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth>
-                <InputLabel>Implementation Status</InputLabel>
-                <Select
-                  value={statusId}
-                  label="Implementation Status"
-                  onChange={(e) => setStatusId(e.target.value)}
-                >
-                  <MenuItem value="">Select Status</MenuItem>
-                  {statuses.map((s) => (
-                    <MenuItem key={s.status_id} value={s.status_id}>{s.status_name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <TextField
+                fullWidth
+                label="Block / Village / ULB"
+                value={blockVillageUlb}
+                onChange={(e) => setBlockVillageUlb(e.target.value)}
+              />
             </Grid>
 
             {/* Remarks (Full Width Textarea) */}

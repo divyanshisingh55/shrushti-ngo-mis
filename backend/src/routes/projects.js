@@ -119,6 +119,31 @@ router.get("/", async (req, res) => {
         p.classification_status,
         p.classification_method,
         p.is_archived,
+        p.funding_type,
+        p.donor_agency_name,
+        p.donor_category,
+        p.district,
+        p.block_village_ulb,
+        p.total_beneficiaries,
+        p.direct_beneficiaries,
+        p.indirect_beneficiaries,
+        p.beneficiaries_male,
+        p.beneficiaries_female,
+        p.beneficiaries_boys,
+        p.beneficiaries_girls,
+        p.outcome_impact_notes,
+        p.images,
+        p.duration_months,
+        p.area_type,
+        p.rural_subtype,
+        p.urban_subtype,
+        p.settlement_detail,
+        p.geography_notes,
+        p.beneficiary_counts,
+        p.beneficiary_groups,
+        p.beneficiary_cat1,
+        p.age_groups,
+        p.remarks,
         a.agency_name,
         COALESCE(
           (SELECT STRING_AGG(st.state_name, ', ') FROM project_states p_s JOIN states st ON p_s.state_id = st.state_id WHERE p_s.project_id = p.project_id),
@@ -130,6 +155,15 @@ router.get("/", async (req, res) => {
         (
           SELECT STRING_AGG(t.theme_name, ', ') FROM project_themes pt JOIN themes t ON pt.theme_id = t.theme_id WHERE pt.project_id = p.project_id
         ) as theme1,
+        (
+          SELECT STRING_AGG(st.sub_theme_name, ', ') FROM project_sub_themes pst JOIN sub_themes st ON pst.sub_theme_id = st.sub_theme_id WHERE pst.project_id = p.project_id
+        ) as sub_themes,
+        (
+          SELECT STRING_AGG(at.activity_type_name, ', ') FROM project_activity_types pat JOIN activity_types at ON pat.activity_type_id = at.activity_type_id WHERE pat.project_id = p.project_id
+        ) as activity_types,
+        (
+          SELECT STRING_AGG(tg.main_group || ' - ' || tg.sub_group, ', ') FROM project_target_groups ptg JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id WHERE ptg.project_id = p.project_id
+        ) as target_groups,
         t2.theme_name as theme2
       FROM projects p
       LEFT JOIN agencies a ON p.agency_id = a.agency_id
@@ -367,7 +401,14 @@ router.post("/", async (req, res) => {
     state,
     theme1,
     theme2,
-    remarks
+    remarks,
+    funding_type,
+    donor_agency_name,
+    donor_category,
+    duration_months,
+    district,
+    block_village_ulb,
+    doc_no
   } = req.body;
 
   if (!project_name) {
@@ -395,9 +436,11 @@ router.post("/", async (req, res) => {
       `INSERT INTO projects (
         project_name, agency_id, year, funding_source_id, funding_source2_id, 
         theme1_id, theme2_id, approval_date, sanctioned_amount, status_id, 
-        state_id, remarks, classification_status
+        state_id, remarks, classification_status,
+        funding_type, donor_agency_name, donor_category, duration_months,
+        district, block_village_ulb, doc_no
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'Pending')
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'Pending', $13, $14, $15, $16, $17, $18, $19)
       RETURNING *`,
       [
         project_name,
@@ -411,7 +454,14 @@ router.post("/", async (req, res) => {
         sanctioned_amount ? Number(sanctioned_amount) : null,
         status_id ? Number(status_id) : null,
         primaryStateId,
-        remarks || null
+        remarks || null,
+        funding_type || null,
+        donor_agency_name || null,
+        donor_category || null,
+        duration_months ? Number(duration_months) : null,
+        district || null,
+        block_village_ulb || null,
+        doc_no || null
       ]
     );
 
@@ -453,7 +503,14 @@ router.put("/:id", async (req, res) => {
     state,
     theme1,
     theme2,
-    remarks
+    remarks,
+    funding_type,
+    donor_agency_name,
+    donor_category,
+    duration_months,
+    district,
+    block_village_ulb,
+    doc_no
   } = req.body;
 
   if (!project_name) {
@@ -482,8 +539,10 @@ router.put("/:id", async (req, res) => {
        SET project_name = $1, agency_id = $2, year = $3, funding_source_id = $4,
            funding_source2_id = $5, theme1_id = $6, theme2_id = $7, approval_date = $8, 
            sanctioned_amount = $9, status_id = $10, state_id = $11, remarks = $12, 
+           funding_type = $13, donor_agency_name = $14, donor_category = $15,
+           duration_months = $16, district = $17, block_village_ulb = $18, doc_no = $19,
            updated_at = NOW()
-       WHERE project_id = $13
+       WHERE project_id = $20
        RETURNING *`,
       [
         project_name,
@@ -498,6 +557,13 @@ router.put("/:id", async (req, res) => {
         status_id ? Number(status_id) : null,
         primaryStateId,
         remarks || null,
+        funding_type || null,
+        donor_agency_name || null,
+        donor_category || null,
+        duration_months ? Number(duration_months) : null,
+        district || null,
+        block_village_ulb || null,
+        doc_no || null,
         id
       ]
     );

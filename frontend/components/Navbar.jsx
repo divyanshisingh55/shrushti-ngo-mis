@@ -13,7 +13,7 @@ export default function Navbar() {
       fontFamily: "sans-serif"
     }}>
       <div style={{ fontSize: "20px", fontWeight: "bold", color: "#3498db" }}>
-        Shrushti MIS
+        Shrushti Seva Samiti MIS
       </div>
       <div style={{ display: "flex", gap: "20px" }}>
         <NavLink
@@ -63,18 +63,6 @@ export default function Navbar() {
           })}
         >
           Add New Project
-        </NavLink>
-
-        <NavLink
-          to="/reports"
-          style={({ isActive }) => ({
-            color: isActive ? "#3498db" : "#bdc3c7",
-            textDecoration: "none",
-            fontWeight: isActive ? "bold" : "normal",
-            fontSize: "15px"
-          })}
-        >
-          Reports & Export
         </NavLink>
       </div>
     </nav>

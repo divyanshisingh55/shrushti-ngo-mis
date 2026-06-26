@@ -94,7 +94,7 @@ export default function Reports() {
       setTargetGroups(targetGroupsRes.data);
       setStates(statesRes.data);
       setAgencies(agenciesRes.data);
-      
+
       const allProjects = projectsRes.data.data || projectsRes.data;
       const uniqueYears = [...new Set(allProjects.map(p => p.year))].filter(Boolean).sort().reverse();
       setYears(uniqueYears);
@@ -136,7 +136,7 @@ export default function Reports() {
     if (selectedDistrict) params.append("district_id", selectedDistrict);
     if (selectedAgency) params.append("agency_id", selectedAgency);
     if (selectedStatus) params.append("status", selectedStatus);
-    
+
     return `http://localhost:5000/reports/export/${format}?${params.toString()}`;
   };
 
@@ -156,7 +156,8 @@ export default function Reports() {
 
   return (
     <Box sx={{ flexGrow: 1, p: 1 }}>
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media print {
           /* Hide drawer navigation, app bars, query forms, and other buttons */
           .MuiDrawer-root, .MuiAppBar-root, #reports-header, #reports-filters, #reports-actions, .no-print {

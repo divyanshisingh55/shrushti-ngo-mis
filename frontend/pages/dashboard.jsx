@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { 
-  Grid, 
-  Card, 
-  CardContent, 
-  Typography, 
-  Box, 
+import {
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Box,
   CircularProgress,
   Divider,
   Paper,
@@ -390,11 +390,11 @@ export default function Dashboard() {
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {/* Total Projects */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card 
+          <Card
             onClick={() => handleKpiClick('projects')}
-            sx={{ 
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-              borderRadius: "12px", 
+            sx={{
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
+              borderRadius: "12px",
               borderLeft: "6px solid #3b82f6",
               cursor: "pointer",
               transition: "transform 0.2s, box-shadow 0.2s",
@@ -416,10 +416,10 @@ export default function Dashboard() {
                     {summary.totalProjects}
                   </Typography>
                 </Box>
-                <Box sx={{ 
-                  backgroundColor: "#dbeafe", 
-                  color: "#3b82f6", 
-                  p: 1, 
+                <Box sx={{
+                  backgroundColor: "#dbeafe",
+                  color: "#3b82f6",
+                  p: 1,
                   borderRadius: "10px",
                   display: "flex",
                   alignItems: "center"
@@ -433,11 +433,11 @@ export default function Dashboard() {
 
         {/* Pending Classification */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card 
+          <Card
             onClick={() => handleKpiClick('pending')}
-            sx={{ 
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-              borderRadius: "12px", 
+            sx={{
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
+              borderRadius: "12px",
               borderLeft: "6px solid #f59e0b",
               cursor: "pointer",
               transition: "transform 0.2s, box-shadow 0.2s",
@@ -459,10 +459,10 @@ export default function Dashboard() {
                     {summary.pendingProjects}
                   </Typography>
                 </Box>
-                <Box sx={{ 
-                  backgroundColor: "#fef3c7", 
-                  color: "#f59e0b", 
-                  p: 1, 
+                <Box sx={{
+                  backgroundColor: "#fef3c7",
+                  color: "#f59e0b",
+                  p: 1,
                   borderRadius: "10px",
                   display: "flex",
                   alignItems: "center"
@@ -476,11 +476,11 @@ export default function Dashboard() {
 
         {/* Completed Classification */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card 
+          <Card
             onClick={() => handleKpiClick('completed')}
-            sx={{ 
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-              borderRadius: "12px", 
+            sx={{
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
+              borderRadius: "12px",
               borderLeft: "6px solid #10b981",
               cursor: "pointer",
               transition: "transform 0.2s, box-shadow 0.2s",
@@ -502,10 +502,10 @@ export default function Dashboard() {
                     {summary.completedProjects}
                   </Typography>
                 </Box>
-                <Box sx={{ 
-                  backgroundColor: "#d1fae5", 
-                  color: "#10b981", 
-                  p: 1, 
+                <Box sx={{
+                  backgroundColor: "#d1fae5",
+                  color: "#10b981",
+                  p: 1,
                   borderRadius: "10px",
                   display: "flex",
                   alignItems: "center"
@@ -519,11 +519,11 @@ export default function Dashboard() {
 
         {/* Total Themes */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card 
+          <Card
             onClick={() => handleKpiClick('themes')}
-            sx={{ 
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-              borderRadius: "12px", 
+            sx={{
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
+              borderRadius: "12px",
               borderLeft: "6px solid #14b8a6",
               cursor: "pointer",
               transition: "transform 0.2s, box-shadow 0.2s",
@@ -545,10 +545,10 @@ export default function Dashboard() {
                     {summary.totalThemes}
                   </Typography>
                 </Box>
-                <Box sx={{ 
-                  backgroundColor: "#ccfbf1", 
-                  color: "#14b8a6", 
-                  p: 1, 
+                <Box sx={{
+                  backgroundColor: "#ccfbf1",
+                  color: "#14b8a6",
+                  p: 1,
                   borderRadius: "10px",
                   display: "flex",
                   alignItems: "center"
@@ -562,11 +562,11 @@ export default function Dashboard() {
 
         {/* Total Agencies */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card 
+          <Card
             onClick={() => handleKpiClick('agencies')}
-            sx={{ 
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-              borderRadius: "12px", 
+            sx={{
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
+              borderRadius: "12px",
               borderLeft: "6px solid #4f46e5",
               cursor: "pointer",
               transition: "transform 0.2s, box-shadow 0.2s",
@@ -588,10 +588,10 @@ export default function Dashboard() {
                     {summary.totalAgencies}
                   </Typography>
                 </Box>
-                <Box sx={{ 
-                  backgroundColor: "#e0e7ff", 
-                  color: "#4f46e5", 
-                  p: 1, 
+                <Box sx={{
+                  backgroundColor: "#e0e7ff",
+                  color: "#4f46e5",
+                  p: 1,
                   borderRadius: "10px",
                   display: "flex",
                   alignItems: "center"
@@ -605,11 +605,11 @@ export default function Dashboard() {
 
         {/* AI Classified Projects */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card 
+          <Card
             onClick={() => handleKpiClick('ai')}
-            sx={{ 
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-              borderRadius: "12px", 
+            sx={{
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
+              borderRadius: "12px",
               borderLeft: "6px solid #8b5cf6",
               cursor: "pointer",
               transition: "transform 0.2s, box-shadow 0.2s",
@@ -631,10 +631,10 @@ export default function Dashboard() {
                     {summary.aiClassifiedProjects || 0}
                   </Typography>
                 </Box>
-                <Box sx={{ 
-                  backgroundColor: "#f5f3ff", 
-                  color: "#8b5cf6", 
-                  p: 1, 
+                <Box sx={{
+                  backgroundColor: "#f5f3ff",
+                  color: "#8b5cf6",
+                  p: 1,
                   borderRadius: "10px",
                   display: "flex",
                   alignItems: "center"
@@ -648,11 +648,11 @@ export default function Dashboard() {
 
         {/* Manual Classified Projects */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card 
+          <Card
             onClick={() => handleKpiClick('manual')}
-            sx={{ 
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-              borderRadius: "12px", 
+            sx={{
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
+              borderRadius: "12px",
               borderLeft: "6px solid #6366f1",
               cursor: "pointer",
               transition: "transform 0.2s, box-shadow 0.2s",
@@ -674,10 +674,10 @@ export default function Dashboard() {
                     {summary.manualClassifiedProjects || 0}
                   </Typography>
                 </Box>
-                <Box sx={{ 
-                  backgroundColor: "#e0e7ff", 
-                  color: "#6366f1", 
-                  p: 1, 
+                <Box sx={{
+                  backgroundColor: "#e0e7ff",
+                  color: "#6366f1",
+                  p: 1,
                   borderRadius: "10px",
                   display: "flex",
                   alignItems: "center"
@@ -691,11 +691,11 @@ export default function Dashboard() {
 
         {/* Total Budget / Sanctioned Amount */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card 
+          <Card
             onClick={() => handleKpiClick('sanctioned')}
-            sx={{ 
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-              borderRadius: "12px", 
+            sx={{
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
+              borderRadius: "12px",
               borderLeft: "6px solid #059669",
               cursor: "pointer",
               transition: "transform 0.2s, box-shadow 0.2s",
@@ -717,10 +717,10 @@ export default function Dashboard() {
                     {formatCurrency(summary.totalSanctionedAmount)}
                   </Typography>
                 </Box>
-                <Box sx={{ 
-                  backgroundColor: "#d1fae5", 
-                  color: "#059669", 
-                  p: 1, 
+                <Box sx={{
+                  backgroundColor: "#d1fae5",
+                  color: "#059669",
+                  p: 1,
                   borderRadius: "10px",
                   display: "flex",
                   alignItems: "center"

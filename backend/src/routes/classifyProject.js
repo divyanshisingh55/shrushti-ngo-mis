@@ -17,7 +17,22 @@ router.post("/:id", async (req, res) => {
     beneficiaryCat2 = [],
     beneficiaryCat3 = [],
     beneficiaryCat4 = [],
-    ageGroups = []
+    ageGroups = [],
+    areaType = null,
+    ruralSubtype = null,
+    urbanSubtype = null,
+    settlementDetail = null,
+    geographyNotes = null,
+    beneficiaryCounts = [],
+    totalBeneficiaries = null,
+    directBeneficiaries = null,
+    indirectBeneficiaries = null,
+    beneficiariesMale = null,
+    beneficiariesFemale = null,
+    beneficiariesBoys = null,
+    beneficiariesGirls = null,
+    outcomeImpactNotes = null,
+    images = null
   } = req.body;
 
   let finalThemes = themes;
@@ -117,9 +132,49 @@ router.post("/:id", async (req, res) => {
            beneficiary_cat3 = $6,
            beneficiary_cat4 = $7,
            age_groups = $8,
+           area_type = $9,
+           rural_subtype = $10,
+           urban_subtype = $11,
+           settlement_detail = $12,
+           geography_notes = $13,
+           beneficiary_counts = $14,
+           total_beneficiaries = $15,
+           direct_beneficiaries = $16,
+           indirect_beneficiaries = $17,
+           beneficiaries_male = $18,
+           beneficiaries_female = $19,
+           beneficiaries_boys = $20,
+           beneficiaries_girls = $21,
+           outcome_impact_notes = $22,
+           images = $23,
            updated_at = NOW()
-       WHERE project_id = $9`,
-      [status, projectSummary || null, bgStr || null, c1Str || null, c2Str || null, c3Str || null, c4Str || null, agStr || null, projectId]
+       WHERE project_id = $24`,
+      [
+        status,
+        projectSummary || null,
+        bgStr || null,
+        c1Str || null,
+        c2Str || null,
+        c3Str || null,
+        c4Str || null,
+        agStr || null,
+        areaType || null,
+        ruralSubtype || null,
+        urbanSubtype || null,
+        settlementDetail || null,
+        geographyNotes || null,
+        Array.isArray(beneficiaryCounts) ? JSON.stringify(beneficiaryCounts) : null,
+        totalBeneficiaries !== "" && totalBeneficiaries !== null ? Number(totalBeneficiaries) : null,
+        directBeneficiaries !== "" && directBeneficiaries !== null ? Number(directBeneficiaries) : null,
+        indirectBeneficiaries !== "" && indirectBeneficiaries !== null ? Number(indirectBeneficiaries) : null,
+        beneficiariesMale !== "" && beneficiariesMale !== null ? Number(beneficiariesMale) : null,
+        beneficiariesFemale !== "" && beneficiariesFemale !== null ? Number(beneficiariesFemale) : null,
+        beneficiariesBoys !== "" && beneficiariesBoys !== null ? Number(beneficiariesBoys) : null,
+        beneficiariesGirls !== "" && beneficiariesGirls !== null ? Number(beneficiariesGirls) : null,
+        outcomeImpactNotes || null,
+        images ? (typeof images === 'string' ? images : JSON.stringify(images)) : null,
+        projectId
+      ]
     );
 
     await client.query("COMMIT");

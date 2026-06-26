@@ -29,8 +29,8 @@ export default function ClassifyProjects() {
     try {
       const response = await axios.get(
         "http://localhost:5000/projects", {
-          params: { status: "Pending" }
-        }
+        params: { status: "Pending" }
+      }
       );
       setProjects(response.data.data || response.data);
     } catch (error) {
@@ -94,11 +94,11 @@ export default function ClassifyProjects() {
                   </TableCell>
                   <TableCell>{project.year || "-"}</TableCell>
                   <TableCell>
-                    <Chip 
-                      label="Pending" 
-                      color="warning" 
-                      size="small" 
-                      sx={{ fontWeight: "bold", px: 1 }} 
+                    <Chip
+                      label="Pending"
+                      color="warning"
+                      size="small"
+                      sx={{ fontWeight: "bold", px: 1 }}
                     />
                   </TableCell>
                   <TableCell sx={{ textAlign: "center" }}>
@@ -107,8 +107,8 @@ export default function ClassifyProjects() {
                       to={`/project/${project.project_id}`}
                       variant="contained"
                       size="small"
-                      sx={{ 
-                        backgroundColor: "#3b82f6", 
+                      sx={{
+                        backgroundColor: "#3b82f6",
                         "&:hover": { backgroundColor: "#2563eb" },
                         textTransform: "none",
                         fontWeight: "bold"

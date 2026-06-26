@@ -5,7 +5,6 @@ import Projects from "../pages/projects";
 import ProjectDetails from "../pages/ProjectDetails";
 import ClassifyProjects from "../pages/classifyProjects";
 import AddProject from "../pages/AddProject";
-import Reports from "../pages/Reports";
 
 function App() {
   return (
@@ -17,7 +16,6 @@ function App() {
           <Route path="/projects/add" element={<AddProject />} />
           <Route path="/project/:id" element={<ProjectDetails />} />
           <Route path="/classify-projects" element={<ClassifyProjects />} />
-          <Route path="/reports" element={<Reports />} />
         </Routes>
       </Layout>
     </BrowserRouter>

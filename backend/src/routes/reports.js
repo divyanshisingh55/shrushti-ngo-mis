@@ -9,11 +9,23 @@ function buildQuery(req) {
     year,
     theme_id,
     agency_id,
-    status,
+    status, // classification_status
     sub_theme_id,
     target_group_id,
     state_id,
     district_id,
+    block_id,
+    status_id, // implementation status_id
+    search,
+    doc_no,
+    funding_source_id,
+    activity_type_id,
+    sdg_id,
+    beneficiary_group,
+    min_amount,
+    max_amount,
+    approval_date_start,
+    approval_date_end,
     is_archived
   } = req.query;
 
@@ -26,6 +38,28 @@ function buildQuery(req) {
       p.year,
       p.approval_date,
       p.sanctioned_amount,
+      p.duration_months,
+      p.funding_type,
+      p.donor_agency_name,
+      p.donor_category,
+      p.district,
+      p.block_village_ulb,
+      p.area_type,
+      p.rural_subtype,
+      p.urban_subtype,
+      p.settlement_detail,
+      p.geography_notes,
+      p.total_beneficiaries,
+      p.direct_beneficiaries,
+      p.indirect_beneficiaries,
+      p.beneficiaries_male,
+      p.beneficiaries_female,
+      p.beneficiaries_boys,
+      p.beneficiaries_girls,
+      p.outcome_impact_notes,
+      p.beneficiary_counts,
+      p.age_groups,
+      p.remarks,
       fs.source_name as funding_source,
       ps.status_name as project_status,
       COALESCE(
@@ -56,8 +90,7 @@ function buildQuery(req) {
         JOIN activity_types at ON pat.activity_type_id = at.activity_type_id 
         WHERE pat.project_id = p.project_id
       ) as activity_types,
-      p.classification_status,
-      p.remarks
+      p.classification_status
     FROM projects p
     LEFT JOIN agencies a ON p.agency_id = a.agency_id
     LEFT JOIN funding_sources fs ON p.funding_source_id = fs.funding_source_id
@@ -75,29 +108,36 @@ function buildQuery(req) {
     query += ` AND p.is_archived = false`;
   }
 
+  if (doc_no) {
+    query += ` AND p.doc_no ILIKE $${paramCount}`;
+    values.push(`%${doc_no}%`);
+    paramCount++;
+  }
+
   if (year) {
     query += ` AND p.year = $${paramCount}`;
     values.push(year);
     paramCount++;
   }
-  if (theme_id) {
-    query += ` AND EXISTS (
-      SELECT 1 FROM project_themes pt_filter
-      WHERE pt_filter.project_id = p.project_id AND pt_filter.theme_id = $${paramCount}
-    )`;
-    values.push(Number(theme_id));
-    paramCount++;
-  }
-  if (agency_id) {
-    query += ` AND p.agency_id = $${paramCount}`;
-    values.push(Number(agency_id));
-    paramCount++;
-  }
+
   if (status) {
     query += ` AND p.classification_status = $${paramCount}`;
     values.push(status);
     paramCount++;
   }
+
+  if (agency_id) {
+    query += ` AND p.agency_id = $${paramCount}`;
+    values.push(Number(agency_id));
+    paramCount++;
+  }
+
+  if (funding_source_id) {
+    query += ` AND p.funding_source_id = $${paramCount}`;
+    values.push(Number(funding_source_id));
+    paramCount++;
+  }
+
   if (state_id) {
     query += ` AND (p.state_id = $${paramCount} OR EXISTS (
       SELECT 1 FROM project_states p_st 
@@ -106,6 +146,50 @@ function buildQuery(req) {
     values.push(Number(state_id));
     paramCount++;
   }
+
+  if (status_id) {
+    query += ` AND p.status_id = $${paramCount}`;
+    values.push(Number(status_id));
+    paramCount++;
+  }
+
+  if (search) {
+    query += ` AND p.project_name ILIKE $${paramCount}`;
+    values.push(`%${search}%`);
+    paramCount++;
+  }
+
+  if (approval_date_start) {
+    query += ` AND p.approval_date >= $${paramCount}`;
+    values.push(approval_date_start);
+    paramCount++;
+  }
+  if (approval_date_end) {
+    query += ` AND p.approval_date <= $${paramCount}`;
+    values.push(approval_date_end);
+    paramCount++;
+  }
+
+  if (min_amount) {
+    query += ` AND p.sanctioned_amount >= $${paramCount}`;
+    values.push(Number(min_amount));
+    paramCount++;
+  }
+  if (max_amount) {
+    query += ` AND p.sanctioned_amount <= $${paramCount}`;
+    values.push(Number(max_amount));
+    paramCount++;
+  }
+
+  if (theme_id) {
+    query += ` AND EXISTS (
+      SELECT 1 FROM project_themes pt_filter
+      WHERE pt_filter.project_id = p.project_id AND pt_filter.theme_id = $${paramCount}
+    )`;
+    values.push(Number(theme_id));
+    paramCount++;
+  }
+
   if (sub_theme_id) {
     query += ` AND EXISTS (
       SELECT 1 FROM project_sub_themes pst 
@@ -114,6 +198,7 @@ function buildQuery(req) {
     values.push(Number(sub_theme_id));
     paramCount++;
   }
+
   if (target_group_id) {
     query += ` AND EXISTS (
       SELECT 1 FROM project_target_groups ptg 
@@ -122,7 +207,34 @@ function buildQuery(req) {
     values.push(Number(target_group_id));
     paramCount++;
   }
-  if (district_id) {
+
+  if (activity_type_id) {
+    query += ` AND EXISTS (
+      SELECT 1 FROM project_activity_types pat 
+      WHERE pat.project_id = p.project_id AND pat.activity_type_id = $${paramCount}
+    )`;
+    values.push(Number(activity_type_id));
+    paramCount++;
+  }
+
+  if (sdg_id) {
+    query += ` AND EXISTS (
+      SELECT 1 FROM project_sdgs psd 
+      WHERE psd.project_id = p.project_id AND psd.sdg_id = $${paramCount}
+    )`;
+    values.push(Number(sdg_id));
+    paramCount++;
+  }
+
+  if (block_id) {
+    query += ` AND EXISTS (
+      SELECT 1 FROM project_locations pl 
+      JOIN locations loc ON pl.location_id = loc.location_id 
+      WHERE pl.project_id = p.project_id AND loc.block_id = $${paramCount}
+    )`;
+    values.push(Number(block_id));
+    paramCount++;
+  } else if (district_id) {
     query += ` AND EXISTS (
       SELECT 1 FROM project_locations pl 
       JOIN locations loc ON pl.location_id = loc.location_id 
@@ -131,6 +243,39 @@ function buildQuery(req) {
     )`;
     values.push(Number(district_id));
     paramCount++;
+  }
+
+  if (beneficiary_group) {
+    let beneficiaryCondition = "";
+    if (beneficiary_group === "Women") {
+      beneficiaryCondition = "tg.main_group = 'Women'";
+    } else if (beneficiary_group === "Girls") {
+      beneficiaryCondition = "tg.main_group = 'Girls'";
+    } else if (beneficiary_group === "Boys") {
+      beneficiaryCondition = "tg.main_group = 'Boys'";
+    } else if (beneficiary_group === "Men") {
+      beneficiaryCondition = "tg.main_group = 'Men'";
+    } else if (beneficiary_group === "Youth") {
+      beneficiaryCondition = "tg.main_group = 'Youth'";
+    } else if (beneficiary_group === "Farmers") {
+      beneficiaryCondition = "tg.main_group = 'Farmers' OR tg.sub_group = 'Farmers' OR tg.sub_group = 'Women Farmers' OR tg.sub_group = 'Small Farmers'";
+    } else if (beneficiary_group === "SHGs") {
+      beneficiaryCondition = "tg.sub_group = 'SHG Members' OR tg.sub_group = 'SHGs'";
+    } else if (beneficiary_group === "Teachers") {
+      beneficiaryCondition = "tg.sub_group = 'Teachers'";
+    } else if (beneficiary_group === "Persons with Disabilities") {
+      beneficiaryCondition = "tg.main_group = 'Persons with Disabilities' OR tg.sub_group = 'Children with Disabilities'";
+    } else if (beneficiary_group === "Elderly") {
+      beneficiaryCondition = "tg.main_group = 'Elderly' OR tg.sub_group = 'Senior Citizens'";
+    }
+
+    if (beneficiaryCondition) {
+      query += ` AND EXISTS (
+        SELECT 1 FROM project_target_groups ptg 
+        JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
+        WHERE ptg.project_id = p.project_id AND (${beneficiaryCondition})
+      )`;
+    }
   }
 
   query += ` ORDER BY p.project_id DESC`;
@@ -157,24 +302,62 @@ router.get("/", async (req, res) => {
 
 // Helper to map and format rows for export
 function mapExportData(rows) {
-  return rows.map(r => ({
-    "Project ID": r.project_id,
-    "Doc No": r.doc_no || "",
-    "Project Name": r.project_name,
-    "Agency": r.agency_name || "",
-    "Year": r.year || "",
-    "Approval Date": r.approval_date ? new Date(r.approval_date).toISOString().split('T')[0] : "",
-    "Sanctioned Amount (Rs.)": r.sanctioned_amount ? Number(r.sanctioned_amount) : 0,
-    "Funding Source": r.funding_source || "",
-    "Project Status": r.project_status || "",
-    "State": r.state || "",
-    "Primary Theme": r.primary_theme || "",
-    "Sub-Themes": r.sub_themes || "",
-    "Target Groups": r.target_groups || "",
-    "Activity Types": r.activity_types || "",
-    "Classification Status": r.classification_status,
-    "Remarks": r.remarks || ""
-  }));
+  return rows.map(r => {
+    let parsedCounts = [];
+    try {
+      if (r.beneficiary_counts) {
+        parsedCounts = JSON.parse(r.beneficiary_counts);
+      }
+    } catch (e) {
+      console.error("Error parsing beneficiary_counts in report export:", e);
+    }
+
+    const genders = Array.from(new Set(parsedCounts.map(c => c.gender))).filter(Boolean).join(", ");
+    const educations = Array.from(new Set(parsedCounts.map(c => c.educationStage))).filter(Boolean).join(", ");
+    const vulnerabilities = Array.from(new Set(parsedCounts.flatMap(c => c.vulnerabilities || []))).filter(Boolean).join(", ");
+
+    return {
+      "Year": r.year || "",
+      "Doc. No.": r.doc_no || "",
+      "Name of Agency": r.agency_name || "",
+      "Name of Project": r.project_name,
+      "Date of Approval": r.approval_date ? new Date(r.approval_date).toISOString().split('T')[0] : "",
+      "Sanctioned Amount": r.sanctioned_amount ? Number(r.sanctioned_amount) : 0,
+      "Status": r.project_status || "",
+      "Source of Funding": r.funding_source || "",
+      "Funding Type": r.funding_type || "",
+      "Donor Agency Name": r.donor_agency_name || "",
+      "Donor Category": r.donor_category || "",
+      "State": r.state || "",
+      "District": r.district || "",
+      "Block/Village/ULB": r.block_village_ulb || "",
+      "Area Type": r.area_type || "",
+      "Rural Subtype": r.rural_subtype || "",
+      "Urban Subtype": r.urban_subtype || "",
+      "Settlement Detail": r.settlement_detail || "",
+      "Geography Notes": r.geography_notes || "",
+      "Major Theme": r.primary_theme || "",
+      "Sub Theme": r.sub_themes || "",
+      "Activity Type": r.activity_types || "",
+      "Target Group": r.target_groups || "",
+      "Age Group": r.age_groups || "",
+      "Gender": genders,
+      "Education Stage": educations,
+      "Social Group": vulnerabilities,
+      "Disability/other vulnerability": vulnerabilities,
+      "No. of beneficiaries": r.total_beneficiaries !== null && r.total_beneficiaries !== undefined ? Number(r.total_beneficiaries) : 0,
+      "Direct beneficiaries": r.direct_beneficiaries !== null && r.direct_beneficiaries !== undefined ? Number(r.direct_beneficiaries) : 0,
+      "Indirect beneficiaries": r.indirect_beneficiaries !== null && r.indirect_beneficiaries !== undefined ? Number(r.indirect_beneficiaries) : 0,
+      "Male": r.beneficiaries_male !== null && r.beneficiaries_male !== undefined ? Number(r.beneficiaries_male) : 0,
+      "Female": r.beneficiaries_female !== null && r.beneficiaries_female !== undefined ? Number(r.beneficiaries_female) : 0,
+      "Boys": r.beneficiaries_boys !== null && r.beneficiaries_boys !== undefined ? Number(r.beneficiaries_boys) : 0,
+      "Girls": r.beneficiaries_girls !== null && r.beneficiaries_girls !== undefined ? Number(r.beneficiaries_girls) : 0,
+      "Completed/Ongoing": r.project_status || "",
+      "Duration (Months)": r.duration_months !== null && r.duration_months !== undefined ? Number(r.duration_months) : 0,
+      "Outcome/impact notes": r.outcome_impact_notes || "",
+      "Remarks": r.remarks || ""
+    };
+  });
 }
 
 // 2. EXPORT TO CSV
@@ -187,10 +370,13 @@ router.get("/export/csv", async (req, res) => {
     if (data.length === 0) {
       // Return empty CSV with headers
       const headers = [
-        "Project ID", "Doc No", "Project Name", "Agency", "Year", "Approval Date",
-        "Sanctioned Amount (Rs.)", "Funding Source", "Project Status", "State",
-        "Primary Theme", "Sub-Themes", "Target Groups", "Activity Types",
-        "Classification Status", "Remarks"
+        "Year", "Doc. No.", "Name of Agency", "Name of Project", "Date of Approval", "Sanctioned Amount", "Status",
+        "Source of Funding", "Funding Type", "Donor Agency Name", "Donor Category",
+        "State", "District", "Block/Village/ULB", "Area Type", "Rural Subtype", "Urban Subtype", "Settlement Detail", "Geography Notes",
+        "Major Theme", "Sub Theme", "Activity Type",
+        "Target Group", "Age Group", "Gender", "Education Stage", "Social Group", "Disability/other vulnerability",
+        "No. of beneficiaries", "Direct beneficiaries", "Indirect beneficiaries", "Male", "Female", "Boys", "Girls",
+        "Completed/Ongoing", "Duration (Months)", "Outcome/impact notes", "Remarks"
       ];
       res.setHeader("Content-Type", "text/csv");
       res.setHeader("Content-Disposition", "attachment; filename=projects_report.csv");

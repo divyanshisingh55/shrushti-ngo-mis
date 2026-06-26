@@ -44,15 +44,14 @@ export default function Layout({ children }) {
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
     { text: "Projects List", icon: <ListIcon />, path: "/projects" },
     { text: "Classify Queue", icon: <CategoryIcon />, path: "/classify-projects" },
-    { text: "Add New Project", icon: <AddBoxIcon />, path: "/projects/add" },
-    { text: "Reports & Export", icon: <AssessmentIcon />, path: "/reports" }
+    { text: "Add New Project", icon: <AddBoxIcon />, path: "/projects/add" }
   ];
 
   const drawer = (
     <Box sx={{ height: "100%", backgroundColor: "#0f172a", color: "#f8fafc", overflowX: "hidden" }}>
       <Toolbar style={{ backgroundColor: "#0b1329", color: "#f8fafc" }}>
         <Typography variant="h6" noWrap component="div" sx={{ fontWeight: "bold", color: "#14b8a6" }}>
-          Shrushti MIS
+          Shrushti Seva Samiti MIS
         </Typography>
       </Toolbar>
       <Divider sx={{ borderColor: "#1e293b" }} />
@@ -125,8 +124,8 @@ export default function Layout({ children }) {
       </AppBar>
       <Box
         component="nav"
-        sx={{ 
-          width: { sm: activeDrawerWidth }, 
+        sx={{
+          width: { sm: activeDrawerWidth },
           flexShrink: { sm: 0 },
           transition: "width 0.2s ease-in-out"
         }}
@@ -153,10 +152,10 @@ export default function Layout({ children }) {
             display: isCollapsed ? "none" : { xs: "none", sm: "block" },
             width: activeDrawerWidth,
             transition: "width 0.2s ease-in-out",
-            "& .MuiDrawer-paper": { 
-              boxSizing: "border-box", 
-              width: activeDrawerWidth, 
-              backgroundColor: "#0f172a", 
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: activeDrawerWidth,
+              backgroundColor: "#0f172a",
               borderRight: "1px solid #1e293b",
               transition: "width 0.2s ease-in-out",
               overflowX: "hidden"
