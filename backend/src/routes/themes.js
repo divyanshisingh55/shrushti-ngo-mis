@@ -10,12 +10,16 @@ router.get("/", async (req, res) => {
 
   try {
 
-    const result = await pool.query(`
+    let query = `
       SELECT *
       FROM themes
-      WHERE theme_id IN (1, 2, 3, 4, 5, 6, 7, 8)
-      ORDER BY theme_name
-    `);
+    `;
+    if (req.query.all !== "true") {
+      query += ` WHERE theme_id IN (1, 2, 3, 4, 5, 6, 7, 8)`;
+    }
+    query += ` ORDER BY theme_name`;
+
+    const result = await pool.query(query);
 
     res.json({
       success: true,

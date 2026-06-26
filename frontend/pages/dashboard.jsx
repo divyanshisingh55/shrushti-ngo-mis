@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   Grid, 
   Card, 
@@ -8,7 +9,20 @@ import {
   Box, 
   CircularProgress,
   Divider,
-  Paper
+  Paper,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip
 } from "@mui/material";
 import {
   ResponsiveContainer,
@@ -32,12 +46,17 @@ import {
   Category as ThemesIcon,
   Business as AgenciesIcon,
   SmartToy as AiIcon,
-  Person as ManualIcon
+  Person as ManualIcon,
+  Fullscreen as FullscreenIcon,
+  FullscreenExit as FullscreenExitIcon,
+  Paid as PaidIcon
 } from "@mui/icons-material";
 
 const COLORS = ["#1abc9c", "#3498db", "#9b59b6", "#e67e22", "#e74c3c", "#2ecc71", "#34495e", "#16a085", "#2980b9", "#8e44ad"];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+
   const [summary, setSummary] = useState({
     totalProjects: 0,
     pendingProjects: 0,
@@ -45,7 +64,8 @@ export default function Dashboard() {
     totalThemes: 0,
     totalAgencies: 0,
     aiClassifiedProjects: 0,
-    manualClassifiedProjects: 0
+    manualClassifiedProjects: 0,
+    totalSanctionedAmount: 0
   });
 
   const [charts, setCharts] = useState({
@@ -60,6 +80,16 @@ export default function Dashboard() {
   });
 
   const [loading, setLoading] = useState(true);
+
+  // Modal / Dialog details
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogType, setDialogType] = useState(""); // 'projects-list', 'agencies', 'themes', 'sanctioned'
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogData, setDialogData] = useState([]);
+  const [dialogLoading, setDialogLoading] = useState(false);
+
+  // Full screen chart state
+  const [fullscreenChart, setFullscreenChart] = useState(null); // 'theme', 'year', 'agency', 'state', 'status', 'funding', 'turnover', 'frequency'
 
   useEffect(() => {
     loadDashboardData();
@@ -78,6 +108,103 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error loading dashboard data:", error);
       setLoading(false);
+    }
+  };
+
+  const formatCurrency = (amount) => {
+    if (!amount) return "Rs. 0";
+    if (amount >= 10000000) {
+      return `Rs. ${(amount / 10000000).toFixed(2)} Cr`;
+    }
+    return `Rs. ${(amount / 100000).toFixed(2)} Lakhs`;
+  };
+
+  const handleKpiClick = async (type) => {
+    if (type === 'projects') {
+      navigate('/projects');
+    } else if (type === 'pending') {
+      navigate('/classify-projects');
+    } else if (type === 'completed') {
+      navigate('/projects');
+    } else if (type === 'agencies') {
+      setDialogType('agencies');
+      setDialogTitle('All Registered Agencies');
+      setDialogLoading(true);
+      setDialogOpen(true);
+      try {
+        const res = await axios.get("http://localhost:5000/agencies");
+        setDialogData(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setDialogLoading(false);
+      }
+    } else if (type === 'themes') {
+      setDialogType('themes');
+      setDialogTitle('All Registered Themes');
+      setDialogLoading(type);
+      setDialogOpen(true);
+      setDialogLoading(true);
+      try {
+        const res = await axios.get("http://localhost:5000/themes?all=true");
+        setDialogData(res.data.data || res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setDialogLoading(false);
+      }
+    } else if (type === 'ai') {
+      setDialogType('projects-list');
+      setDialogTitle('AI Classified Projects');
+      setDialogLoading(true);
+      setDialogOpen(true);
+      try {
+        const res = await axios.get("http://localhost:5000/projects?include_archived=false");
+        const list = res.data.data || res.data;
+        const filtered = list.filter(p => p.classification_status === 'Completed' && p.classification_method === 'AI');
+        setDialogData(filtered);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setDialogLoading(false);
+      }
+    } else if (type === 'manual') {
+      setDialogType('projects-list');
+      setDialogTitle('Manually Classified Projects');
+      setDialogLoading(true);
+      setDialogOpen(true);
+      try {
+        const res = await axios.get("http://localhost:5000/projects?include_archived=false");
+        const list = res.data.data || res.data;
+        const filtered = list.filter(p => p.classification_status === 'Completed' && p.classification_method === 'Manual');
+        setDialogData(filtered);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setDialogLoading(false);
+      }
+    } else if (type === 'sanctioned') {
+      setDialogType('sanctioned');
+      setDialogTitle('Total Sanctioned Amount Details');
+      setDialogOpen(true);
+      setDialogData([
+        { label: 'Total Active Projects Budget', value: formatCurrency(summary.totalSanctionedAmount) },
+        { label: 'Total Active Projects Count', value: summary.totalProjects }
+      ]);
+    }
+  };
+
+  const getFullscreenChartTitle = () => {
+    switch (fullscreenChart) {
+      case 'theme': return 'Projects by Primary Theme';
+      case 'year': return 'Projects by Financial Year';
+      case 'agency': return 'Top 10 Agencies';
+      case 'state': return 'Geographical Distribution (States)';
+      case 'status': return 'Classification Status Distribution';
+      case 'funding': return 'Funding Source Distribution';
+      case 'turnover': return 'Total Turnover Every Year';
+      case 'frequency': return 'Theme Selection Frequencies';
+      default: return '';
     }
   };
 
@@ -111,7 +238,7 @@ export default function Dashboard() {
   const formattedTurnoverData = (charts.turnoverByYear || []).map(d => ({
     year: d.year || "Unknown",
     turnover: d.turnover ? Number(d.turnover) : 0,
-    turnoverInLakhs: d.turnover ? Number(d.turnover) / 100000 : 0 // Rs. 1 Lakh = 100,000
+    turnoverInLakhs: d.turnover ? Number(d.turnover) / 100000 : 0
   }));
 
   const formattedFrequencyData = (charts.themesFrequency || []).map(d => ({
@@ -120,6 +247,134 @@ export default function Dashboard() {
     count: d.count
   }));
 
+  const renderFullscreenChart = () => {
+    if (!fullscreenChart) return null;
+    switch (fullscreenChart) {
+      case 'theme':
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={formattedThemeData} margin={{ top: 20, right: 20, left: 10, bottom: 85 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11 }} interval={0} />
+              <YAxis />
+              <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
+              <Bar dataKey="count" fill="#14b8a6" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+      case 'year':
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={charts.projectsByYear} margin={{ top: 20, right: 35, left: 10, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="year" style={{ fontSize: "12px" }} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="count" name="Projects Count" stroke="#3b82f6" strokeWidth={4} activeDot={{ r: 10 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        );
+      case 'agency':
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={formattedAgencyData} margin={{ top: 20, right: 20, left: 10, bottom: 85 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11 }} interval={0} />
+              <YAxis />
+              <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
+              <Bar dataKey="count" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+      case 'state':
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={charts.projectsByState}
+                dataKey="count"
+                nameKey="state_name"
+                cx="50%"
+                cy="50%"
+                outerRadius={150}
+                fill="#3b82f6"
+                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                style={{ fontSize: "13px", fontWeight: "600" }}
+              >
+                {charts.projectsByState.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        );
+      case 'status':
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={charts.projectsByStatus || []}
+                dataKey="count"
+                nameKey="classification_status"
+                cx="50%"
+                cy="50%"
+                outerRadius={150}
+                fill="#10b981"
+                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                style={{ fontSize: "13px", fontWeight: "600" }}
+              >
+                {(charts.projectsByStatus || []).map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#10b981' : '#f59e0b'} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        );
+      case 'funding':
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={formattedFundingData} margin={{ top: 20, right: 20, left: 10, bottom: 85 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11 }} interval={0} />
+              <YAxis />
+              <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
+              <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+      case 'turnover':
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={formattedTurnoverData} margin={{ top: 20, right: 35, left: 20, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="year" style={{ fontSize: "12px" }} />
+              <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: 0 }} />
+              <Tooltip formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
+              <Legend />
+              <Line type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#e11d48" strokeWidth={4} activeDot={{ r: 10 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        );
+      case 'frequency':
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={formattedFrequencyData} margin={{ top: 20, right: 20, left: 10, bottom: 85 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11 }} interval={0} />
+              <YAxis />
+              <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
+              <Bar dataKey="count" fill="#0284c7" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <Box sx={{ flexGrow: 1, p: 1 }}>
       <Box sx={{ mb: 4 }}>
@@ -127,7 +382,7 @@ export default function Dashboard() {
           Dashboard Analytics
         </Typography>
         <Typography variant="body1" sx={{ color: "#64748b" }}>
-          Operations Overview, Funding Distributions and AI Classification Statistics.
+          Operations Overview, Funding Distributions and AI Classification Statistics. Click on any card for details.
         </Typography>
       </Box>
 
@@ -135,13 +390,22 @@ export default function Dashboard() {
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {/* Total Projects */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card sx={{ 
-            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-            borderRadius: "12px", 
-            borderLeft: "6px solid #3b82f6",
-            position: "relative",
-            overflow: "visible"
-          }}>
+          <Card 
+            onClick={() => handleKpiClick('projects')}
+            sx={{ 
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+              borderRadius: "12px", 
+              borderLeft: "6px solid #3b82f6",
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s",
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+              },
+              position: "relative",
+              overflow: "visible"
+            }}
+          >
             <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
@@ -169,13 +433,22 @@ export default function Dashboard() {
 
         {/* Pending Classification */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card sx={{ 
-            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-            borderRadius: "12px", 
-            borderLeft: "6px solid #f59e0b",
-            position: "relative",
-            overflow: "visible"
-          }}>
+          <Card 
+            onClick={() => handleKpiClick('pending')}
+            sx={{ 
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+              borderRadius: "12px", 
+              borderLeft: "6px solid #f59e0b",
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s",
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+              },
+              position: "relative",
+              overflow: "visible"
+            }}
+          >
             <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
@@ -203,13 +476,22 @@ export default function Dashboard() {
 
         {/* Completed Classification */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card sx={{ 
-            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-            borderRadius: "12px", 
-            borderLeft: "6px solid #10b981",
-            position: "relative",
-            overflow: "visible"
-          }}>
+          <Card 
+            onClick={() => handleKpiClick('completed')}
+            sx={{ 
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+              borderRadius: "12px", 
+              borderLeft: "6px solid #10b981",
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s",
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+              },
+              position: "relative",
+              overflow: "visible"
+            }}
+          >
             <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
@@ -237,13 +519,22 @@ export default function Dashboard() {
 
         {/* Total Themes */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card sx={{ 
-            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-            borderRadius: "12px", 
-            borderLeft: "6px solid #14b8a6",
-            position: "relative",
-            overflow: "visible"
-          }}>
+          <Card 
+            onClick={() => handleKpiClick('themes')}
+            sx={{ 
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+              borderRadius: "12px", 
+              borderLeft: "6px solid #14b8a6",
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s",
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+              },
+              position: "relative",
+              overflow: "visible"
+            }}
+          >
             <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
@@ -271,13 +562,22 @@ export default function Dashboard() {
 
         {/* Total Agencies */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card sx={{ 
-            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-            borderRadius: "12px", 
-            borderLeft: "6px solid #4f46e5",
-            position: "relative",
-            overflow: "visible"
-          }}>
+          <Card 
+            onClick={() => handleKpiClick('agencies')}
+            sx={{ 
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+              borderRadius: "12px", 
+              borderLeft: "6px solid #4f46e5",
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s",
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+              },
+              position: "relative",
+              overflow: "visible"
+            }}
+          >
             <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
@@ -305,13 +605,22 @@ export default function Dashboard() {
 
         {/* AI Classified Projects */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card sx={{ 
-            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-            borderRadius: "12px", 
-            borderLeft: "6px solid #8b5cf6",
-            position: "relative",
-            overflow: "visible"
-          }}>
+          <Card 
+            onClick={() => handleKpiClick('ai')}
+            sx={{ 
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+              borderRadius: "12px", 
+              borderLeft: "6px solid #8b5cf6",
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s",
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+              },
+              position: "relative",
+              overflow: "visible"
+            }}
+          >
             <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
@@ -339,13 +648,22 @@ export default function Dashboard() {
 
         {/* Manual Classified Projects */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card sx={{ 
-            boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
-            borderRadius: "12px", 
-            borderLeft: "6px solid #6366f1",
-            position: "relative",
-            overflow: "visible"
-          }}>
+          <Card 
+            onClick={() => handleKpiClick('manual')}
+            sx={{ 
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+              borderRadius: "12px", 
+              borderLeft: "6px solid #6366f1",
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s",
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+              },
+              position: "relative",
+              overflow: "visible"
+            }}
+          >
             <CardContent sx={{ p: 2 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
@@ -370,6 +688,49 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </Grid>
+
+        {/* Total Budget / Sanctioned Amount */}
+        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+          <Card 
+            onClick={() => handleKpiClick('sanctioned')}
+            sx={{ 
+              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", 
+              borderRadius: "12px", 
+              borderLeft: "6px solid #059669",
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s",
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+              },
+              position: "relative",
+              overflow: "visible"
+            }}
+          >
+            <CardContent sx={{ p: 2 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                    Total Budget
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "19px" }}>
+                    {formatCurrency(summary.totalSanctionedAmount)}
+                  </Typography>
+                </Box>
+                <Box sx={{ 
+                  backgroundColor: "#d1fae5", 
+                  color: "#059669", 
+                  p: 1, 
+                  borderRadius: "10px",
+                  display: "flex",
+                  alignItems: "center"
+                }}>
+                  <PaidIcon fontSize="small" />
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
 
       {/* Recharts Sections Grid */}
@@ -377,9 +738,14 @@ export default function Dashboard() {
         {/* Projects By Primary Theme */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
-              Projects by Primary Theme
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+                Projects by Primary Theme
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('theme')}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ width: "100%", height: 320 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -401,9 +767,14 @@ export default function Dashboard() {
         {/* Projects By Financial Year */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
-              Projects by Financial Year
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+                Projects by Financial Year
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('year')}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ width: "100%", height: 320 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -426,9 +797,14 @@ export default function Dashboard() {
         {/* Projects By Top Agencies */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
-              Top 10 Agencies
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+                Top 10 Agencies
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('agency')}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ width: "100%", height: 320 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -450,9 +826,14 @@ export default function Dashboard() {
         {/* Projects By State */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
-              Geographical Distribution (States)
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+                Geographical Distribution (States)
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('state')}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ width: "100%", height: 320, display: "flex", justifyContent: "center", alignItems: "center" }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -482,9 +863,14 @@ export default function Dashboard() {
         {/* Projects by Classification Status (Pie Chart) */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
-              Classification Status Distribution
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+                Classification Status Distribution
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('status')}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ width: "100%", height: 320, display: "flex", justifyContent: "center", alignItems: "center" }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -514,9 +900,14 @@ export default function Dashboard() {
         {/* Funding Source Distribution (Bar Chart) */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
-              Funding Source Distribution
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+                Funding Source Distribution
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('funding')}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ width: "100%", height: 320 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -538,9 +929,14 @@ export default function Dashboard() {
         {/* Total Turnover Every Year (Line Chart) */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
-              Total Turnover Every Year
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+                Total Turnover Every Year
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('turnover')}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ width: "100%", height: 320 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -563,9 +959,14 @@ export default function Dashboard() {
         {/* Themes Frequencies (Bar Chart) */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
-              Theme Selection Frequencies
-            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+                Theme Selection Frequencies
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('frequency')}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ width: "100%", height: 320 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -584,6 +985,168 @@ export default function Dashboard() {
           </Paper>
         </Grid>
       </Grid>
+
+      {/* KPI Details Modal Dialog */}
+      <Dialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: "12px", p: 1 }
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: "bold", color: "#1e293b", borderBottom: "1px solid #e2e8f0", pb: 2 }}>
+          {dialogTitle}
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2, maxHeight: "60vh" }}>
+          {dialogLoading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              {dialogType === 'agencies' && (
+                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "8px" }}>
+                  <Table size="small">
+                    <TableHead sx={{ backgroundColor: "#f8fafc" }}>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Agency Name</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {dialogData.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={2} align="center">No agencies registered</TableCell>
+                        </TableRow>
+                      ) : (
+                        dialogData.map((row) => (
+                          <TableRow key={row.agency_id} hover>
+                            <TableCell>{row.agency_id}</TableCell>
+                            <TableCell sx={{ fontWeight: "600" }}>{row.agency_name}</TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+
+              {dialogType === 'themes' && (
+                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "8px" }}>
+                  <Table size="small">
+                    <TableHead sx={{ backgroundColor: "#f8fafc" }}>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Theme Name</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {dialogData.map((row) => (
+                        <TableRow key={row.theme_id} hover>
+                          <TableCell>{row.theme_id}</TableCell>
+                          <TableCell sx={{ fontWeight: "600" }}>{row.theme_name}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+
+              {dialogType === 'projects-list' && (
+                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "8px" }}>
+                  <Table size="small">
+                    <TableHead sx={{ backgroundColor: "#f8fafc" }}>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Project Name</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Financial Year</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Sanctioned Amount</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {dialogData.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={4} align="center">No projects found</TableCell>
+                        </TableRow>
+                      ) : (
+                        dialogData.map((row) => (
+                          <TableRow key={row.project_id} hover>
+                            <TableCell>{row.project_id}</TableCell>
+                            <TableCell sx={{ fontWeight: "600" }}>
+                              <Link to={`/project/${row.project_id}`} style={{ textDecoration: "none", color: "#2563eb" }}>
+                                {row.project_name}
+                              </Link>
+                            </TableCell>
+                            <TableCell>{row.year}</TableCell>
+                            <TableCell>{row.sanctioned_amount ? `Rs. ${Number(row.sanctioned_amount).toLocaleString("en-IN")}` : "-"}</TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+
+              {dialogType === 'sanctioned' && (
+                <Box sx={{ p: 2 }}>
+                  <Grid container spacing={3}>
+                    <Grid size={12}>
+                      <Paper sx={{ p: 3, textAlign: "center", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0" }}>
+                        <Typography variant="subtitle1" sx={{ color: "#166534", fontWeight: "bold" }}>
+                          Total Budget Allocation
+                        </Typography>
+                        <Typography variant="h4" sx={{ color: "#15803d", fontWeight: "800", mt: 1 }}>
+                          {formatCurrency(summary.totalSanctionedAmount)}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                    <Grid size={12}>
+                      <Typography variant="body1" sx={{ color: "#475569" }}>
+                        This KPI card represents the sum of the total sanctioned amounts for all active projects (excluding archived projects) within the MIS database.
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Box>
+              )}
+            </>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2, borderTop: "1px solid #e2e8f0" }}>
+          <Button onClick={() => setDialogOpen(false)} variant="outlined">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Fullscreen Chart Dialog */}
+      <Dialog
+        fullWidth
+        maxWidth="lg"
+        open={!!fullscreenChart}
+        onClose={() => setFullscreenChart(null)}
+        PaperProps={{
+          sx: { borderRadius: "16px", p: 1 }
+        }}
+      >
+        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontWeight: "bold", borderBottom: "1px solid #e2e8f0", pb: 2 }}>
+          <Typography variant="h5" sx={{ fontWeight: "bold", color: "#0f172a" }}>
+            {getFullscreenChartTitle()}
+          </Typography>
+          <IconButton onClick={() => setFullscreenChart(null)}>
+            <FullscreenExitIcon fontSize="large" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ height: "70vh", minHeight: "500px", mt: 3, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          {renderFullscreenChart()}
+        </DialogContent>
+        <DialogActions sx={{ p: 2, borderTop: "1px solid #e2e8f0" }}>
+          <Button onClick={() => setFullscreenChart(null)} variant="outlined">
+            Close Fullscreen
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

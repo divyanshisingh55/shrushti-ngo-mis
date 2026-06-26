@@ -31,13 +31,17 @@ router.get("/summary", async (req, res) => {
     const aiClassified = await pool.query(`
       SELECT COUNT(*)
       FROM projects
-      WHERE classification_status = 'Completed' AND classification_method = 'AI'
+      WHERE classification_status = 'Completed' AND classification_method = 'AI' AND is_archived = false
     `);
 
     const manualClassified = await pool.query(`
       SELECT COUNT(*)
       FROM projects
-      WHERE classification_status = 'Completed' AND classification_method = 'Manual'
+      WHERE classification_status = 'Completed' AND classification_method = 'Manual' AND is_archived = false
+    `);
+
+    const totalSanctioned = await pool.query(`
+      SELECT SUM(sanctioned_amount) FROM projects WHERE is_archived = false
     `);
 
     res.json({
@@ -47,7 +51,8 @@ router.get("/summary", async (req, res) => {
       totalThemes: Number(totalThemes.rows[0].count),
       totalAgencies: Number(totalAgencies.rows[0].count),
       aiClassifiedProjects: Number(aiClassified.rows[0].count),
-      manualClassifiedProjects: Number(manualClassified.rows[0].count)
+      manualClassifiedProjects: Number(manualClassified.rows[0].count),
+      totalSanctionedAmount: Number(totalSanctioned.rows[0].sum || 0)
     });
 
   } catch (error) {
