@@ -555,19 +555,7 @@ export default function Projects() {
               </FormControl>
             </Grid>
 
-            {/* Financial and Date Filters */}
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <TextField fullWidth label="Min Sanction Amount" type="number" size="small" value={minAmount} onChange={(e) => setMinAmount(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <TextField fullWidth label="Max Sanction Amount" type="number" size="small" value={maxAmount} onChange={(e) => setMaxAmount(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <TextField fullWidth label="Approved After" type="date" slotProps={{ inputLabel: { shrink: true } }} size="small" value={approvalDateStart} onChange={(e) => setApprovalDateStart(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <TextField fullWidth label="Approved Before" type="date" slotProps={{ inputLabel: { shrink: true } }} size="small" value={approvalDateEnd} onChange={(e) => setApprovalDateEnd(e.target.value)} />
-            </Grid>
+
 
             {/* Beneficiary Category and Status */}
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -658,7 +646,7 @@ export default function Projects() {
           sx={{
             borderRadius: "12px",
             boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
-            overflowX: "hidden",
+            overflowX: "auto",
             width: "100%",
             opacity: loading ? 0.6 : 1,
             transition: "opacity 0.2s ease-in-out"
@@ -667,12 +655,12 @@ export default function Projects() {
           <Table
             sx={{
               tableLayout: "fixed",
-              width: "100%"
+              minWidth: "2200px"
             }}
           >
             <TableHead sx={{ backgroundColor: "#f8fafc" }}>
               <TableRow>
-                <TableCell padding="checkbox">
+                <TableCell padding="checkbox" sx={{ width: "50px" }}>
                   <Checkbox
                     indeterminate={
                       selectedIds.length > 0 &&
@@ -686,34 +674,54 @@ export default function Projects() {
                   />
                 </TableCell>
 
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>
-                  ID
-                </TableCell>
-
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>
-                  Project Name
-                </TableCell>
-
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>
+                <TableCell sx={{ fontWeight: "bold", color: "#475569", width: "100px" }}>
                   Year
                 </TableCell>
 
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>
-                  Agency
+                <TableCell sx={{ fontWeight: "bold", color: "#475569", width: "90px" }}>
+                  Doc. #
                 </TableCell>
 
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>
+                <TableCell sx={{ fontWeight: "bold", color: "#475569", width: "220px" }}>
+                  Name of Agency
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569", width: "350px" }}>
+                  Name of Project
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569", width: "130px" }}>
+                  Date of Approval
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569", width: "180px" }}>
+                  Sanctioned Amount (Rs.)
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569", width: "110px" }}>
+                  Sourse
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569", width: "110px" }}>
+                  Sourse2
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569", width: "120px" }}>
+                  Status
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold", color: "#475569", width: "110px" }}>
                   State
                 </TableCell>
 
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>
-                  Classification Status
+                <TableCell sx={{ fontWeight: "bold", color: "#475569", width: "350px" }}>
+                  Themes
                 </TableCell>
 
                 <TableCell
                   sx={{
-                    width: "220px",
-                    minWidth: "220px",
+                    width: "250px",
+                    minWidth: "250px",
                     fontWeight: "bold",
                     color: "#475569",
                     textAlign: "center"
@@ -721,13 +729,12 @@ export default function Projects() {
                 >
                   Actions
                 </TableCell>
-
               </TableRow>
             </TableHead>
             <TableBody>
               {projects.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} sx={{ textAlign: "center", py: 4, color: "#94a3b8" }}>
+                  <TableCell colSpan={13} sx={{ textAlign: "center", py: 4, color: "#94a3b8" }}>
                     No projects found matching the criteria.
                   </TableCell>
                 </TableRow>
@@ -739,10 +746,22 @@ export default function Projects() {
                       <TableCell padding="checkbox">
                         <Checkbox checked={isChecked} onChange={(e) => handleSelectRow(e, project.project_id)} />
                       </TableCell>
-                      <TableCell>{project.project_id}</TableCell>
+                      <TableCell>{project.year || "-"}</TableCell>
+                      <TableCell>{project.doc_no || "-"}</TableCell>
                       <TableCell
                         sx={{
-                          maxWidth: "250px",
+                          maxWidth: "220px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap"
+                        }}
+                        title={project.agency_name}
+                      >
+                        {project.agency_name || "-"}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          maxWidth: "350px",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
@@ -752,21 +771,42 @@ export default function Projects() {
                       >
                         {project.project_name}
                       </TableCell>
-                      <TableCell>{project.year || "-"}</TableCell>
-                      <TableCell>{project.agency_name || "-"}</TableCell>
-                      <TableCell>{project.state_name || "-"}</TableCell>
                       <TableCell>
-                        <Chip
-                          label={project.classification_status}
-                          color={project.classification_status === "Completed" ? "success" : "warning"}
-                          size="small"
-                          sx={{ fontWeight: "bold", px: 0.5 }}
-                        />
+                        {project.approval_date ? new Date(project.approval_date).toLocaleDateString("en-GB") : "-"}
+                      </TableCell>
+                      <TableCell>
+                        {project.sanctioned_amount !== null && project.sanctioned_amount !== undefined 
+                          ? Number(project.sanctioned_amount).toLocaleString("en-IN") 
+                          : "-"}
+                      </TableCell>
+                      <TableCell>{project.funding_source || "-"}</TableCell>
+                      <TableCell>{project.funding_source2 || "-"}</TableCell>
+                      <TableCell>
+                        {project.implementation_status ? (
+                          <Chip
+                            label={project.implementation_status}
+                            color={project.implementation_status === "Completed" ? "success" : "primary"}
+                            size="small"
+                            variant="outlined"
+                          />
+                        ) : "-"}
+                      </TableCell>
+                      <TableCell>{project.state_name || "-"}</TableCell>
+                      <TableCell
+                        sx={{
+                          maxWidth: "350px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap"
+                        }}
+                        title={project.theme1}
+                      >
+                        {project.theme1 || "-"}
                       </TableCell>
                       <TableCell
                         sx={{
-                          width: "220px",
-                          minWidth: "220px"
+                          width: "250px",
+                          minWidth: "250px"
                         }}
                       >
                         <Stack

@@ -56,6 +56,24 @@ async function getOrCreateState(state) {
   return insertRes.rows[0].state_id;
 }
 
+// Helper function to resolve or create theme
+async function getOrCreateTheme(theme) {
+  if (!theme) return null;
+  if (!isNaN(theme) && Number.isInteger(Number(theme))) {
+    return Number(theme);
+  }
+  const name = String(theme).trim();
+  const res = await pool.query("SELECT theme_id FROM themes WHERE theme_name = $1", [name]);
+  if (res.rows.length > 0) {
+    return res.rows[0].theme_id;
+  }
+  const insertRes = await pool.query(
+    "INSERT INTO themes (theme_name, is_active) VALUES ($1, true) RETURNING theme_id",
+    [name]
+  );
+  return insertRes.rows[0].theme_id;
+}
+
 /*
 =========================================
 GET ALL PROJECTS WITH FILTERS & METADATA
@@ -102,12 +120,24 @@ router.get("/", async (req, res) => {
         p.classification_method,
         p.is_archived,
         a.agency_name,
-        s.state_name,
-        ps.status_name as implementation_status
+        COALESCE(
+          (SELECT STRING_AGG(st.state_name, ', ') FROM project_states p_s JOIN states st ON p_s.state_id = st.state_id WHERE p_s.project_id = p.project_id),
+          s.state_name
+        ) as state_name,
+        ps.status_name as implementation_status,
+        fs1.source_name as funding_source,
+        fs2.source_name as funding_source2,
+        (
+          SELECT STRING_AGG(t.theme_name, ', ') FROM project_themes pt JOIN themes t ON pt.theme_id = t.theme_id WHERE pt.project_id = p.project_id
+        ) as theme1,
+        t2.theme_name as theme2
       FROM projects p
       LEFT JOIN agencies a ON p.agency_id = a.agency_id
       LEFT JOIN states s ON p.state_id = s.state_id
       LEFT JOIN project_status ps ON p.status_id = ps.status_id
+      LEFT JOIN funding_sources fs1 ON p.funding_source_id = fs1.funding_source_id
+      LEFT JOIN funding_sources fs2 ON p.funding_source2_id = fs2.funding_source_id
+      LEFT JOIN themes t2 ON p.theme2_id = t2.theme_id
       WHERE 1 = 1
     `;
 
@@ -152,7 +182,10 @@ router.get("/", async (req, res) => {
     }
 
     if (state_id) {
-      query += ` AND p.state_id = $${paramCount}`;
+      query += ` AND (p.state_id = $${paramCount} OR EXISTS (
+        SELECT 1 FROM project_states ps
+        WHERE ps.project_id = p.project_id AND ps.state_id = $${paramCount}
+      ))`;
       values.push(Number(state_id));
       paramCount++;
     }
@@ -193,11 +226,11 @@ router.get("/", async (req, res) => {
       paramCount++;
     }
 
-    // 5. Theme filter (Primary)
+    // 5. Theme filter (Any matching theme selection)
     if (theme_id) {
       query += ` AND EXISTS (
         SELECT 1 FROM project_themes pt 
-        WHERE pt.project_id = p.project_id AND pt.primary_flag = true AND pt.theme_id = $${paramCount}
+        WHERE pt.project_id = p.project_id AND pt.theme_id = $${paramCount}
       )`;
       values.push(Number(theme_id));
       paramCount++;
@@ -327,10 +360,13 @@ router.post("/", async (req, res) => {
     agency,
     year,
     funding_source,
+    funding_source2,
     approval_date,
     sanctioned_amount,
     status_id,
     state,
+    theme1,
+    theme2,
     remarks
   } = req.body;
 
@@ -341,27 +377,51 @@ router.post("/", async (req, res) => {
   try {
     const agencyId = await getOrCreateAgency(agency);
     const fundingSourceId = await getOrCreateFunding(funding_source);
-    const stateId = await getOrCreateState(state);
+    const fundingSource2Id = await getOrCreateFunding(funding_source2);
+    
+    // Resolve multiple states
+    const statesArray = Array.isArray(state) ? state : (state ? [state] : []);
+    const stateIds = [];
+    for (const st of statesArray) {
+      const stId = await getOrCreateState(st);
+      if (stId) stateIds.push(stId);
+    }
+    const primaryStateId = stateIds.length > 0 ? stateIds[0] : null;
+
+    const theme1Id = await getOrCreateTheme(theme1);
+    const theme2Id = await getOrCreateTheme(theme2);
 
     const result = await pool.query(
       `INSERT INTO projects (
-        project_name, agency_id, year, funding_source_id, approval_date,
-        sanctioned_amount, status_id, state_id, remarks, classification_status
+        project_name, agency_id, year, funding_source_id, funding_source2_id, 
+        theme1_id, theme2_id, approval_date, sanctioned_amount, status_id, 
+        state_id, remarks, classification_status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'Pending')
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'Pending')
       RETURNING *`,
       [
         project_name,
         agencyId,
         year || null,
         fundingSourceId,
+        fundingSource2Id,
+        theme1Id,
+        theme2Id,
         approval_date ? approval_date : null,
         sanctioned_amount ? Number(sanctioned_amount) : null,
         status_id ? Number(status_id) : null,
-        stateId,
+        primaryStateId,
         remarks || null
       ]
     );
+
+    const newProjectId = result.rows[0].project_id;
+    for (const stId of stateIds) {
+      await pool.query(
+        "INSERT INTO project_states (project_id, state_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+        [newProjectId, stId]
+      );
+    }
 
     res.status(201).json({
       success: true,
@@ -386,10 +446,13 @@ router.put("/:id", async (req, res) => {
     agency,
     year,
     funding_source,
+    funding_source2,
     approval_date,
     sanctioned_amount,
     status_id,
     state,
+    theme1,
+    theme2,
     remarks
   } = req.body;
 
@@ -400,24 +463,40 @@ router.put("/:id", async (req, res) => {
   try {
     const agencyId = await getOrCreateAgency(agency);
     const fundingSourceId = await getOrCreateFunding(funding_source);
-    const stateId = await getOrCreateState(state);
+    const fundingSource2Id = await getOrCreateFunding(funding_source2);
+    
+    // Resolve multiple states
+    const statesArray = Array.isArray(state) ? state : (state ? [state] : []);
+    const stateIds = [];
+    for (const st of statesArray) {
+      const stId = await getOrCreateState(st);
+      if (stId) stateIds.push(stId);
+    }
+    const primaryStateId = stateIds.length > 0 ? stateIds[0] : null;
+
+    const theme1Id = await getOrCreateTheme(theme1);
+    const theme2Id = await getOrCreateTheme(theme2);
 
     const result = await pool.query(
       `UPDATE projects 
        SET project_name = $1, agency_id = $2, year = $3, funding_source_id = $4,
-           approval_date = $5, sanctioned_amount = $6, status_id = $7, state_id = $8,
-           remarks = $9, updated_at = NOW()
-       WHERE project_id = $10
+           funding_source2_id = $5, theme1_id = $6, theme2_id = $7, approval_date = $8, 
+           sanctioned_amount = $9, status_id = $10, state_id = $11, remarks = $12, 
+           updated_at = NOW()
+       WHERE project_id = $13
        RETURNING *`,
       [
         project_name,
         agencyId,
         year || null,
         fundingSourceId,
+        fundingSource2Id,
+        theme1Id,
+        theme2Id,
         approval_date ? approval_date : null,
         sanctioned_amount ? Number(sanctioned_amount) : null,
         status_id ? Number(status_id) : null,
-        stateId,
+        primaryStateId,
         remarks || null,
         id
       ]
@@ -425,6 +504,15 @@ router.put("/:id", async (req, res) => {
 
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, message: "Project not found" });
+    }
+
+    // Update project_states table
+    await pool.query("DELETE FROM project_states WHERE project_id = $1", [id]);
+    for (const stId of stateIds) {
+      await pool.query(
+        "INSERT INTO project_states (project_id, state_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+        [id, stId]
+      );
     }
 
     res.json({

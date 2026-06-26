@@ -41,8 +41,7 @@ export default function AddProject() {
   const [customAgency, setCustomAgency] = useState("");
   const [fundingSelect, setFundingSelect] = useState("");
   const [customFunding, setCustomFunding] = useState("");
-  const [stateSelect, setStateSelect] = useState("");
-  const [customState, setCustomState] = useState("");
+  const [selectedStates, setSelectedStates] = useState([{ state_id: "", custom_name: "" }]);
 
   // Database lists
   const [agencies, setAgencies] = useState([]);
@@ -57,6 +56,20 @@ export default function AddProject() {
     fetchMetadata();
   }, []);
 
+  const handleStateChange = (index, field, value) => {
+    const updated = [...selectedStates];
+    updated[index][field] = value;
+    setSelectedStates(updated);
+  };
+
+  const handleAddStateRow = () => {
+    setSelectedStates([...selectedStates, { state_id: "", custom_name: "" }]);
+  };
+
+  const handleRemoveStateRow = (index) => {
+    setSelectedStates(selectedStates.filter((_, idx) => idx !== index));
+  };
+
   const fetchMetadata = async () => {
     try {
       const [agenciesRes, fundingRes, statesRes, statusesRes] = await Promise.all([
@@ -69,7 +82,7 @@ export default function AddProject() {
       setAgencies(agenciesRes.data);
       setFundingSources(fundingRes.data);
       setStates(statesRes.data);
-      setStatuses(statusesRes.data);
+      setStatuses(statusesRes.data.filter(s => s.status_name === 'Pending' || s.status_name === 'Ongoing'));
       setLoading(false);
     } catch (err) {
       console.error("Error loading dropdown data:", err);
@@ -99,7 +112,16 @@ export default function AddProject() {
     }
 
     const fundingVal = fundingSelect === "custom" ? customFunding : fundingSelect;
-    const stateVal = stateSelect === "custom" ? customState : stateSelect;
+    
+    // Resolve states array
+    const resolvedStates = selectedStates.map(stObj => {
+      return stObj.state_id === "custom" ? stObj.custom_name : stObj.state_id;
+    }).filter(Boolean);
+
+    if (resolvedStates.length === 0) {
+      setError("At least one State is required.");
+      return;
+    }
 
     try {
       await axios.post("http://localhost:5000/projects", {
@@ -110,7 +132,7 @@ export default function AddProject() {
         approval_date: approvalDate || null,
         sanctioned_amount: sanctionedAmount || null,
         status_id: statusId || null,
-        state: stateVal,
+        state: resolvedStates,
         remarks: remarks
       });
 
@@ -239,36 +261,67 @@ export default function AddProject() {
               )}
             </Grid>
 
-            {/* State (Normal Width) */}
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth>
-                <InputLabel>State</InputLabel>
-                <Select
-                  value={stateSelect}
-                  label="State"
-                  onChange={(e) => setStateSelect(e.target.value)}
-                >
-                  <MenuItem value="">Select State</MenuItem>
-                  {states.map((s) => (
-                    <MenuItem key={s.state_id} value={s.state_id}>{s.state_name}</MenuItem>
-                  ))}
-                  <MenuItem value="custom" sx={{ fontStyle: "italic", color: "#2563eb", fontWeight: "bold" }}>
-                    + Add New State
-                  </MenuItem>
-                </Select>
-              </FormControl>
-              {stateSelect === "custom" && (
-                <TextField
-                  fullWidth
-                  label="Enter New State Name"
-                  required
-                  variant="outlined"
-                  size="small"
-                  sx={{ mt: 2 }}
-                  value={customState}
-                  onChange={(e) => setCustomState(e.target.value)}
-                />
-              )}
+            {/* State (Multiple Selection) */}
+            <Grid size={12}>
+              <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
+                Select States *
+              </Typography>
+              {selectedStates.map((stObj, index) => (
+                <Grid container spacing={2} key={index} sx={{ mb: 2, alignItems: "center" }}>
+                  <Grid size={{ xs: 12, sm: 5 }}>
+                    <FormControl fullWidth required>
+                      <InputLabel>State</InputLabel>
+                      <Select
+                        value={stObj.state_id}
+                        label="State"
+                        onChange={(e) => handleStateChange(index, "state_id", e.target.value)}
+                      >
+                        <MenuItem value="">Select State</MenuItem>
+                        {states.map((s) => (
+                          <MenuItem key={s.state_id} value={s.state_id}>{s.state_name}</MenuItem>
+                        ))}
+                        <MenuItem value="custom" sx={{ fontStyle: "italic", color: "#2563eb", fontWeight: "bold" }}>
+                          + Add New State
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 5 }}>
+                    {stObj.state_id === "custom" && (
+                      <TextField
+                        fullWidth
+                        label="Enter New State Name"
+                        required
+                        variant="outlined"
+                        size="small"
+                        value={stObj.custom_name}
+                        onChange={(e) => handleStateChange(index, "custom_name", e.target.value)}
+                      />
+                    )}
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 2 }}>
+                    {selectedStates.length > 1 && (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() => handleRemoveStateRow(index)}
+                        sx={{ textTransform: "none", fontWeight: "bold" }}
+                      >
+                        Remove
+                      </Button>
+                    )}
+                  </Grid>
+                </Grid>
+              ))}
+              <Button
+                variant="outlined"
+                color="primary"
+                size="small"
+                onClick={handleAddStateRow}
+                sx={{ textTransform: "none", fontWeight: "bold", mt: 1 }}
+              >
+                + Add Another State
+              </Button>
             </Grid>
 
             {/* Date of Approval (Normal Width with proper DatePicker component) */}

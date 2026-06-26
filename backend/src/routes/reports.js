@@ -28,8 +28,16 @@ function buildQuery(req) {
       p.sanctioned_amount,
       fs.source_name as funding_source,
       ps.status_name as project_status,
-      s.state_name as state,
-      t.theme_name as primary_theme,
+      COALESCE(
+        (SELECT STRING_AGG(st.state_name, ', ') FROM project_states p_s JOIN states st ON p_s.state_id = st.state_id WHERE p_s.project_id = p.project_id),
+        s.state_name
+      ) as state,
+      (
+        SELECT STRING_AGG(th.theme_name, ', ')
+        FROM project_themes pt_t
+        JOIN themes th ON pt_t.theme_id = th.theme_id
+        WHERE pt_t.project_id = p.project_id
+      ) as primary_theme,
       (
         SELECT STRING_AGG(st.sub_theme_name, ', ') 
         FROM project_sub_themes pst 
@@ -55,8 +63,6 @@ function buildQuery(req) {
     LEFT JOIN funding_sources fs ON p.funding_source_id = fs.funding_source_id
     LEFT JOIN project_status ps ON p.status_id = ps.status_id
     LEFT JOIN states s ON p.state_id = s.state_id
-    LEFT JOIN project_themes pt ON p.project_id = pt.project_id AND pt.primary_flag = true
-    LEFT JOIN themes t ON pt.theme_id = t.theme_id
     WHERE 1 = 1
   `;
 
@@ -75,7 +81,10 @@ function buildQuery(req) {
     paramCount++;
   }
   if (theme_id) {
-    query += ` AND pt.theme_id = $${paramCount}`;
+    query += ` AND EXISTS (
+      SELECT 1 FROM project_themes pt_filter
+      WHERE pt_filter.project_id = p.project_id AND pt_filter.theme_id = $${paramCount}
+    )`;
     values.push(Number(theme_id));
     paramCount++;
   }
@@ -90,7 +99,10 @@ function buildQuery(req) {
     paramCount++;
   }
   if (state_id) {
-    query += ` AND p.state_id = $${paramCount}`;
+    query += ` AND (p.state_id = $${paramCount} OR EXISTS (
+      SELECT 1 FROM project_states p_st 
+      WHERE p_st.project_id = p.project_id AND p_st.state_id = $${paramCount}
+    ))`;
     values.push(Number(state_id));
     paramCount++;
   }

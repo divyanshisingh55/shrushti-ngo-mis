@@ -73,6 +73,10 @@ export default function ProjectDetails() {
   const [states, setStates] = useState([]);
   const [statuses, setStatuses] = useState([]);
 
+  const SUBTHEME1_NAMES = ["Education", "Health", "Livelihood", "Skill Development", "Capacity Building", "Water", "Awareness", "Climate Resilience", "Research", "Monitoring", "Agriculture"];
+  const SUBTHEME2_NAMES = ["Primary Education", "Preprimary Education", "Secondary Education", "Maternal Health", "Eye Health", "Nutrition", "Disabilities", "Construction", "Behavior Change", "Evaluation Study", "Youth Development", "Water", "Community Mobilization"];
+  const SUBTHEME3_NAMES = ["Reproductive Health", "Entrepreneurship", "Advocacy", "Natural Resource Management", "Impact Assessment", "Data Collection", "Water Management", "Check Dem construction", "ECCE", "Counselling", "WASH", "Social Securities", "Social Campaign"];
+
   // Form States (for editing core details)
   const [editName, setEditName] = useState("");
   const [editYear, setEditYear] = useState("");
@@ -84,18 +88,64 @@ export default function ProjectDetails() {
   const [customAgency, setCustomAgency] = useState("");
   const [fundingSelect, setFundingSelect] = useState("");
   const [customFunding, setCustomFunding] = useState("");
-  const [stateSelect, setStateSelect] = useState("");
-  const [customState, setCustomState] = useState("");
+  const [selectedStates, setSelectedStates] = useState([{ state_id: "", custom_name: "" }]);
 
   // Classification States
-  const [selectedTheme, setSelectedTheme] = useState("");
-  const [selectedSubThemes, setSelectedSubThemes] = useState([]);
+  const [selectedThemes, setSelectedThemes] = useState([{ themeId: "", subThemeIds: [] }]);
   const [selectedTargetGroups, setSelectedTargetGroups] = useState([]);
   const [selectedActivityTypes, setSelectedActivityTypes] = useState([]);
+  const [selectedSdgs, setSelectedSdgs] = useState([]);
+  const [projectSummary, setProjectSummary] = useState("");
+
+  // Beneficiary and Age Groups
+  const [beneficiaryGroups, setBeneficiaryGroups] = useState([]);
+  const [beneficiaryCat1, setBeneficiaryCat1] = useState([]);
+  const [beneficiaryCat2, setBeneficiaryCat2] = useState([]);
+  const [beneficiaryCat3, setBeneficiaryCat3] = useState([]);
+  const [beneficiaryCat4, setBeneficiaryCat4] = useState([]);
+  const [ageGroups, setAgeGroups] = useState([]);
+
+  // SDGs
+  const [sdgs, setSdgs] = useState([]);
 
   useEffect(() => {
     loadData();
   }, [id]);
+
+  const handleStateChange = (index, field, value) => {
+    const updated = [...selectedStates];
+    updated[index][field] = value;
+    setSelectedStates(updated);
+  };
+
+  const handleAddStateRow = () => {
+    setSelectedStates([...selectedStates, { state_id: "", custom_name: "" }]);
+  };
+
+  const handleRemoveStateRow = (index) => {
+    setSelectedStates(selectedStates.filter((_, idx) => idx !== index));
+  };
+
+  const handleThemeChange = (index, themeId) => {
+    const updated = [...selectedThemes];
+    updated[index].themeId = themeId;
+    updated[index].subThemeIds = []; // reset subthemes
+    setSelectedThemes(updated);
+  };
+
+  const handleSubThemeChange = (index, subThemeIds) => {
+    const updated = [...selectedThemes];
+    updated[index].subThemeIds = subThemeIds;
+    setSelectedThemes(updated);
+  };
+
+  const handleAddThemeRow = () => {
+    setSelectedThemes([...selectedThemes, { themeId: "", subThemeIds: [] }]);
+  };
+
+  const handleRemoveThemeRow = (index) => {
+    setSelectedThemes(selectedThemes.filter((_, idx) => idx !== index));
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -115,18 +165,38 @@ export default function ProjectDetails() {
       
       setAgencySelect(proj.agency_id || "");
       setFundingSelect(proj.funding_source_id || "");
-      setStateSelect(proj.state_id || "");
+      
+      if (proj.state_ids && proj.state_ids.length > 0) {
+        setSelectedStates(proj.state_ids.map(sid => ({ state_id: sid, custom_name: "" })));
+      } else {
+        setSelectedStates([{ state_id: proj.state_id || "", custom_name: "" }]);
+      }
 
       // Pre-populate classification dropdowns
       if (proj.classification) {
-        setSelectedTheme(proj.classification.theme_id || "");
-        setSelectedSubThemes(proj.classification.sub_theme_ids || []);
         setSelectedTargetGroups(proj.classification.target_group_ids || []);
         setSelectedActivityTypes(proj.classification.activity_type_ids || []);
+        setSelectedSdgs(proj.classification.sdg_ids || []);
+
+        if (proj.classification.themes && proj.classification.themes.length > 0) {
+          setSelectedThemes(proj.classification.themes);
+        } else if (proj.classification.theme_id) {
+          setSelectedThemes([{ themeId: proj.classification.theme_id, subThemeIds: proj.classification.sub_theme_ids || [] }]);
+        } else {
+          setSelectedThemes([{ themeId: "", subThemeIds: [] }]);
+        }
       }
 
+      setProjectSummary(proj.project_summary || "");
+      setBeneficiaryGroups(proj.beneficiary_groups ? proj.beneficiary_groups.split(',') : []);
+      setBeneficiaryCat1(proj.beneficiary_cat1 ? proj.beneficiary_cat1.split(',') : []);
+      setBeneficiaryCat2(proj.beneficiary_cat2 ? proj.beneficiary_cat2.split(',') : []);
+      setBeneficiaryCat3(proj.beneficiary_cat3 ? proj.beneficiary_cat3.split(',') : []);
+      setBeneficiaryCat4(proj.beneficiary_cat4 ? proj.beneficiary_cat4.split(',') : []);
+      setAgeGroups(proj.age_groups ? proj.age_groups.split(',') : []);
+
       // 2. Fetch all metadata dropdowns
-      const [themesRes, subThemesRes, targetGroupsRes, activityTypesRes, agenciesRes, fundingRes, statesRes, statusesRes] = await Promise.all([
+      const [themesRes, subThemesRes, targetGroupsRes, activityTypesRes, agenciesRes, fundingRes, statesRes, statusesRes, sdgsRes] = await Promise.all([
         axios.get("http://localhost:5000/themes"),
         axios.get("http://localhost:5000/subthemes"),
         axios.get("http://localhost:5000/targetgroups"),
@@ -134,7 +204,8 @@ export default function ProjectDetails() {
         axios.get("http://localhost:5000/agencies"),
         axios.get("http://localhost:5000/fundingsources"),
         axios.get("http://localhost:5000/states"),
-        axios.get("http://localhost:5000/statuses")
+        axios.get("http://localhost:5000/statuses"),
+        axios.get("http://localhost:5000/sdgs")
       ]);
 
       setThemes(themesRes.data.data || themesRes.data);
@@ -144,7 +215,8 @@ export default function ProjectDetails() {
       setAgencies(agenciesRes.data);
       setFundingSources(fundingRes.data);
       setStates(statesRes.data);
-      setStatuses(statusesRes.data);
+      setStatuses(statusesRes.data.filter(s => s.status_name === 'Pending' || s.status_name === 'Ongoing'));
+      setSdgs(sdgsRes.data);
 
       setLoading(false);
     } catch (err) {
@@ -159,7 +231,10 @@ export default function ProjectDetails() {
     e.preventDefault();
     const agencyVal = agencySelect === "custom" ? customAgency : agencySelect;
     const fundingVal = fundingSelect === "custom" ? customFunding : fundingSelect;
-    const stateVal = stateSelect === "custom" ? customState : stateSelect;
+    
+    const resolvedStates = selectedStates.map(stObj => {
+      return stObj.state_id === "custom" ? stObj.custom_name : stObj.state_id;
+    }).filter(Boolean);
 
     try {
       await axios.put(`http://localhost:5000/projects/${id}`, {
@@ -170,7 +245,7 @@ export default function ProjectDetails() {
         approval_date: editApprovalDate || null,
         sanctioned_amount: editSanctionedAmount || null,
         status_id: editStatusId || null,
-        state: stateVal,
+        state: resolvedStates,
         remarks: editRemarks
       });
       setIsEditing(false);
@@ -179,20 +254,6 @@ export default function ProjectDetails() {
       console.error("Update Error:", err);
       alert(err.response?.data?.message || "Failed to update project details");
     }
-  };
-
-  // Classification Handlers
-  const handleAddSubTheme = (e) => {
-    const val = Number(e.target.value);
-    if (!val) return;
-    if (!selectedSubThemes.includes(val)) {
-      setSelectedSubThemes([...selectedSubThemes, val]);
-    }
-    e.target.value = "";
-  };
-
-  const handleRemoveSubTheme = (stId) => {
-    setSelectedSubThemes(selectedSubThemes.filter(x => x !== stId));
   };
 
   const handleAddTargetGroup = (e) => {
@@ -224,16 +285,27 @@ export default function ProjectDetails() {
   // Save classifications to DB
   const saveClassification = async () => {
     try {
-      if (!selectedTheme) {
-        alert("Please select a Primary Theme.");
+      const activeThemes = selectedThemes.filter(t => t.themeId);
+      if (activeThemes.length === 0) {
+        alert("Please select at least one Theme.");
         return;
       }
 
       const response = await axios.post(`http://localhost:5000/classify-project/${id}`, {
-        themeId: Number(selectedTheme),
-        subThemeIds: selectedSubThemes,
+        themes: activeThemes.map(t => ({
+          themeId: Number(t.themeId),
+          subThemeIds: t.subThemeIds
+        })),
         targetGroupIds: selectedTargetGroups,
-        activityTypeIds: selectedActivityTypes
+        activityTypeIds: selectedActivityTypes,
+        sdgIds: selectedSdgs,
+        projectSummary: projectSummary,
+        beneficiaryGroups: beneficiaryGroups,
+        beneficiaryCat1: beneficiaryCat1,
+        beneficiaryCat2: beneficiaryCat2,
+        beneficiaryCat3: beneficiaryCat3,
+        beneficiaryCat4: beneficiaryCat4,
+        ageGroups: ageGroups
       });
 
       alert(response.data.message);
@@ -260,15 +332,7 @@ export default function ProjectDetails() {
     );
   }
 
-  // Filter lists for multi-select selections
-  const availableSubThemes = subThemes.filter(st => {
-    const matchesTheme = Number(selectedTheme) ? st.theme_id === Number(selectedTheme) : false;
-    const notSelected = !selectedSubThemes.includes(st.sub_theme_id);
-    return matchesTheme && notSelected;
-  });
 
-  const availableTargetGroups = targetGroups.filter(tg => !selectedTargetGroups.includes(tg.target_group_id));
-  const availableActivityTypes = activityTypes.filter(at => !selectedActivityTypes.includes(at.activity_type_id));
 
   return (
     <Box sx={{ flexGrow: 1, p: 1, maxWidth: "1000px", mx: "auto" }}>
@@ -338,18 +402,63 @@ export default function ProjectDetails() {
                 )}
               </Grid>
 
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <FormControl fullWidth>
-                  <InputLabel>State</InputLabel>
-                  <Select value={stateSelect} label="State" onChange={(e) => setStateSelect(e.target.value)}>
-                    <MenuItem value="">Select State</MenuItem>
-                    {states.map(s => <MenuItem key={s.state_id} value={s.state_id}>{s.state_name}</MenuItem>)}
-                    <MenuItem value="custom" sx={{ color: "#3b82f6", fontWeight: "bold" }}>+ Add New State</MenuItem>
-                  </Select>
-                </FormControl>
-                {stateSelect === "custom" && (
-                  <TextField fullWidth label="Custom State" required size="small" sx={{ mt: 2 }} value={customState} onChange={(e) => setCustomState(e.target.value)} />
-                )}
+              <Grid size={12}>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
+                  Select States *
+                </Typography>
+                {selectedStates.map((stObj, index) => (
+                  <Grid container spacing={2} key={index} sx={{ mb: 2, alignItems: "center" }}>
+                    <Grid size={{ xs: 12, sm: 5 }}>
+                      <FormControl fullWidth required>
+                        <InputLabel>State</InputLabel>
+                        <Select
+                          value={stObj.state_id}
+                          label="State"
+                          onChange={(e) => handleStateChange(index, "state_id", e.target.value)}
+                        >
+                          <MenuItem value="">Select State</MenuItem>
+                          {states.map((s) => (
+                            <MenuItem key={s.state_id} value={s.state_id}>{s.state_name}</MenuItem>
+                          ))}
+                          <MenuItem value="custom" sx={{ color: "#3b82f6", fontWeight: "bold" }}>+ Add New State</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 5 }}>
+                      {stObj.state_id === "custom" && (
+                        <TextField
+                          fullWidth
+                          label="Custom State Name"
+                          required
+                          size="small"
+                          value={stObj.custom_name}
+                          onChange={(e) => handleStateChange(index, "custom_name", e.target.value)}
+                        />
+                      )}
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 2 }}>
+                      {selectedStates.length > 1 && (
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          onClick={() => handleRemoveStateRow(index)}
+                          sx={{ textTransform: "none", fontWeight: "bold" }}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </Grid>
+                  </Grid>
+                ))}
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  size="small"
+                  onClick={handleAddStateRow}
+                  sx={{ textTransform: "none", fontWeight: "bold", mt: 1 }}
+                >
+                  + Add Another State
+                </Button>
               </Grid>
 
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -570,117 +679,251 @@ export default function ProjectDetails() {
         )}
 
         <Grid container spacing={4}>
-          {/* Primary Theme */}
+          {/* Multiple Themes & Subthemes */}
           <Grid size={12}>
-            <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
-              1. Primary Thematic Area *
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+              1. Thematic Areas & Sub-Themes
             </Typography>
-            <Autocomplete
-              options={themes}
-              getOptionLabel={(option) => option.theme_name || ""}
-              value={themes.find((theme) => theme.theme_id === selectedTheme) || null}
-              onChange={(event, newValue) => {
-                setSelectedTheme(newValue ? newValue.theme_id : "");
-                setSelectedSubThemes([]);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Select Primary Theme"
-                  size="small"
-                  required
-                />
-              )}
-            />
-          </Grid>
+            {selectedThemes.map((t, index) => {
+              const sub1Selected = subThemes.filter(st => st.theme_id === Number(t.themeId) && t.subThemeIds.includes(st.sub_theme_id) && SUBTHEME1_NAMES.includes(st.sub_theme_name));
+              const sub2Selected = subThemes.filter(st => st.theme_id === Number(t.themeId) && t.subThemeIds.includes(st.sub_theme_id) && SUBTHEME2_NAMES.includes(st.sub_theme_name));
+              const sub3Selected = subThemes.filter(st => st.theme_id === Number(t.themeId) && t.subThemeIds.includes(st.sub_theme_id) && SUBTHEME3_NAMES.includes(st.sub_theme_name));
 
-          {/* Sub Themes */}
-          <Grid size={12}>
-            <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
-              2. Sub-Themes
-            </Typography>
-            {!selectedTheme ? (
-              <Alert severity="warning" size="small" sx={{ py: 0.5, borderRadius: "8px" }}>
-                Please select a Primary Theme first to unlock available sub-themes.
-              </Alert>
-            ) : (
-              <Autocomplete
-                multiple
-                options={subThemes.filter(st => st.theme_id === Number(selectedTheme) && !selectedSubThemes.includes(st.sub_theme_id))}
-                getOptionLabel={(option) => option.sub_theme_name || ""}
-                value={subThemes.filter(st => selectedSubThemes.includes(st.sub_theme_id))}
-                onChange={(event, newValue) => {
-                  setSelectedSubThemes(newValue.map(option => option.sub_theme_id));
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Choose Sub Themes"
-                    placeholder="Select sub-themes..."
-                    size="small"
-                  />
-                )}
-                renderTags={(tagValue, getTagProps) =>
-                  tagValue.map((option, index) => {
-                    const { key, ...chipProps } = getTagProps({ index });
-                    return (
-                      <Chip
-                        key={key || option.sub_theme_id}
-                        label={option.sub_theme_name}
-                        {...chipProps}
-                        color="primary"
-                        variant="outlined"
-                        size="small"
+              return (
+                <Paper key={index} sx={{ p: 3, mb: 3, border: "1px solid #e2e8f0", borderRadius: "8px", position: "relative" }}>
+                  {selectedThemes.length > 1 && (
+                    <Button
+                      variant="text"
+                      color="error"
+                      onClick={() => handleRemoveThemeRow(index)}
+                      sx={{ position: "absolute", right: 10, top: 10, textTransform: "none", fontWeight: "bold" }}
+                    >
+                      Remove Theme Block
+                    </Button>
+                  )}
+                  <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 2, color: "#0f766e" }}>
+                    Theme #{index + 1}
+                  </Typography>
+                  <Grid container spacing={2}>
+                    <Grid size={12}>
+                      <Autocomplete
+                        options={themes}
+                        getOptionLabel={(option) => option.theme_name || ""}
+                        value={themes.find((theme) => theme.theme_id === Number(t.themeId)) || null}
+                        onChange={(event, newValue) => {
+                          handleThemeChange(index, newValue ? newValue.theme_id : "");
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select Thematic Area"
+                            size="small"
+                            required
+                          />
+                        )}
                       />
-                    );
-                  })
-                }
-              />
-            )}
+                    </Grid>
+
+                    {t.themeId && (
+                      <>
+                        <Grid size={{ xs: 12, md: 4 }}>
+                          <Autocomplete
+                            multiple
+                            options={subThemes.filter(st => st.theme_id === Number(t.themeId) && SUBTHEME1_NAMES.includes(st.sub_theme_name))}
+                            getOptionLabel={(option) => option.sub_theme_name || ""}
+                            value={sub1Selected}
+                            onChange={(event, newValue) => {
+                              const newSubThemeIds = [
+                                ...newValue.map(x => x.sub_theme_id),
+                                ...sub2Selected.map(x => x.sub_theme_id),
+                                ...sub3Selected.map(x => x.sub_theme_id)
+                              ];
+                              handleSubThemeChange(index, newSubThemeIds);
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Subtheme 1 Options"
+                                placeholder="Choose subtheme 1..."
+                                size="small"
+                              />
+                            )}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 4 }}>
+                          <Autocomplete
+                            multiple
+                            options={subThemes.filter(st => st.theme_id === Number(t.themeId) && SUBTHEME2_NAMES.includes(st.sub_theme_name))}
+                            getOptionLabel={(option) => option.sub_theme_name || ""}
+                            value={sub2Selected}
+                            onChange={(event, newValue) => {
+                              const newSubThemeIds = [
+                                ...sub1Selected.map(x => x.sub_theme_id),
+                                ...newValue.map(x => x.sub_theme_id),
+                                ...sub3Selected.map(x => x.sub_theme_id)
+                              ];
+                              handleSubThemeChange(index, newSubThemeIds);
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Subtheme 2 Options"
+                                placeholder="Choose subtheme 2..."
+                                size="small"
+                              />
+                            )}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 4 }}>
+                          <Autocomplete
+                            multiple
+                            options={subThemes.filter(st => st.theme_id === Number(t.themeId) && SUBTHEME3_NAMES.includes(st.sub_theme_name))}
+                            getOptionLabel={(option) => option.sub_theme_name || ""}
+                            value={sub3Selected}
+                            onChange={(event, newValue) => {
+                              const newSubThemeIds = [
+                                ...sub1Selected.map(x => x.sub_theme_id),
+                                ...sub2Selected.map(x => x.sub_theme_id),
+                                ...newValue.map(x => x.sub_theme_id)
+                              ];
+                              handleSubThemeChange(index, newSubThemeIds);
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Subtheme 3 Options"
+                                placeholder="Choose subtheme 3..."
+                                size="small"
+                              />
+                            )}
+                          />
+                        </Grid>
+                      </>
+                    )}
+                  </Grid>
+                </Paper>
+              );
+            })}
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleAddThemeRow}
+              sx={{ textTransform: "none", fontWeight: "bold" }}
+            >
+              + Add Another Theme Block
+            </Button>
           </Grid>
 
-          {/* Target Groups */}
+
+
+          {/* Beneficiary Categories */}
           <Grid size={12}>
-            <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
-              3. Target Groups (Beneficiaries)
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+              2. Beneficiary Groups & Categories
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Autocomplete
+                  multiple
+                  freeSolo
+                  options={["Women", "Men", "Children", "Youth", "All"]}
+                  value={beneficiaryGroups}
+                  onChange={(event, newValue) => setBeneficiaryGroups(newValue)}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Beneficiary Groups" placeholder="Select or type..." size="small" />
+                  )}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Autocomplete
+                  multiple
+                  freeSolo
+                  options={["Boy", "Girl", "Adolescent Girl", "Pregnant & Lactating women", "Drop out"]}
+                  value={beneficiaryCat1}
+                  onChange={(event, newValue) => setBeneficiaryCat1(newValue)}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Category 1 Option" placeholder="Select or type..." size="small" />
+                  )}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Autocomplete
+                  multiple
+                  freeSolo
+                  options={["Farmers", "Villagers", "Community", "School Children"]}
+                  value={beneficiaryCat2}
+                  onChange={(event, newValue) => setBeneficiaryCat2(newValue)}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Category 2 Option" placeholder="Select or type..." size="small" />
+                  )}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Autocomplete
+                  multiple
+                  freeSolo
+                  options={["Tribal", "PVGT"]}
+                  value={beneficiaryCat3}
+                  onChange={(event, newValue) => setBeneficiaryCat3(newValue)}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Category 3 Option" placeholder="Select or type..." size="small" />
+                  )}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Autocomplete
+                  multiple
+                  freeSolo
+                  options={["Urban", "Rural"]}
+                  value={beneficiaryCat4}
+                  onChange={(event, newValue) => setBeneficiaryCat4(newValue)}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Category 4 Option" placeholder="Select or type..." size="small" />
+                  )}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Autocomplete
+                  multiple
+                  freeSolo
+                  options={["0-3", "3-6", "6-14", "14-18", "18-25", "25-60", "60 & Above"]}
+                  value={ageGroups}
+                  onChange={(event, newValue) => setAgeGroups(newValue)}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Age Groups" placeholder="Select or type..." size="small" />
+                  )}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+
+          {/* SDGs */}
+          <Grid size={12}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+              3. Sustainable Development Goals (SDGs)
             </Typography>
             <Autocomplete
               multiple
-              options={targetGroups.filter(tg => !selectedTargetGroups.includes(tg.target_group_id))}
-              getOptionLabel={(option) => option ? `${option.main_group} - ${option.sub_group}` : ""}
-              value={targetGroups.filter(tg => selectedTargetGroups.includes(tg.target_group_id))}
+              options={sdgs}
+              getOptionLabel={(option) => option ? `${option.sdg_code} - ${option.sdg_name}` : ""}
+              value={sdgs.filter(s => selectedSdgs.includes(s.sdg_id))}
               onChange={(event, newValue) => {
-                setSelectedTargetGroups(newValue.map(option => option.target_group_id));
+                setSelectedSdgs(newValue.map(option => option.sdg_id));
               }}
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Choose Target Groups"
-                  placeholder="Select target groups..."
+                  label="Select SDG Goals"
+                  placeholder="Choose SDGs..."
                   size="small"
                 />
               )}
-              renderTags={(tagValue, getTagProps) =>
-                tagValue.map((option, index) => {
-                  const { key, ...chipProps } = getTagProps({ index });
-                  return (
-                    <Chip
-                      key={key || option.target_group_id}
-                      label={`${option.main_group} - ${option.sub_group}`}
-                      {...chipProps}
-                      color="secondary"
-                      variant="outlined"
-                      size="small"
-                    />
-                  );
-                })
-              }
             />
           </Grid>
 
           {/* Activity Types */}
           <Grid size={12}>
-            <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
               4. Activity Types
             </Typography>
             <Autocomplete
@@ -714,6 +957,22 @@ export default function ProjectDetails() {
                   );
                 })
               }
+            />
+          </Grid>
+
+          {/* Project Summary */}
+          <Grid size={12}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+              5. Project Summary
+            </Typography>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="Enter Project Summary / Abstract"
+              value={projectSummary}
+              onChange={(e) => setProjectSummary(e.target.value)}
+              placeholder="Provide a detailed summary of the project goals, impact, and operations..."
             />
           </Grid>
 

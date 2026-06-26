@@ -114,13 +114,34 @@ router.get("/charts", async (req, res) => {
       LIMIT 10
     `);
 
+    // 7. Total Turnover every year
+    const turnoverRes = await pool.query(`
+      SELECT p.year, COALESCE(SUM(p.sanctioned_amount), 0)::numeric as turnover
+      FROM projects p
+      WHERE p.year IS NOT NULL AND p.year <> '' AND p.is_archived = false
+      GROUP BY p.year
+      ORDER BY p.year ASC
+    `);
+
+    // 8. Themes with their frequencies (frequency of all theme selections)
+    const frequencyRes = await pool.query(`
+      SELECT t.theme_name, COUNT(pt.project_id)::integer as count
+      FROM project_themes pt
+      JOIN themes t ON pt.theme_id = t.theme_id
+      JOIN projects p ON pt.project_id = p.project_id AND p.is_archived = false
+      GROUP BY t.theme_name
+      ORDER BY count DESC
+    `);
+
     res.json({
       projectsByTheme: themeRes.rows,
       projectsByYear: yearRes.rows,
       projectsByAgency: agencyRes.rows,
       projectsByState: stateRes.rows,
       projectsByStatus: statusRes.rows,
-      fundingSourceDistribution: fundingRes.rows
+      fundingSourceDistribution: fundingRes.rows,
+      turnoverByYear: turnoverRes.rows,
+      themesFrequency: frequencyRes.rows
     });
   } catch (error) {
     console.error("Dashboard Charts Error:", error);

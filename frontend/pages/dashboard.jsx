@@ -54,7 +54,9 @@ export default function Dashboard() {
     projectsByAgency: [],
     projectsByState: [],
     projectsByStatus: [],
-    fundingSourceDistribution: []
+    fundingSourceDistribution: [],
+    turnoverByYear: [],
+    themesFrequency: []
   });
 
   const [loading, setLoading] = useState(true);
@@ -103,6 +105,18 @@ export default function Dashboard() {
   const formattedFundingData = (charts.fundingSourceDistribution || []).map(d => ({
     name: d.source_name ? (d.source_name.length > 20 ? d.source_name.substring(0, 20) + "..." : d.source_name) : "Other",
     fullName: d.source_name || "Other",
+    count: d.count
+  }));
+
+  const formattedTurnoverData = (charts.turnoverByYear || []).map(d => ({
+    year: d.year || "Unknown",
+    turnover: d.turnover ? Number(d.turnover) : 0,
+    turnoverInLakhs: d.turnover ? Number(d.turnover) / 100000 : 0 // Rs. 1 Lakh = 100,000
+  }));
+
+  const formattedFrequencyData = (charts.themesFrequency || []).map(d => ({
+    name: d.theme_name ? (d.theme_name.length > 25 ? d.theme_name.substring(0, 25) + "..." : d.theme_name) : "Unclassified",
+    fullName: d.theme_name || "Unclassified",
     count: d.count
   }));
 
@@ -515,6 +529,55 @@ export default function Dashboard() {
                   <YAxis style={{ fontSize: "11px" }} />
                   <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
                   <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Total Turnover Every Year (Line Chart) */}
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
+              Total Turnover Every Year
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ width: "100%", height: 320 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={formattedTurnoverData}
+                  margin={{ top: 10, right: 30, left: 15, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="year" style={{ fontSize: "11px" }} />
+                  <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: -5 }} style={{ fontSize: "11px" }} />
+                  <Tooltip formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
+                  <Legend />
+                  <Line type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#e11d48" strokeWidth={3} activeDot={{ r: 8 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Themes Frequencies (Bar Chart) */}
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b" }}>
+              Theme Selection Frequencies
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ width: "100%", height: 320 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={formattedFrequencyData}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 65 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10 }} interval={0} />
+                  <YAxis style={{ fontSize: "11px" }} />
+                  <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
+                  <Bar dataKey="count" fill="#0284c7" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </Box>

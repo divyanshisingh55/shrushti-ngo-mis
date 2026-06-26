@@ -8,8 +8,22 @@ router.post("/:id", async (req, res) => {
     themeId,
     subThemeIds = [],
     targetGroupIds = [],
-    activityTypeIds = []
+    activityTypeIds = [],
+    themes = [], // [{ themeId, subThemeIds }]
+    sdgIds = [],
+    projectSummary = '',
+    beneficiaryGroups = [],
+    beneficiaryCat1 = [],
+    beneficiaryCat2 = [],
+    beneficiaryCat3 = [],
+    beneficiaryCat4 = [],
+    ageGroups = []
   } = req.body;
+
+  let finalThemes = themes;
+  if ((!finalThemes || finalThemes.length === 0) && themeId) {
+    finalThemes = [{ themeId, subThemeIds }];
+  }
 
   const client = await pool.connect();
 
@@ -21,28 +35,34 @@ router.post("/:id", async (req, res) => {
     await client.query("DELETE FROM project_sub_themes WHERE project_id = $1", [projectId]);
     await client.query("DELETE FROM project_target_groups WHERE project_id = $1", [projectId]);
     await client.query("DELETE FROM project_activity_types WHERE project_id = $1", [projectId]);
+    await client.query("DELETE FROM project_sdgs WHERE project_id = $1", [projectId]);
 
-    // 2. Insert primary theme if provided
-    if (themeId) {
-      await client.query(
-        `INSERT INTO project_themes (project_id, theme_id, primary_flag)
-         VALUES ($1, $2, true)`,
-        [projectId, themeId]
-      );
-    }
-
-    // 3. Insert multiple sub-themes
-    if (Array.isArray(subThemeIds) && subThemeIds.length > 0) {
-      for (const stId of subThemeIds) {
+    // 2. Insert multiple themes and their sub-themes
+    if (Array.isArray(finalThemes) && finalThemes.length > 0) {
+      let isFirst = true;
+      for (const t of finalThemes) {
+        if (!t.themeId) continue;
         await client.query(
-          `INSERT INTO project_sub_themes (project_id, sub_theme_id)
-           VALUES ($1, $2)`,
-          [projectId, stId]
+          `INSERT INTO project_themes (project_id, theme_id, primary_flag)
+           VALUES ($1, $2, $3)`,
+          [projectId, t.themeId, isFirst]
         );
+        isFirst = false;
+        
+        // Insert sub-themes
+        if (Array.isArray(t.subThemeIds) && t.subThemeIds.length > 0) {
+          for (const stId of t.subThemeIds) {
+            await client.query(
+              `INSERT INTO project_sub_themes (project_id, sub_theme_id)
+               VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+              [projectId, stId]
+            );
+          }
+        }
       }
     }
 
-    // 4. Insert multiple target groups
+    // 3. Insert multiple target groups
     if (Array.isArray(targetGroupIds) && targetGroupIds.length > 0) {
       for (const tgId of targetGroupIds) {
         await client.query(
@@ -53,7 +73,7 @@ router.post("/:id", async (req, res) => {
       }
     }
 
-    // 5. Insert multiple activity types
+    // 4. Insert multiple activity types
     if (Array.isArray(activityTypeIds) && activityTypeIds.length > 0) {
       for (const atId of activityTypeIds) {
         await client.query(
@@ -64,14 +84,42 @@ router.post("/:id", async (req, res) => {
       }
     }
 
-    // 6. Update project status
-    // Classification is considered complete if a primary theme is selected
-    const status = themeId ? 'Completed' : 'Pending';
+    // 5. Insert SDGs
+    if (Array.isArray(sdgIds) && sdgIds.length > 0) {
+      for (const sdgId of sdgIds) {
+        await client.query(
+          `INSERT INTO project_sdgs (project_id, sdg_id)
+           VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+          [projectId, sdgId]
+        );
+      }
+    }
+
+    // 6. Update project status and details columns
+    const hasTheme = finalThemes.length > 0 && finalThemes[0].themeId;
+    const status = hasTheme ? 'Completed' : 'Pending';
+
+    // Format fields to string
+    const bgStr = Array.isArray(beneficiaryGroups) ? beneficiaryGroups.join(',') : (beneficiaryGroups || '');
+    const c1Str = Array.isArray(beneficiaryCat1) ? beneficiaryCat1.join(',') : (beneficiaryCat1 || '');
+    const c2Str = Array.isArray(beneficiaryCat2) ? beneficiaryCat2.join(',') : (beneficiaryCat2 || '');
+    const c3Str = Array.isArray(beneficiaryCat3) ? beneficiaryCat3.join(',') : (beneficiaryCat3 || '');
+    const c4Str = Array.isArray(beneficiaryCat4) ? beneficiaryCat4.join(',') : (beneficiaryCat4 || '');
+    const agStr = Array.isArray(ageGroups) ? ageGroups.join(',') : (ageGroups || '');
+
     await client.query(
       `UPDATE projects
-       SET classification_status = $1, updated_at = NOW()
-       WHERE project_id = $2`,
-      [status, projectId]
+       SET classification_status = $1, 
+           project_summary = $2,
+           beneficiary_groups = $3,
+           beneficiary_cat1 = $4,
+           beneficiary_cat2 = $5,
+           beneficiary_cat3 = $6,
+           beneficiary_cat4 = $7,
+           age_groups = $8,
+           updated_at = NOW()
+       WHERE project_id = $9`,
+      [status, projectSummary || null, bgStr || null, c1Str || null, c2Str || null, c3Str || null, c4Str || null, agStr || null, projectId]
     );
 
     await client.query("COMMIT");
