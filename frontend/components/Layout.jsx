@@ -27,11 +27,18 @@ const drawerWidth = 240;
 
 export default function Layout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    if (window.innerWidth < 600) {
+      setMobileOpen(!mobileOpen);
+    } else {
+      setIsCollapsed(!isCollapsed);
+    }
   };
+
+  const activeDrawerWidth = isCollapsed ? 0 : drawerWidth;
 
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
@@ -42,7 +49,7 @@ export default function Layout({ children }) {
   ];
 
   const drawer = (
-    <Box sx={{ height: "100%", backgroundColor: "#0f172a", color: "#f8fafc" }}>
+    <Box sx={{ height: "100%", backgroundColor: "#0f172a", color: "#f8fafc", overflowX: "hidden" }}>
       <Toolbar style={{ backgroundColor: "#0b1329", color: "#f8fafc" }}>
         <Typography variant="h6" noWrap component="div" sx={{ fontWeight: "bold", color: "#14b8a6" }}>
           Shrushti MIS
@@ -93,11 +100,12 @@ export default function Layout({ children }) {
       <AppBar
         position="fixed"
         sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
+          width: { sm: `calc(100% - ${activeDrawerWidth}px)` },
+          ml: { sm: `${activeDrawerWidth}px` },
           backgroundColor: "#0f172a",
           boxShadow: "none",
-          borderBottom: "1px solid #1e293b"
+          borderBottom: "1px solid #1e293b",
+          transition: "width 0.2s ease-in-out, margin-left 0.2s ease-in-out"
         }}
       >
         <Toolbar>
@@ -106,7 +114,7 @@ export default function Layout({ children }) {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
+            sx={{ mr: 2 }}
           >
             <MenuIcon />
           </IconButton>
@@ -117,7 +125,11 @@ export default function Layout({ children }) {
       </AppBar>
       <Box
         component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        sx={{ 
+          width: { sm: activeDrawerWidth }, 
+          flexShrink: { sm: 0 },
+          transition: "width 0.2s ease-in-out"
+        }}
       >
         {/* Mobile drawer */}
         <Drawer
@@ -138,10 +150,19 @@ export default function Layout({ children }) {
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, backgroundColor: "#0f172a", borderRight: "1px solid #1e293b" }
+            display: isCollapsed ? "none" : { xs: "none", sm: "block" },
+            width: activeDrawerWidth,
+            transition: "width 0.2s ease-in-out",
+            "& .MuiDrawer-paper": { 
+              boxSizing: "border-box", 
+              width: activeDrawerWidth, 
+              backgroundColor: "#0f172a", 
+              borderRight: "1px solid #1e293b",
+              transition: "width 0.2s ease-in-out",
+              overflowX: "hidden"
+            }
           }}
-          open
+          open={!isCollapsed}
         >
           {drawer}
         </Drawer>
@@ -151,7 +172,8 @@ export default function Layout({ children }) {
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          width: { sm: `calc(100% - ${activeDrawerWidth}px)` },
+          transition: "width 0.2s ease-in-out, margin-left 0.2s ease-in-out",
           display: "flex",
           flexDirection: "column"
         }}
