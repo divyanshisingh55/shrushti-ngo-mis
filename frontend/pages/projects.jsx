@@ -32,7 +32,8 @@ import {
   DialogActions,
   LinearProgress,
   Alert,
-  Divider
+  Divider,
+  Autocomplete
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -50,6 +51,76 @@ import {
   Download as DownloadIcon
 } from "@mui/icons-material";
 
+const TARGET_GROUPS_MAPPING = {
+  "Children": [
+    "ECCE children",
+    "primary school children",
+    "upper primary children",
+    "secondary students",
+    "out-of-school children",
+    "child labour-affected children"
+  ],
+  "Girls": [
+    "Adolescent girls",
+    "school-going girls",
+    "drop-out girls",
+    "young women"
+  ],
+  "Boys": [
+    "School-going boys",
+    "adolescent boys",
+    "youth boys"
+  ],
+  "Women": [
+    "SHG members",
+    "pregnant women",
+    "lactating mothers",
+    "farm women",
+    "women entrepreneurs",
+    "widows",
+    "single women"
+  ],
+  "Men": [
+    "Farmers",
+    "skilled workers",
+    "community volunteers",
+    "fathers",
+    "male youth"
+  ],
+  "Youth": [
+    "College youth",
+    "unemployed youth",
+    "rural youth",
+    "urban youth",
+    "NEET youth"
+  ],
+  "Farmers": [
+    "Small farmers",
+    "marginal farmers",
+    "women farmers",
+    "tenant farmers",
+    "tribal farmers"
+  ],
+  "Elderly": [
+    "Senior citizens",
+    "bedridden elderly",
+    "single elderly"
+  ],
+  "Persons with disabilities": [
+    "Children with disabilities",
+    "adults with disabilities"
+  ],
+  "Community groups": [
+    "SHGs",
+    "CBOs",
+    "PRI members",
+    "teachers",
+    "anganwadi workers",
+    "ASHAs",
+    "peer educators"
+  ]
+};
+
 export default function Projects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -62,8 +133,7 @@ export default function Projects() {
   const [search, setSearch] = useState("");
   const [docNo, setDocNo] = useState("");
   const [year, setYear] = useState("");
-  const [status, setStatus] = useState(""); // classification status
-  const [agencyId, setAgencyId] = useState("");
+  const [agencyIds, setAgencyIds] = useState([]);
   const [fundingSourceId, setFundingSourceId] = useState("");
   const [stateId, setStateId] = useState("");
   const [districtId, setDistrictId] = useState("");
@@ -71,15 +141,14 @@ export default function Projects() {
   const [statusId, setStatusId] = useState(""); // implementation status
   const [themeId, setThemeId] = useState("");
   const [subThemeId, setSubThemeId] = useState("");
-  const [targetGroupId, setTargetGroupId] = useState("");
   const [activityTypeId, setActivityTypeId] = useState("");
   const [sdgId, setSdgId] = useState("");
-  const [beneficiaryGroup, setBeneficiaryGroup] = useState("");
+  const [filterMainGroup, setFilterMainGroup] = useState("");
+  const [filterSubGroups, setFilterSubGroups] = useState([]);
   const [minAmount, setMinAmount] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
   const [approvalDateStart, setApprovalDateStart] = useState("");
   const [approvalDateEnd, setApprovalDateEnd] = useState("");
-  const [viewArchived, setViewArchived] = useState(false);
 
   // --- METADATA LISTS ---
   const [agencies, setAgencies] = useState([]);
@@ -97,6 +166,7 @@ export default function Projects() {
   // --- FILTER PRESETS ---
   const [presetName, setPresetName] = useState("");
   const [presets, setPresets] = useState({});
+  const [selectedPreset, setSelectedPreset] = useState("");
 
   // --- BULK AI CLASSIFY DIALOG ---
   const [bulkOpen, setBulkOpen] = useState(false);
@@ -112,10 +182,10 @@ export default function Projects() {
   useEffect(() => {
     fetchProjects();
   }, [
-    search, docNo, year, status, agencyId, fundingSourceId, stateId,
-    districtId, blockId, statusId, themeId, subThemeId, targetGroupId,
-    activityTypeId, sdgId, beneficiaryGroup, minAmount, maxAmount,
-    approvalDateStart, approvalDateEnd, viewArchived
+    search, docNo, year, agencyIds, fundingSourceId, stateId,
+    districtId, blockId, statusId, themeId, subThemeId,
+    activityTypeId, sdgId, filterMainGroup, filterSubGroups, minAmount, maxAmount,
+    approvalDateStart, approvalDateEnd
   ]);
 
   // Handle dynamic district/block cascade
@@ -177,8 +247,7 @@ export default function Projects() {
       search,
       doc_no: docNo,
       year,
-      status, // classification_status
-      agency_id: agencyId,
+      agency_id: agencyIds.join(","),
       funding_source_id: fundingSourceId,
       state_id: stateId,
       district_id: districtId,
@@ -186,15 +255,15 @@ export default function Projects() {
       status_id: statusId,
       theme_id: themeId,
       sub_theme_id: subThemeId,
-      target_group_id: targetGroupId,
       activity_type_id: activityTypeId,
       sdg_id: sdgId,
-      beneficiary_group: beneficiaryGroup,
+      beneficiary_main_group: filterMainGroup,
+      beneficiary_sub_groups: filterSubGroups.join(","),
       min_amount: minAmount,
       max_amount: maxAmount,
       approval_date_start: approvalDateStart,
       approval_date_end: approvalDateEnd,
-      is_archived: viewArchived
+      is_archived: false
     };
 
     axios.get("http://localhost:5000/projects", { params })
@@ -263,10 +332,10 @@ export default function Projects() {
       return;
     }
     const currentFilters = {
-      search, docNo, year, status, agencyId, fundingSourceId, stateId,
-      districtId, blockId, statusId, themeId, subThemeId, targetGroupId,
-      activityTypeId, sdgId, beneficiaryGroup, minAmount, maxAmount,
-      approvalDateStart, approvalDateEnd, viewArchived
+      search, docNo, year, agencyIds, fundingSourceId, stateId,
+      districtId, blockId, statusId, themeId, subThemeId,
+      activityTypeId, sdgId, filterMainGroup, filterSubGroups, minAmount, maxAmount,
+      approvalDateStart, approvalDateEnd
     };
 
     const updatedPresets = { ...presets, [presetName]: currentFilters };
@@ -277,13 +346,13 @@ export default function Projects() {
   };
 
   const applyPreset = (name) => {
+    setSelectedPreset(name);
     const filters = presets[name];
     if (filters) {
       setSearch(filters.search || "");
       setDocNo(filters.docNo || "");
       setYear(filters.year || "");
-      setStatus(filters.status || "");
-      setAgencyId(filters.agencyId || "");
+      setAgencyIds(filters.agencyIds || []);
       setFundingSourceId(filters.fundingSourceId || "");
       setStateId(filters.stateId || "");
       setDistrictId(filters.districtId || "");
@@ -291,15 +360,29 @@ export default function Projects() {
       setStatusId(filters.statusId || "");
       setThemeId(filters.themeId || "");
       setSubThemeId(filters.subThemeId || "");
-      setTargetGroupId(filters.targetGroupId || "");
       setActivityTypeId(filters.activityTypeId || "");
       setSdgId(filters.sdgId || "");
-      setBeneficiaryGroup(filters.beneficiaryGroup || "");
+      setFilterMainGroup(filters.filterMainGroup || "");
+      setFilterSubGroups(filters.filterSubGroups || []);
       setMinAmount(filters.minAmount || "");
       setMaxAmount(filters.maxAmount || "");
       setApprovalDateStart(filters.approvalDateStart || "");
       setApprovalDateEnd(filters.approvalDateEnd || "");
-      setViewArchived(filters.viewArchived || false);
+    }
+  };
+
+  const deletePreset = () => {
+    if (!selectedPreset) {
+      alert("No preset selected to delete");
+      return;
+    }
+    if (window.confirm(`Are you sure you want to delete preset "${selectedPreset}"?`)) {
+      const updatedPresets = { ...presets };
+      delete updatedPresets[selectedPreset];
+      setPresets(updatedPresets);
+      localStorage.setItem("shrushti_filter_presets", JSON.stringify(updatedPresets));
+      setSelectedPreset("");
+      alert(`Preset deleted!`);
     }
   };
 
@@ -307,8 +390,7 @@ export default function Projects() {
     setSearch("");
     setDocNo("");
     setYear("");
-    setStatus("");
-    setAgencyId("");
+    setAgencyIds([]);
     setFundingSourceId("");
     setStateId("");
     setDistrictId("");
@@ -316,15 +398,15 @@ export default function Projects() {
     setStatusId("");
     setThemeId("");
     setSubThemeId("");
-    setTargetGroupId("");
     setActivityTypeId("");
     setSdgId("");
-    setBeneficiaryGroup("");
+    setFilterMainGroup("");
+    setFilterSubGroups([]);
     setMinAmount("");
     setMaxAmount("");
     setApprovalDateStart("");
     setApprovalDateEnd("");
-    setViewArchived(false);
+    setSelectedPreset("");
   };
 
   // --- CHECKBOX SELECTION ---
@@ -401,27 +483,30 @@ export default function Projects() {
 
   const handleExport = (format) => {
     const params = new URLSearchParams();
-    if (search) params.append("search", search);
-    if (docNo) params.append("doc_no", docNo);
-    if (year) params.append("year", year);
-    if (status) params.append("status", status);
-    if (agencyId) params.append("agency_id", agencyId);
-    if (fundingSourceId) params.append("funding_source_id", fundingSourceId);
-    if (stateId) params.append("state_id", stateId);
-    if (districtId) params.append("district_id", districtId);
-    if (blockId) params.append("block_id", blockId);
-    if (statusId) params.append("status_id", statusId);
-    if (themeId) params.append("theme_id", themeId);
-    if (subThemeId) params.append("sub_theme_id", subThemeId);
-    if (targetGroupId) params.append("target_group_id", targetGroupId);
-    if (activityTypeId) params.append("activity_type_id", activityTypeId);
-    if (sdgId) params.append("sdg_id", sdgId);
-    if (beneficiaryGroup) params.append("beneficiary_group", beneficiaryGroup);
-    if (minAmount) params.append("min_amount", minAmount);
-    if (maxAmount) params.append("max_amount", maxAmount);
-    if (approvalDateStart) params.append("approval_date_start", approvalDateStart);
-    if (approvalDateEnd) params.append("approval_date_end", approvalDateEnd);
-    params.append("is_archived", viewArchived);
+    if (selectedIds.length > 0) {
+      params.append("project_ids", selectedIds.join(","));
+    } else {
+      if (search) params.append("search", search);
+      if (docNo) params.append("doc_no", docNo);
+      if (year) params.append("year", year);
+      if (agencyIds && agencyIds.length > 0) params.append("agency_id", agencyIds.join(","));
+      if (fundingSourceId) params.append("funding_source_id", fundingSourceId);
+      if (stateId) params.append("state_id", stateId);
+      if (districtId) params.append("district_id", districtId);
+      if (blockId) params.append("block_id", blockId);
+      if (statusId) params.append("status_id", statusId);
+      if (themeId) params.append("theme_id", themeId);
+      if (subThemeId) params.append("sub_theme_id", subThemeId);
+      if (activityTypeId) params.append("activity_type_id", activityTypeId);
+      if (sdgId) params.append("sdg_id", sdgId);
+      if (filterMainGroup) params.append("beneficiary_main_group", filterMainGroup);
+      if (filterSubGroups && filterSubGroups.length > 0) params.append("beneficiary_sub_groups", filterSubGroups.join(","));
+      if (minAmount) params.append("min_amount", minAmount);
+      if (maxAmount) params.append("max_amount", maxAmount);
+      if (approvalDateStart) params.append("approval_date_start", approvalDateStart);
+      if (approvalDateEnd) params.append("approval_date_end", approvalDateEnd);
+      params.append("is_archived", "false");
+    }
 
     const url = `http://localhost:5000/reports/export/${format}?${params.toString()}`;
     const link = document.createElement("a");
@@ -515,7 +600,7 @@ export default function Projects() {
           <Grid container spacing={2}>
             {/* Project Info Filters */}
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <TextField fullWidth label="Search Project Name" size="small" value={search} onChange={(e) => setSearch(e.target.value)} />
+              <TextField fullWidth label="Search Donor Agency / Agency Name" size="small" value={search} onChange={(e) => setSearch(e.target.value)} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <TextField fullWidth label="Doc Number" size="small" value={docNo} onChange={(e) => setDocNo(e.target.value)} />
@@ -524,13 +609,19 @@ export default function Projects() {
               <TextField fullWidth label="Financial Year" size="small" value={year} placeholder="e.g. 2024-25" onChange={(e) => setYear(e.target.value)} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Executing Agency</InputLabel>
-                <Select value={agencyId} label="Executing Agency" onChange={(e) => setAgencyId(e.target.value)}>
-                  <MenuItem value="">All Agencies</MenuItem>
-                  {agencies.map(a => <MenuItem key={a.agency_id} value={a.agency_id}>{a.agency_name}</MenuItem>)}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                multiple
+                size="small"
+                options={agencies}
+                getOptionLabel={(option) => option.agency_name}
+                value={agencies.filter(a => agencyIds.includes(a.agency_id))}
+                onChange={(event, newValue) => {
+                  setAgencyIds(newValue.map(v => v.agency_id));
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Donor Agency" placeholder="Select..." />
+                )}
+              />
             </Grid>
 
             {/* Classification Filters */}
@@ -556,25 +647,30 @@ export default function Projects() {
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth size="small">
-                <InputLabel>Target Beneficiaries</InputLabel>
-                <Select value={targetGroupId} label="Target Beneficiaries" onChange={(e) => setTargetGroupId(e.target.value)}>
-                  <MenuItem value="">All Target Groups</MenuItem>
-                  {targetGroups.map(tg => (
-                    <MenuItem key={tg.target_group_id} value={tg.target_group_id}>{tg.main_group} - {tg.sub_group}</MenuItem>
+                <InputLabel>Main Target Group</InputLabel>
+                <Select value={filterMainGroup} label="Main Target Group" onChange={(e) => { setFilterMainGroup(e.target.value); setFilterSubGroups([]); }}>
+                  <MenuItem value="">All Main Groups</MenuItem>
+                  {Object.keys(TARGET_GROUPS_MAPPING).map(g => (
+                    <MenuItem key={g} value={g}>{g}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Activity Type</InputLabel>
-                <Select value={activityTypeId} label="Activity Type" onChange={(e) => setActivityTypeId(e.target.value)}>
-                  <MenuItem value="">All Activities</MenuItem>
-                  {activityTypes.map(at => (
-                    <MenuItem key={at.activity_type_id} value={at.activity_type_id}>{at.activity_type_name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                multiple
+                size="small"
+                disabled={!filterMainGroup}
+                options={filterMainGroup ? TARGET_GROUPS_MAPPING[filterMainGroup] : []}
+                getOptionLabel={(option) => option}
+                value={filterSubGroups}
+                onChange={(event, newValue) => {
+                  setFilterSubGroups(newValue);
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Sub-target groups" placeholder="Select..." />
+                )}
+              />
             </Grid>
 
             {/* Geographical Filters */}
@@ -615,30 +711,6 @@ export default function Projects() {
               </FormControl>
             </Grid>
 
-
-
-            {/* Beneficiary Category and Status */}
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Beneficiary Filter</InputLabel>
-                <Select value={beneficiaryGroup} label="Beneficiary Filter" onChange={(e) => setBeneficiaryGroup(e.target.value)}>
-                  <MenuItem value="">All Groups</MenuItem>
-                  {["Women", "Girls", "Boys", "Men", "Youth", "Farmers", "SHGs", "Teachers", "Persons with Disabilities", "Elderly"].map(g => (
-                    <MenuItem key={g} value={g}>{g}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Classification Status</InputLabel>
-                <Select value={status} label="Classification Status" onChange={(e) => setStatus(e.target.value)}>
-                  <MenuItem value="">All Classification Statuses</MenuItem>
-                  <MenuItem value="Pending">Pending</MenuItem>
-                  <MenuItem value="Completed">Completed</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Project Implementation Status</InputLabel>
@@ -649,14 +721,12 @@ export default function Projects() {
               </FormControl>
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Scope View</InputLabel>
-                <Select value={viewArchived} label="Scope View" onChange={(e) => setViewArchived(e.target.value)}>
-                  <MenuItem value={false}>Active Projects Only</MenuItem>
-                  <MenuItem value={true}>Archived Projects Only</MenuItem>
-                </Select>
-              </FormControl>
+              <TextField fullWidth label="Min Sanctioned Amount" type="number" size="small" value={minAmount} onChange={(e) => setMinAmount(e.target.value)} />
             </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <TextField fullWidth label="Max Sanctioned Amount" type="number" size="small" value={maxAmount} onChange={(e) => setMaxAmount(e.target.value)} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}></Grid>
           </Grid>
 
           <Divider sx={{ my: 2 }} />
@@ -676,15 +746,22 @@ export default function Projects() {
                 Save Preset
               </Button>
               {Object.keys(presets).length > 0 && (
-                <FormControl size="small" sx={{ width: "200px" }}>
-                  <InputLabel>Load Filter Preset</InputLabel>
-                  <Select value="" label="Load Filter Preset" onChange={(e) => applyPreset(e.target.value)}>
-                    <MenuItem value="">-- Load Preset --</MenuItem>
-                    {Object.keys(presets).map(name => (
-                      <MenuItem key={name} value={name}>{name}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <>
+                  <FormControl size="small" sx={{ width: "200px" }}>
+                    <InputLabel>Load Filter Preset</InputLabel>
+                    <Select value={selectedPreset} label="Load Filter Preset" onChange={(e) => applyPreset(e.target.value)}>
+                      <MenuItem value="">-- Load Preset --</MenuItem>
+                      {Object.keys(presets).map(name => (
+                        <MenuItem key={name} value={name}>{name}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  {selectedPreset && (
+                    <Button variant="outlined" color="error" size="small" startIcon={<DeleteIcon />} onClick={deletePreset}>
+                      Delete Preset
+                    </Button>
+                  )}
+                </>
               )}
             </Box>
             <Button variant="outlined" color="inherit" size="small" startIcon={<ClearIcon />} onClick={clearFilters}>
@@ -793,7 +870,7 @@ export default function Projects() {
 
                 <TableCell sx={{ width: "80px", backgroundColor: "#f1f5f9" }}>Year</TableCell>
                 <TableCell sx={{ width: "100px", backgroundColor: "#f1f5f9" }}>Doc. #</TableCell>
-                <TableCell sx={{ width: "180px", backgroundColor: "#f1f5f9" }}>Name of Agency</TableCell>
+                <TableCell sx={{ width: "180px", backgroundColor: "#f1f5f9" }}>Donor Agency</TableCell>
                 <TableCell sx={{ width: "300px", backgroundColor: "#f1f5f9" }}>Name of Project</TableCell>
                 <TableCell sx={{ width: "130px", backgroundColor: "#f1f5f9" }}>Date of Approval</TableCell>
                 <TableCell sx={{ width: "150px", backgroundColor: "#f1f5f9" }}>Sanctioned Amount (Rs.)</TableCell>

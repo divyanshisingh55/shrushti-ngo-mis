@@ -26,7 +26,10 @@ function buildQuery(req) {
     max_amount,
     approval_date_start,
     approval_date_end,
-    is_archived
+    is_archived,
+    project_ids,
+    beneficiary_main_group,
+    beneficiary_sub_groups
   } = req.query;
 
   let query = `
@@ -108,6 +111,15 @@ function buildQuery(req) {
     query += ` AND p.is_archived = false`;
   }
 
+  if (project_ids) {
+    const ids = String(project_ids).split(',').map(Number).filter(Boolean);
+    if (ids.length > 0) {
+      query += ` AND p.project_id = ANY($${paramCount})`;
+      values.push(ids);
+      paramCount++;
+    }
+  }
+
   if (doc_no) {
     query += ` AND p.doc_no ILIKE $${paramCount}`;
     values.push(`%${doc_no}%`);
@@ -127,9 +139,12 @@ function buildQuery(req) {
   }
 
   if (agency_id) {
-    query += ` AND p.agency_id = $${paramCount}`;
-    values.push(Number(agency_id));
-    paramCount++;
+    const ids = String(agency_id).split(',').map(Number).filter(Boolean);
+    if (ids.length > 0) {
+      query += ` AND p.agency_id = ANY($${paramCount})`;
+      values.push(ids);
+      paramCount++;
+    }
   }
 
   if (funding_source_id) {
@@ -154,7 +169,7 @@ function buildQuery(req) {
   }
 
   if (search) {
-    query += ` AND p.project_name ILIKE $${paramCount}`;
+    query += ` AND a.agency_name ILIKE $${paramCount}`;
     values.push(`%${search}%`);
     paramCount++;
   }
@@ -275,6 +290,29 @@ function buildQuery(req) {
         JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
         WHERE ptg.project_id = p.project_id AND (${beneficiaryCondition})
       )`;
+    }
+  }
+
+  if (beneficiary_main_group) {
+    query += ` AND EXISTS (
+      SELECT 1 FROM project_target_groups ptg 
+      JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
+      WHERE ptg.project_id = p.project_id AND tg.main_group = $${paramCount}
+    )`;
+    values.push(beneficiary_main_group);
+    paramCount++;
+  }
+
+  if (beneficiary_sub_groups) {
+    const subs = String(beneficiary_sub_groups).split(',').filter(Boolean);
+    if (subs.length > 0) {
+      query += ` AND EXISTS (
+        SELECT 1 FROM project_target_groups ptg 
+        JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
+        WHERE ptg.project_id = p.project_id AND tg.sub_group = ANY($${paramCount})
+      )`;
+      values.push(subs);
+      paramCount++;
     }
   }
 

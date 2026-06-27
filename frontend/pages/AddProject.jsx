@@ -48,6 +48,8 @@ export default function AddProject() {
   const [customAgency, setCustomAgency] = useState("");
   const [fundingSelect, setFundingSelect] = useState("");
   const [customFunding, setCustomFunding] = useState("");
+  const [fundingSelect2, setFundingSelect2] = useState("");
+  const [customFunding2, setCustomFunding2] = useState("");
   const [selectedStates, setSelectedStates] = useState([{ state_id: "", custom_name: "" }]);
 
   // Database lists
@@ -109,7 +111,7 @@ export default function AddProject() {
 
     const agencyVal = agencySelect === "custom" ? customAgency : agencySelect;
     if (!agencyVal || !agencyVal.toString().trim()) {
-      setError("Agency is required.");
+      setError("Donor Agency is required.");
       return;
     }
 
@@ -119,6 +121,7 @@ export default function AddProject() {
     }
 
     const fundingVal = fundingSelect === "custom" ? customFunding : fundingSelect;
+    const fundingVal2 = fundingSelect2 === "custom" ? customFunding2 : fundingSelect2;
 
     // Resolve states array
     const resolvedStates = selectedStates.map(stObj => {
@@ -136,6 +139,7 @@ export default function AddProject() {
         agency: agencyVal,
         year: year,
         funding_source: fundingVal,
+        funding_source2: fundingVal2,
         approval_date: approvalDate || null,
         sanctioned_amount: sanctionedAmount || null,
         status_id: statusId || null,
@@ -216,28 +220,28 @@ export default function AddProject() {
               />
             </Grid>
 
-            {/* Agency (Full Width) */}
+            {/* Donor Agency (Full Width) */}
             <Grid size={12}>
               <FormControl fullWidth required>
-                <InputLabel>Agency</InputLabel>
+                <InputLabel>Donor Agency</InputLabel>
                 <Select
                   value={agencySelect}
-                  label="Agency"
+                  label="Donor Agency"
                   onChange={(e) => setAgencySelect(e.target.value)}
                 >
-                  <MenuItem value="">Select Agency</MenuItem>
+                  <MenuItem value="">Select Donor Agency</MenuItem>
                   {agencies.map((a) => (
                     <MenuItem key={a.agency_id} value={a.agency_id}>{a.agency_name}</MenuItem>
                   ))}
                   <MenuItem value="custom" sx={{ fontStyle: "italic", color: "#2563eb", fontWeight: "bold" }}>
-                    + Add New Agency
+                    + Add New Donor Agency
                   </MenuItem>
                 </Select>
               </FormControl>
               {agencySelect === "custom" && (
                 <TextField
                   fullWidth
-                  label="Enter New Agency Name"
+                  label="Enter New Donor Agency Name"
                   required
                   variant="outlined"
                   size="small"
@@ -356,6 +360,38 @@ export default function AddProject() {
                   sx={{ mt: 2 }}
                   value={customFunding}
                   onChange={(e) => setCustomFunding(e.target.value)}
+                />
+              )}
+            </Grid>
+
+            {/* Funding Source 2 (Normal Width) */}
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <FormControl fullWidth>
+                <InputLabel>Funding Source 2</InputLabel>
+                <Select
+                  value={fundingSelect2}
+                  label="Funding Source 2"
+                  onChange={(e) => setFundingSelect2(e.target.value)}
+                >
+                  <MenuItem value="">Select Funding Source 2</MenuItem>
+                  {fundingSources.map((f) => (
+                    <MenuItem key={f.funding_source_id} value={f.funding_source_id}>{f.source_name}</MenuItem>
+                  ))}
+                  <MenuItem value="custom" sx={{ fontStyle: "italic", color: "#2563eb", fontWeight: "bold" }}>
+                    + Add New Funding Source 2
+                  </MenuItem>
+                </Select>
+              </FormControl>
+              {fundingSelect2 === "custom" && (
+                <TextField
+                  fullWidth
+                  label="Enter New Funding Source 2"
+                  required
+                  variant="outlined"
+                  size="small"
+                  sx={{ mt: 2 }}
+                  value={customFunding2}
+                  onChange={(e) => setCustomFunding2(e.target.value)}
                 />
               )}
             </Grid>

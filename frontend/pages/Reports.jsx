@@ -222,13 +222,13 @@ export default function Reports() {
           {/* Agency Filter */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <FormControl fullWidth size="small">
-              <InputLabel>All Agencies</InputLabel>
+              <InputLabel>All Donor Agencies</InputLabel>
               <Select
                 value={selectedAgency}
-                label="All Agencies"
+                label="All Donor Agencies"
                 onChange={(e) => setSelectedAgency(e.target.value)}
               >
-                <MenuItem value="">All Agencies</MenuItem>
+                <MenuItem value="">All Donor Agencies</MenuItem>
                 {agencies.map(a => <MenuItem key={a.agency_id} value={a.agency_id}>{a.agency_name}</MenuItem>)}
               </Select>
             </FormControl>
@@ -382,7 +382,7 @@ export default function Reports() {
                 <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>ID</TableCell>
                 <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>Project Name</TableCell>
                 <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>Year</TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>Agency</TableCell>
+                <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>Donor Agency</TableCell>
                 <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>State</TableCell>
                 <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>Primary Theme</TableCell>
                 <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>Classification Status</TableCell>

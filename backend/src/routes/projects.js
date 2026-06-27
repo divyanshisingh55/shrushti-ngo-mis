@@ -103,7 +103,9 @@ router.get("/", async (req, res) => {
       min_amount,
       max_amount,
       is_archived,
-      include_archived
+      include_archived,
+      beneficiary_main_group,
+      beneficiary_sub_groups
     } = req.query;
 
     const values = [];
@@ -204,9 +206,12 @@ router.get("/", async (req, res) => {
     }
 
     if (agency_id) {
-      query += ` AND p.agency_id = $${paramCount}`;
-      values.push(Number(agency_id));
-      paramCount++;
+      const ids = String(agency_id).split(',').map(Number).filter(Boolean);
+      if (ids.length > 0) {
+        query += ` AND p.agency_id = ANY($${paramCount})`;
+        values.push(ids);
+        paramCount++;
+      }
     }
 
     if (funding_source_id) {
@@ -231,7 +236,7 @@ router.get("/", async (req, res) => {
     }
 
     if (search) {
-      query += ` AND p.project_name ILIKE $${paramCount}`;
+      query += ` AND a.agency_name ILIKE $${paramCount}`;
       values.push(`%${search}%`);
       paramCount++;
     }
@@ -361,6 +366,29 @@ router.get("/", async (req, res) => {
           JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
           WHERE ptg.project_id = p.project_id AND (${beneficiaryCondition})
         )`;
+      }
+    }
+
+    if (beneficiary_main_group) {
+      query += ` AND EXISTS (
+        SELECT 1 FROM project_target_groups ptg 
+        JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
+        WHERE ptg.project_id = p.project_id AND tg.main_group = $${paramCount}
+      )`;
+      values.push(beneficiary_main_group);
+      paramCount++;
+    }
+
+    if (beneficiary_sub_groups) {
+      const subs = String(beneficiary_sub_groups).split(',').filter(Boolean);
+      if (subs.length > 0) {
+        query += ` AND EXISTS (
+          SELECT 1 FROM project_target_groups ptg 
+          JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
+          WHERE ptg.project_id = p.project_id AND tg.sub_group = ANY($${paramCount})
+        )`;
+        values.push(subs);
+        paramCount++;
       }
     }
 

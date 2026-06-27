@@ -165,6 +165,8 @@ export default function ProjectDetails() {
   const [customAgency, setCustomAgency] = useState("");
   const [fundingSelect, setFundingSelect] = useState("");
   const [customFunding, setCustomFunding] = useState("");
+  const [fundingSelect2, setFundingSelect2] = useState("");
+  const [customFunding2, setCustomFunding2] = useState("");
   const [selectedStates, setSelectedStates] = useState([{ state_id: "", custom_name: "" }]);
 
   // Classification States
@@ -329,6 +331,7 @@ export default function ProjectDetails() {
 
       setAgencySelect(proj.agency_id || "");
       setFundingSelect(proj.funding_source_id || "");
+      setFundingSelect2(proj.funding_source2_id || "");
 
       if (proj.state_ids && proj.state_ids.length > 0) {
         setSelectedStates(proj.state_ids.map(sid => ({ state_id: sid, custom_name: "" })));
@@ -477,6 +480,7 @@ export default function ProjectDetails() {
     e.preventDefault();
     const agencyVal = agencySelect === "custom" ? customAgency : agencySelect;
     const fundingVal = fundingSelect === "custom" ? customFunding : fundingSelect;
+    const fundingVal2 = fundingSelect2 === "custom" ? customFunding2 : fundingSelect2;
 
     const resolvedStates = selectedStates.map(stObj => {
       return stObj.state_id === "custom" ? stObj.custom_name : stObj.state_id;
@@ -488,6 +492,7 @@ export default function ProjectDetails() {
         agency: agencyVal,
         year: editYear,
         funding_source: fundingVal,
+        funding_source2: fundingVal2,
         approval_date: editApprovalDate || null,
         sanctioned_amount: editSanctionedAmount || null,
         status_id: editStatusId || null,
@@ -648,15 +653,15 @@ export default function ProjectDetails() {
 
               <Grid size={12}>
                 <FormControl fullWidth>
-                  <InputLabel>Agency</InputLabel>
-                  <Select value={agencySelect} label="Agency" onChange={(e) => setAgencySelect(e.target.value)}>
-                    <MenuItem value="">Select Agency</MenuItem>
+                  <InputLabel>Donor Agency</InputLabel>
+                  <Select value={agencySelect} label="Donor Agency" onChange={(e) => setAgencySelect(e.target.value)}>
+                    <MenuItem value="">Select Donor Agency</MenuItem>
                     {agencies.map(a => <MenuItem key={a.agency_id} value={a.agency_id}>{a.agency_name}</MenuItem>)}
-                    <MenuItem value="custom" sx={{ color: "#3b82f6", fontWeight: "bold" }}>+ Add New Agency</MenuItem>
+                    <MenuItem value="custom" sx={{ color: "#3b82f6", fontWeight: "bold" }}>+ Add New Donor Agency</MenuItem>
                   </Select>
                 </FormControl>
                 {agencySelect === "custom" && (
-                  <TextField fullWidth label="Custom Agency Name" required size="small" sx={{ mt: 2 }} value={customAgency} onChange={(e) => setCustomAgency(e.target.value)} />
+                  <TextField fullWidth label="Custom Donor Agency Name" required size="small" sx={{ mt: 2 }} value={customAgency} onChange={(e) => setCustomAgency(e.target.value)} />
                 )}
               </Grid>
 
@@ -701,6 +706,20 @@ export default function ProjectDetails() {
                 </FormControl>
                 {fundingSelect === "custom" && (
                   <TextField fullWidth label="Custom Funding Source" required size="small" sx={{ mt: 2 }} value={customFunding} onChange={(e) => setCustomFunding(e.target.value)} />
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <FormControl fullWidth>
+                  <InputLabel>Funding Source 2</InputLabel>
+                  <Select value={fundingSelect2} label="Funding Source 2" onChange={(e) => setFundingSelect2(e.target.value)}>
+                    <MenuItem value="">Select Funding Source 2</MenuItem>
+                    {fundingSources.map(f => <MenuItem key={f.funding_source_id} value={f.funding_source_id}>{f.source_name}</MenuItem>)}
+                    <MenuItem value="custom" sx={{ color: "#3b82f6", fontWeight: "bold" }}>+ Add New Funding Source 2</MenuItem>
+                  </Select>
+                </FormControl>
+                {fundingSelect2 === "custom" && (
+                  <TextField fullWidth label="Custom Funding Source 2" required size="small" sx={{ mt: 2 }} value={customFunding2} onChange={(e) => setCustomFunding2(e.target.value)} />
                 )}
               </Grid>
 
@@ -839,7 +858,7 @@ export default function ProjectDetails() {
 
             <Grid container spacing={2} sx={{ mb: 2 }}>
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Executing Agency</Typography>
+                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Donor Agency</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.agency_name || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
@@ -853,6 +872,10 @@ export default function ProjectDetails() {
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Funding Source</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.funding_source || "-"}</Typography>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Funding Source 2</Typography>
+                <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.funding_source2 || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Approval Date</Typography>
