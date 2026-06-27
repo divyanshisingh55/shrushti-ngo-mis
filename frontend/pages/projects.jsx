@@ -517,9 +517,17 @@ export default function Projects() {
       {/* Header Panel */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4, flexWrap: "wrap", gap: 2 }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0f172a", mb: 1 }}>
-            Shrushti Projects
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
+            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0f172a" }}>
+              Shrushti Projects
+            </Typography>
+            <Chip 
+              label={`${projects.length} Projects`} 
+              color="primary" 
+              variant="outlined" 
+              sx={{ fontWeight: "bold", bgcolor: "#eff6ff", borderColor: "#bfdbfe" }} 
+            />
+          </Box>
           <Typography variant="body1" sx={{ color: "#64748b" }}>
             Manage, duplicate, archive, and run AI-assisted bulk classification.
           </Typography>
@@ -874,6 +882,13 @@ export default function Projects() {
         {/* Loading Progress Bar at the top of the table to prevent layout shifts */}
         <Box sx={{ height: "4px", width: "100%", mb: 1 }}>
           {loading && <LinearProgress color="primary" />}
+        </Box>
+
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, px: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: "600", color: "#334155", display: "flex", alignItems: "center", gap: 1 }}>
+            <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#3b82f6" }}></span>
+            Showing {projects.length} {projects.length === 1 ? "project" : "projects"} matching your filters
+          </Typography>
         </Box>
 
         <TableContainer
