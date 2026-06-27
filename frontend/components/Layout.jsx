@@ -53,20 +53,12 @@ export default function Layout({ children }) {
 
   const drawer = (
     <Box sx={{ height: "100%", backgroundColor: "#ffffff", color: "#0f172a", overflowX: "hidden", borderRight: "1px solid #f1f5f9" }}>
-      <Toolbar style={{ backgroundColor: "#ffffff", padding: "16px 20px", display: "flex", gap: "12px", alignItems: "center" }}>
-        <Box sx={{
-          width: 38, height: 38, borderRadius: "8px",
-          backgroundColor: "#0d9488",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          color: "#ffffff"
-        }}>
-          <AssessmentIcon fontSize="small" />
-        </Box>
+      <Toolbar style={{ backgroundColor: "#ffffff", padding: "16px 24px", display: "flex", alignItems: "center" }}>
         <Box>
-          <Typography variant="body1" sx={{ fontWeight: "800", color: "#0f172a", fontSize: "14px", lineHeight: "1.2" }}>
+          <Typography variant="body1" sx={{ fontWeight: "800", color: "#0d9488", fontSize: "17px", lineHeight: "1.2", letterSpacing: "0.5px" }}>
             Shrushti MIS
           </Typography>
-          <Typography variant="caption" sx={{ color: "#64748b", fontWeight: "500", fontSize: "10px" }}>
+          <Typography variant="caption" sx={{ color: "#64748b", fontWeight: "600", fontSize: "10px" }}>
             Management Portal
           </Typography>
         </Box>
@@ -143,16 +135,7 @@ export default function Layout({ children }) {
             </Typography>
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton sx={{ color: "#64748b" }}>
-              <SearchIcon fontSize="small" />
-            </IconButton>
-            <IconButton sx={{ color: "#64748b" }}>
-              <Badge color="error" variant="dot">
-                <NotificationsIcon fontSize="small" />
-              </Badge>
-            </IconButton>
-          </Box>
+
         </Toolbar>
       </AppBar>
       <Box
