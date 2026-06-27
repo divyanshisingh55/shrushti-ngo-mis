@@ -93,6 +93,7 @@ export default function Dashboard() {
     themesFrequency: []
   });
 
+  const [recentProjects, setRecentProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Modal / Dialog details
@@ -111,13 +112,19 @@ export default function Dashboard() {
 
   const loadDashboardData = async () => {
     try {
-      const [summaryRes, chartsRes] = await Promise.all([
+      const [summaryRes, chartsRes, projectsRes] = await Promise.all([
         axios.get("http://localhost:5000/dashboard/summary"),
-        axios.get("http://localhost:5000/dashboard/charts")
+        axios.get("http://localhost:5000/dashboard/charts"),
+        axios.get("http://localhost:5000/projects?include_archived=false")
       ]);
 
       setSummary(summaryRes.data);
       setCharts(chartsRes.data);
+
+      const projectsList = projectsRes.data.data || projectsRes.data || [];
+      const sorted = [...projectsList].sort((a, b) => b.project_id - a.project_id);
+      setRecentProjects(sorted.slice(0, 5));
+
       setLoading(false);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -703,14 +710,91 @@ export default function Dashboard() {
 
       {/* Recharts Sections Grid */}
       <Grid container spacing={3}>
-        {/* Projects By Primary Theme */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
+        {/* ROW 1: Large Area Chart (Total Turnover) & Donut Chart (Classification Status) */}
+        
+        {/* Left: Total Turnover Every Year */}
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
-                Projects by Primary Theme
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+                Total Turnover Every Year
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('theme')} sx={{ color: "#0f766e" }}>
+              <IconButton size="small" onClick={() => setFullscreenChart('turnover')} sx={{ color: "#0d9488" }}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ width: "100%", height: 320 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={formattedTurnoverData}
+                  margin={{ top: 10, right: 30, left: 15, bottom: 10 }}
+                >
+                  <defs>
+                    <linearGradient id="turnoverGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.15} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="year" style={{ fontSize: "11px", fontWeight: "600", fill: "#64748b" }} />
+                  <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: -5 }} style={{ fontSize: "11px", fill: "#64748b" }} />
+                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
+                  <Legend />
+                  <Area type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#10b981" strokeWidth={3} fill="url(#turnoverGrad)" activeDot={{ r: 8 }} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Right: Classification Status Distribution */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", height: "100%", display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+                Classification Status
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('status')} sx={{ color: "#0d9488" }}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ width: "100%", height: 320, display: "flex", justifyContent: "center", alignItems: "center", position: "relative" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={charts.projectsByStatus || []}
+                    dataKey="count"
+                    nameKey="classification_status"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={95}
+                    paddingAngle={4}
+                    fill="#10b981"
+                  >
+                    {(charts.projectsByStatus || []).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#0f766e' : '#eab308'} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={glassTooltipStyle} />
+                </PieChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* ROW 2: Bar Chart (Primary Theme) & Donut Chart (States) & List Widget (Recent Projects) */}
+
+        {/* Column 1: Projects by Primary Theme */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+                Primary Theme Distribution
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('theme')} sx={{ color: "#0d9488" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
@@ -720,6 +804,7 @@ export default function Dashboard() {
                 <BarChart
                   data={formattedThemeData}
                   margin={{ top: 10, right: 10, left: 0, bottom: 65 }}
+                  barSize={16}
                 >
                   <defs>
                     <linearGradient id="themeGrad" x1="0" y1="0" x2="0" y2="1">
@@ -728,8 +813,8 @@ export default function Dashboard() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10, fontWeight: "500", fill: "#475569" }} interval={0} />
-                  <YAxis style={{ fontSize: "11px", fill: "#475569" }} />
+                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 9, fontWeight: "500", fill: "#64748b" }} interval={0} />
+                  <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
                   <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
                   <Bar dataKey="count" fill="url(#themeGrad)" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -738,85 +823,14 @@ export default function Dashboard() {
           </Paper>
         </Grid>
 
-        {/* Projects By Financial Year */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
+        {/* Column 2: Geographical Distribution */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
-                Projects by Financial Year
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+                Geographical Distribution
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('year')} sx={{ color: "#0f766e" }}>
-                <FullscreenIcon />
-              </IconButton>
-            </Box>
-            <Divider sx={{ mb: 2 }} />
-            <Box sx={{ width: "100%", height: 320 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={charts.projectsByYear}
-                  margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
-                >
-                  <defs>
-                    <linearGradient id="yearGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#2563eb" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#2563eb" stopOpacity={0.0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="year" style={{ fontSize: "11px", fontWeight: "600", fill: "#475569" }} />
-                  <YAxis style={{ fontSize: "11px", fill: "#475569" }} />
-                  <Tooltip contentStyle={glassTooltipStyle} />
-                  <Legend />
-                  <Area type="monotone" dataKey="count" name="Projects Count" stroke="#2563eb" strokeWidth={3} fill="url(#yearGrad)" activeDot={{ r: 8 }} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </Box>
-          </Paper>
-        </Grid>
-
-        {/* Projects By Top Agencies */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
-                Top 10 Agencies
-              </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('agency')} sx={{ color: "#0f766e" }}>
-                <FullscreenIcon />
-              </IconButton>
-            </Box>
-            <Divider sx={{ mb: 2 }} />
-            <Box sx={{ width: "100%", height: 320 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={formattedAgencyData}
-                  margin={{ top: 10, right: 10, left: 0, bottom: 65 }}
-                >
-                  <defs>
-                    <linearGradient id="agencyGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.9} />
-                      <stop offset="100%" stopColor="#6366f1" stopOpacity={0.4} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10, fontWeight: "500", fill: "#475569" }} interval={0} />
-                  <YAxis style={{ fontSize: "11px", fill: "#475569" }} />
-                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
-                  <Bar dataKey="count" fill="url(#agencyGrad)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </Box>
-          </Paper>
-        </Grid>
-
-        {/* Projects By State */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
-                Geographical Distribution (States)
-              </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('state')} sx={{ color: "#0f766e" }}>
+              <IconButton size="small" onClick={() => setFullscreenChart('state')} sx={{ color: "#0d9488" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
@@ -830,12 +844,10 @@ export default function Dashboard() {
                     nameKey="state_name"
                     cx="50%"
                     cy="50%"
-                    innerRadius={50}
-                    outerRadius={85}
+                    innerRadius={70}
+                    outerRadius={95}
                     paddingAngle={3}
                     fill="#3b82f6"
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    style={{ fontSize: "10px", fontWeight: "600" }}
                   >
                     {charts.projectsByState.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -848,53 +860,90 @@ export default function Dashboard() {
           </Paper>
         </Grid>
 
-        {/* Projects by Classification Status (Pie Chart) */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
+        {/* Column 3: Recent Activity (Dynamic Project List) */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", height: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
-                Classification Status Distribution
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+                Recent Projects
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('status')} sx={{ color: "#0f766e" }}>
+              <Button size="small" onClick={() => navigate('/projects')} sx={{ color: "#0d9488", fontWeight: "700", fontSize: "12px", textTransform: "none" }}>
+                View All
+              </Button>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: 2, height: 320, overflowY: "auto" }}>
+              {recentProjects && recentProjects.length > 0 ? (
+                recentProjects.map((project) => (
+                  <Box key={project.project_id} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: 0.5, borderBottom: "1px solid #f1f5f9", "&:last-child": { borderBottom: 0 } }}>
+                    <Box sx={{ maxWidth: "70%" }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: "700", color: "#1f2937", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", fontSize: "13px" }}>
+                        {project.funding_agency || "Others"}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: "#6b7280", display: "block", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", fontSize: "11px" }}>
+                        {project.project_title || "Untitled Project"}
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" sx={{ fontWeight: "700", color: "#10b981", fontSize: "13px", whiteSpace: "nowrap" }}>
+                      +₹{project.sanctioned_amount ? (project.sanctioned_amount / 100000).toFixed(1) : 0}L
+                    </Typography>
+                  </Box>
+                ))
+              ) : (
+                <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", color: "#9ca3af" }}>
+                  No recent projects found
+                </Box>
+              )}
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* ROW 3: Large Area Chart (Projects by Financial Year) & Bar Chart (Funding Source) */}
+
+        {/* Left: Projects By Financial Year */}
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+                Projects by Financial Year
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('year')} sx={{ color: "#0d9488" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
             <Divider sx={{ mb: 2 }} />
-            <Box sx={{ width: "100%", height: 320, display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Box sx={{ width: "100%", height: 320 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={charts.projectsByStatus || []}
-                    dataKey="count"
-                    nameKey="classification_status"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={85}
-                    paddingAngle={4}
-                    fill="#10b981"
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    style={{ fontSize: "10px", fontWeight: "600" }}
-                  >
-                    {(charts.projectsByStatus || []).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#0f766e' : '#eab308'} />
-                    ))}
-                  </Pie>
+                <AreaChart
+                  data={charts.projectsByYear}
+                  margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
+                >
+                  <defs>
+                    <linearGradient id="yearGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#2563eb" stopOpacity={0.15} />
+                      <stop offset="100%" stopColor="#2563eb" stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="year" style={{ fontSize: "11px", fontWeight: "600", fill: "#64748b" }} />
+                  <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
                   <Tooltip contentStyle={glassTooltipStyle} />
-                </PieChart>
+                  <Legend />
+                  <Area type="monotone" dataKey="count" name="Projects Count" stroke="#2563eb" strokeWidth={3} fill="url(#yearGrad)" activeDot={{ r: 8 }} />
+                </AreaChart>
               </ResponsiveContainer>
             </Box>
           </Paper>
         </Grid>
 
-        {/* Funding Source Distribution (Bar Chart) */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
+        {/* Right: Funding Source Distribution */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
                 Funding Source Distribution
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('funding')} sx={{ color: "#0f766e" }}>
+              <IconButton size="small" onClick={() => setFullscreenChart('funding')} sx={{ color: "#0d9488" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
@@ -904,6 +953,7 @@ export default function Dashboard() {
                 <BarChart
                   data={formattedFundingData}
                   margin={{ top: 10, right: 10, left: 0, bottom: 65 }}
+                  barSize={16}
                 >
                   <defs>
                     <linearGradient id="fundingGrad" x1="0" y1="0" x2="0" y2="1">
@@ -912,8 +962,8 @@ export default function Dashboard() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10, fontWeight: "500", fill: "#475569" }} interval={0} />
-                  <YAxis style={{ fontSize: "11px", fill: "#475569" }} />
+                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 9, fontWeight: "500", fill: "#64748b" }} interval={0} />
+                  <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
                   <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
                   <Bar dataKey="count" fill="url(#fundingGrad)" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -922,50 +972,16 @@ export default function Dashboard() {
           </Paper>
         </Grid>
 
-        {/* Total Turnover Every Year (Area Chart) */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
-                Total Turnover Every Year
-              </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('turnover')} sx={{ color: "#0f766e" }}>
-                <FullscreenIcon />
-              </IconButton>
-            </Box>
-            <Divider sx={{ mb: 2 }} />
-            <Box sx={{ width: "100%", height: 320 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={formattedTurnoverData}
-                  margin={{ top: 10, right: 30, left: 15, bottom: 10 }}
-                >
-                  <defs>
-                    <linearGradient id="turnoverGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="year" style={{ fontSize: "11px", fontWeight: "600", fill: "#475569" }} />
-                  <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: -5 }} style={{ fontSize: "11px", fill: "#475569" }} />
-                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
-                  <Legend />
-                  <Area type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#10b981" strokeWidth={3} fill="url(#turnoverGrad)" activeDot={{ r: 8 }} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </Box>
-          </Paper>
-        </Grid>
+        {/* ROW 4: Theme Frequencies & Top Agencies & Key Performance Metrics */}
 
-        {/* Themes Frequencies (Bar Chart) */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
+        {/* Column 1: Theme Selection Frequencies */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
-                Theme Selection Frequencies
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+                Theme Frequencies
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('frequency')} sx={{ color: "#0f766e" }}>
+              <IconButton size="small" onClick={() => setFullscreenChart('frequency')} sx={{ color: "#0d9488" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
@@ -975,6 +991,7 @@ export default function Dashboard() {
                 <BarChart
                   data={formattedFrequencyData}
                   margin={{ top: 10, right: 10, left: 0, bottom: 65 }}
+                  barSize={16}
                 >
                   <defs>
                     <linearGradient id="frequencyGrad" x1="0" y1="0" x2="0" y2="1">
@@ -983,12 +1000,84 @@ export default function Dashboard() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10, fontWeight: "500", fill: "#475569" }} interval={0} />
-                  <YAxis style={{ fontSize: "11px", fill: "#475569" }} />
+                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 9, fontWeight: "500", fill: "#64748b" }} interval={0} />
+                  <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
                   <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
                   <Bar dataKey="count" fill="url(#frequencyGrad)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Column 2: Top Agencies */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+                Top 10 Agencies
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('agency')} sx={{ color: "#0d9488" }}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ width: "100%", height: 320 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={formattedAgencyData}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 65 }}
+                  barSize={16}
+                >
+                  <defs>
+                    <linearGradient id="agencyGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity={0.4} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 9, fontWeight: "500", fill: "#64748b" }} interval={0} />
+                  <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
+                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+                  <Bar dataKey="count" fill="url(#agencyGrad)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Column 3: MIS Performance Stats */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", height: "100%", display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+                MIS Insights
+              </Typography>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: 2, justifyContent: "center" }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", py: 1, borderBottom: "1px solid #f1f5f9" }}>
+                <Typography variant="body2" sx={{ color: "#64748b", fontWeight: "600" }}>Average Budget / Project</Typography>
+                <Typography variant="body2" sx={{ color: "#0f172a", fontWeight: "700" }}>
+                  {summary.totalProjects > 0 ? formatCurrency(summary.totalSanctionedAmount / summary.totalProjects) : "Rs. 0"}
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", justifyContent: "space-between", py: 1, borderBottom: "1px solid #f1f5f9" }}>
+                <Typography variant="body2" sx={{ color: "#64748b", fontWeight: "600" }}>Taxonomy Themes Count</Typography>
+                <Typography variant="body2" sx={{ color: "#0f172a", fontWeight: "700" }}>8 Themes</Typography>
+              </Box>
+              <Box sx={{ display: "flex", justifyContent: "space-between", py: 1, borderBottom: "1px solid #f1f5f9" }}>
+                <Typography variant="body2" sx={{ color: "#64748b", fontWeight: "600" }}>Classification Progress</Typography>
+                <Typography variant="body2" sx={{ color: "#0f766e", fontWeight: "700" }}>
+                  {summary.totalProjects > 0 ? `${((summary.completedProjects / summary.totalProjects) * 100).toFixed(0)}%` : "0%"}
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", justifyContent: "space-between", py: 1 }}>
+                <Typography variant="body2" sx={{ color: "#64748b", fontWeight: "600" }}>Registered States</Typography>
+                <Typography variant="body2" sx={{ color: "#0f172a", fontWeight: "700" }}>
+                  {charts.projectsByState ? charts.projectsByState.length : 0} States
+                </Typography>
+              </Box>
             </Box>
           </Paper>
         </Grid>
