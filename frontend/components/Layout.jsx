@@ -67,10 +67,10 @@ export default function Layout({ children }) {
           }}
         />
         <Box>
-          <Typography variant="body1" sx={{ fontWeight: "800", color: "#0d9488", fontSize: "17px", lineHeight: "1.2", letterSpacing: "0.5px" }}>
+          <Typography variant="body1" sx={{ fontFamily: "'Outfit', sans-serif", fontWeight: "900", color: "#0d9488", fontSize: "18px", lineHeight: "1.2", letterSpacing: "0.2px" }}>
             Shrushti MIS
           </Typography>
-          <Typography variant="caption" sx={{ color: "#64748b", fontWeight: "600", fontSize: "10px" }}>
+          <Typography variant="caption" sx={{ fontFamily: "'Inter', sans-serif", color: "#64748b", fontWeight: "600", fontSize: "10px", letterSpacing: "0.5px" }}>
             Management Portal
           </Typography>
         </Box>
@@ -142,7 +142,7 @@ export default function Layout({ children }) {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h5" noWrap component="div" sx={{ fontWeight: "800", color: "#0f172a", fontSize: { xs: "18px", sm: "22px" }, letterSpacing: "-0.5px" }}>
+            <Typography variant="h5" noWrap component="div" sx={{ fontFamily: "'Outfit', sans-serif", fontWeight: "900", color: "#0f172a", fontSize: { xs: "18px", sm: "23px" }, letterSpacing: "-0.5px" }}>
               Management Information System
             </Typography>
           </Box>
