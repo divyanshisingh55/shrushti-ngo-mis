@@ -142,7 +142,7 @@ export default function Layout({ children }) {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" noWrap component="div" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "16px" }}>
+            <Typography variant="h5" noWrap component="div" sx={{ fontWeight: "800", color: "#0f172a", fontSize: { xs: "18px", sm: "22px" }, letterSpacing: "-0.5px" }}>
               Management Information System
             </Typography>
           </Box>
