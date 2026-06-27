@@ -70,6 +70,13 @@ const glassTooltipStyle = {
 export default function Dashboard() {
   const navigate = useNavigate();
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
   const [summary, setSummary] = useState({
     totalProjects: 0,
     pendingProjects: 0,
@@ -431,10 +438,10 @@ export default function Dashboard() {
   return (
     <Box sx={{ flexGrow: 1, p: 1 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0f172a", mb: 1 }}>
-          Dashboard Analytics
+        <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", fontSize: "22px" }}>
+          {getGreeting()}, Divyanshi
         </Typography>
-        <Typography variant="body1" sx={{ color: "#64748b" }}>
+        <Typography variant="body2" sx={{ color: "#64748b", mt: 0.5, fontWeight: "500" }}>
           Operations Overview, Funding Distributions and AI Classification Statistics. Click on any card for details.
         </Typography>
       </Box>
@@ -446,34 +453,34 @@ export default function Dashboard() {
           <Card
             onClick={() => handleKpiClick('projects')}
             sx={{
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
-              borderRadius: "12px",
-              borderLeft: "6px solid #3b82f6",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
+              borderRadius: "16px",
+              border: "1px solid #e2e8f0",
               cursor: "pointer",
-              transition: "transform 0.2s, box-shadow 0.2s",
+              transition: "all 0.2s ease-in-out",
               "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+                transform: "translateY(-2px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
+                borderColor: "#0d9488"
               },
-              position: "relative",
-              overflow: "visible"
+              backgroundColor: "#ffffff"
             }}
           >
-            <CardContent sx={{ p: 2 }}>
+            <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
                     Total Projects
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "22px" }}>
                     {summary.totalProjects}
                   </Typography>
                 </Box>
                 <Box sx={{
-                  backgroundColor: "#dbeafe",
-                  color: "#3b82f6",
-                  p: 1,
-                  borderRadius: "10px",
+                  backgroundColor: "rgba(37, 99, 235, 0.08)",
+                  color: "#2563eb",
+                  p: 1.2,
+                  borderRadius: "12px",
                   display: "flex",
                   alignItems: "center"
                 }}>
@@ -484,41 +491,39 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-
-
         {/* Completed Classification */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
           <Card
             onClick={() => handleKpiClick('completed')}
             sx={{
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
-              borderRadius: "12px",
-              borderLeft: "6px solid #10b981",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
+              borderRadius: "16px",
+              border: "1px solid #e2e8f0",
               cursor: "pointer",
-              transition: "transform 0.2s, box-shadow 0.2s",
+              transition: "all 0.2s ease-in-out",
               "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+                transform: "translateY(-2px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
+                borderColor: "#0f766e"
               },
-              position: "relative",
-              overflow: "visible"
+              backgroundColor: "#ffffff"
             }}
           >
-            <CardContent sx={{ p: 2 }}>
+            <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
                     Completed
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "22px" }}>
                     {summary.completedProjects}
                   </Typography>
                 </Box>
                 <Box sx={{
-                  backgroundColor: "#d1fae5",
-                  color: "#10b981",
-                  p: 1,
-                  borderRadius: "10px",
+                  backgroundColor: "rgba(15, 118, 110, 0.08)",
+                  color: "#0f766e",
+                  p: 1.2,
+                  borderRadius: "12px",
                   display: "flex",
                   alignItems: "center"
                 }}>
@@ -534,34 +539,34 @@ export default function Dashboard() {
           <Card
             onClick={() => handleKpiClick('themes')}
             sx={{
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
-              borderRadius: "12px",
-              borderLeft: "6px solid #14b8a6",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
+              borderRadius: "16px",
+              border: "1px solid #e2e8f0",
               cursor: "pointer",
-              transition: "transform 0.2s, box-shadow 0.2s",
+              transition: "all 0.2s ease-in-out",
               "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+                transform: "translateY(-2px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
+                borderColor: "#14b8a6"
               },
-              position: "relative",
-              overflow: "visible"
+              backgroundColor: "#ffffff"
             }}
           >
-            <CardContent sx={{ p: 2 }}>
+            <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
                     Total Themes
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "22px" }}>
                     {summary.totalThemes}
                   </Typography>
                 </Box>
                 <Box sx={{
-                  backgroundColor: "#ccfbf1",
+                  backgroundColor: "rgba(20, 180, 166, 0.08)",
                   color: "#14b8a6",
-                  p: 1,
-                  borderRadius: "10px",
+                  p: 1.2,
+                  borderRadius: "12px",
                   display: "flex",
                   alignItems: "center"
                 }}>
@@ -577,34 +582,34 @@ export default function Dashboard() {
           <Card
             onClick={() => handleKpiClick('agencies')}
             sx={{
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
-              borderRadius: "12px",
-              borderLeft: "6px solid #4f46e5",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
+              borderRadius: "16px",
+              border: "1px solid #e2e8f0",
               cursor: "pointer",
-              transition: "transform 0.2s, box-shadow 0.2s",
+              transition: "all 0.2s ease-in-out",
               "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+                transform: "translateY(-2px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
+                borderColor: "#8b5cf6"
               },
-              position: "relative",
-              overflow: "visible"
+              backgroundColor: "#ffffff"
             }}
           >
-            <CardContent sx={{ p: 2 }}>
+            <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
                     Total Agencies
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "22px" }}>
                     {summary.totalAgencies}
                   </Typography>
                 </Box>
                 <Box sx={{
-                  backgroundColor: "#e0e7ff",
-                  color: "#4f46e5",
-                  p: 1,
-                  borderRadius: "10px",
+                  backgroundColor: "rgba(139, 92, 246, 0.08)",
+                  color: "#8b5cf6",
+                  p: 1.2,
+                  borderRadius: "12px",
                   display: "flex",
                   alignItems: "center"
                 }}>
@@ -615,41 +620,39 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-
-
         {/* Manual Classified Projects */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
           <Card
             onClick={() => handleKpiClick('manual')}
             sx={{
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
-              borderRadius: "12px",
-              borderLeft: "6px solid #6366f1",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
+              borderRadius: "16px",
+              border: "1px solid #e2e8f0",
               cursor: "pointer",
-              transition: "transform 0.2s, box-shadow 0.2s",
+              transition: "all 0.2s ease-in-out",
               "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+                transform: "translateY(-2px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
+                borderColor: "#6366f1"
               },
-              position: "relative",
-              overflow: "visible"
+              backgroundColor: "#ffffff"
             }}
           >
-            <CardContent sx={{ p: 2 }}>
+            <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
                     Manual Classified
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
+                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "22px" }}>
                     {summary.manualClassifiedProjects || 0}
                   </Typography>
                 </Box>
                 <Box sx={{
-                  backgroundColor: "#e0e7ff",
+                  backgroundColor: "rgba(99, 102, 241, 0.08)",
                   color: "#6366f1",
-                  p: 1,
-                  borderRadius: "10px",
+                  p: 1.2,
+                  borderRadius: "12px",
                   display: "flex",
                   alignItems: "center"
                 }}>
@@ -665,23 +668,23 @@ export default function Dashboard() {
           <Card
             onClick={() => handleKpiClick('sanctioned')}
             sx={{
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
-              borderRadius: "12px",
-              borderLeft: "6px solid #059669",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
+              borderRadius: "16px",
+              border: "1px solid #e2e8f0",
               cursor: "pointer",
-              transition: "transform 0.2s, box-shadow 0.2s",
+              transition: "all 0.2s ease-in-out",
               "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
+                transform: "translateY(-2px)",
+                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
+                borderColor: "#10b981"
               },
-              position: "relative",
-              overflow: "visible"
+              backgroundColor: "#ffffff"
             }}
           >
-            <CardContent sx={{ p: 2 }}>
+            <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
                     Total Budget
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "19px" }}>
@@ -689,10 +692,10 @@ export default function Dashboard() {
                   </Typography>
                 </Box>
                 <Box sx={{
-                  backgroundColor: "#d1fae5",
-                  color: "#059669",
-                  p: 1,
-                  borderRadius: "10px",
+                  backgroundColor: "rgba(16, 185, 129, 0.08)",
+                  color: "#10b981",
+                  p: 1.2,
+                  borderRadius: "12px",
                   display: "flex",
                   alignItems: "center"
                 }}>
