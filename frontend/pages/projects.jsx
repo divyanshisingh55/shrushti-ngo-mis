@@ -150,6 +150,12 @@ export default function Projects() {
   const [fundingSource, setFundingSource] = useState("");
   const [fundingSource2, setFundingSource2] = useState("");
 
+  // --- DEBOUNCED STATES FOR TEXT INPUTS ---
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedDocNo, setDebouncedDocNo] = useState("");
+  const [debouncedYear, setDebouncedYear] = useState("");
+  const [debouncedMinAmount, setDebouncedMinAmount] = useState("");
+
   // --- METADATA LISTS ---
   const [agencies, setAgencies] = useState([]);
   const [fundingSources, setFundingSources] = useState([]);
@@ -178,13 +184,25 @@ export default function Projects() {
     loadPresets();
   }, []);
 
+  // Debounce typing inputs to optimize API load and eliminate lag
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+      setDebouncedDocNo(docNo);
+      setDebouncedYear(year);
+      setDebouncedMinAmount(minAmount);
+    }, 350);
+
+    return () => clearTimeout(handler);
+  }, [search, docNo, year, minAmount]);
+
   // Trigger reload on filter values change
   useEffect(() => {
     fetchProjects();
   }, [
-    search, docNo, year, agencyIds, fundingSourceId, stateId,
+    debouncedSearch, debouncedDocNo, debouncedYear, agencyIds, fundingSourceId, stateId,
     districtId, blockId, statusId, themeId, subThemeId,
-    activityTypeId, sdgId, JSON.stringify(targetGroupFilters), minAmount,
+    activityTypeId, sdgId, JSON.stringify(targetGroupFilters), debouncedMinAmount,
     approvalDateStart, approvalDateEnd, fundingSource, fundingSource2
   ]);
 
@@ -245,9 +263,9 @@ export default function Projects() {
     setLoading(true);
     const activeTargetGroupFilters = targetGroupFilters.filter(f => f.mainGroup);
     const params = {
-      search,
-      doc_no: docNo,
-      year,
+      search: debouncedSearch,
+      doc_no: debouncedDocNo,
+      year: debouncedYear,
       agency_id: agencyIds.join(","),
       funding_source_id: fundingSourceId,
       funding_source: fundingSource,
@@ -261,7 +279,7 @@ export default function Projects() {
       activity_type_id: activityTypeId,
       sdg_id: sdgId,
       target_group_filters: activeTargetGroupFilters.length > 0 ? JSON.stringify(activeTargetGroupFilters) : undefined,
-      min_amount: minAmount,
+      min_amount: debouncedMinAmount,
       approval_date_start: approvalDateStart,
       approval_date_end: approvalDateEnd,
       is_archived: false
