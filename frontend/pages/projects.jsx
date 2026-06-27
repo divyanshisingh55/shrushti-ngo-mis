@@ -147,6 +147,8 @@ export default function Projects() {
   const [minAmount, setMinAmount] = useState("");
   const [approvalDateStart, setApprovalDateStart] = useState("");
   const [approvalDateEnd, setApprovalDateEnd] = useState("");
+  const [fundingSource, setFundingSource] = useState("");
+  const [fundingSource2, setFundingSource2] = useState("");
 
   // --- METADATA LISTS ---
   const [agencies, setAgencies] = useState([]);
@@ -183,7 +185,7 @@ export default function Projects() {
     search, docNo, year, agencyIds, fundingSourceId, stateId,
     districtId, blockId, statusId, themeId, subThemeId,
     activityTypeId, sdgId, JSON.stringify(targetGroupFilters), minAmount,
-    approvalDateStart, approvalDateEnd
+    approvalDateStart, approvalDateEnd, fundingSource, fundingSource2
   ]);
 
   // Handle dynamic district/block cascade
@@ -248,6 +250,8 @@ export default function Projects() {
       year,
       agency_id: agencyIds.join(","),
       funding_source_id: fundingSourceId,
+      funding_source: fundingSource,
+      funding_source2: fundingSource2,
       state_id: stateId,
       district_id: districtId,
       block_id: blockId,
@@ -332,7 +336,7 @@ export default function Projects() {
       search, docNo, year, agencyIds, fundingSourceId, stateId,
       districtId, blockId, statusId, themeId, subThemeId,
       activityTypeId, sdgId, targetGroupFilters, minAmount,
-      approvalDateStart, approvalDateEnd
+      approvalDateStart, approvalDateEnd, fundingSource, fundingSource2
     };
 
     const updatedPresets = { ...presets, [presetName]: currentFilters };
@@ -363,6 +367,8 @@ export default function Projects() {
       setMinAmount(filters.minAmount || "");
       setApprovalDateStart(filters.approvalDateStart || "");
       setApprovalDateEnd(filters.approvalDateEnd || "");
+      setFundingSource(filters.fundingSource || "");
+      setFundingSource2(filters.fundingSource2 || "");
     }
   };
 
@@ -399,6 +405,8 @@ export default function Projects() {
     setMinAmount("");
     setApprovalDateStart("");
     setApprovalDateEnd("");
+    setFundingSource("");
+    setFundingSource2("");
     setSelectedPreset("");
   };
 
@@ -516,11 +524,11 @@ export default function Projects() {
             <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0f172a" }}>
               Shrushti Projects
             </Typography>
-            <Chip 
-              label={`${projects.length} Projects`} 
-              color="primary" 
-              variant="outlined" 
-              sx={{ fontWeight: "bold", bgcolor: "#eff6ff", borderColor: "#bfdbfe" }} 
+            <Chip
+              label={`${projects.length} Projects`}
+              color="primary"
+              variant="outlined"
+              sx={{ fontWeight: "bold", bgcolor: "#eff6ff", borderColor: "#bfdbfe" }}
             />
           </Box>
           <Typography variant="body1" sx={{ color: "#64748b" }}>
@@ -778,8 +786,8 @@ export default function Projects() {
 
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: "90px", minWidth: "90px", justifyContent: "flex-start" }}>
                         {index === targetGroupFilters.length - 1 && (
-                          <IconButton 
-                            color="primary" 
+                          <IconButton
+                            color="primary"
                             onClick={() => setTargetGroupFilters([...targetGroupFilters, { mainGroup: "", subGroups: [] }])}
                             title="Add target group filter"
                           >
@@ -787,8 +795,8 @@ export default function Projects() {
                           </IconButton>
                         )}
                         {targetGroupFilters.length > 1 && (
-                          <IconButton 
-                            color="error" 
+                          <IconButton
+                            color="error"
                             onClick={() => {
                               const newFilters = targetGroupFilters.filter((_, idx) => idx !== index);
                               setTargetGroupFilters(newFilters);
@@ -803,6 +811,44 @@ export default function Projects() {
                   ))}
                 </Stack>
               </Box>
+            </Grid>
+
+            {/* Source of Funding Filter */}
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Source of Funding</InputLabel>
+                <Select
+                  value={fundingSource}
+                  label="Source of Funding"
+                  onChange={(e) => setFundingSource(e.target.value)}
+                >
+                  <MenuItem value="">All Sources</MenuItem>
+                  <MenuItem value="Govt.">Govt.</MenuItem>
+                  <MenuItem value="FCRA">FCRA</MenuItem>
+                  <MenuItem value="Others">Others</MenuItem>
+                  <MenuItem value="CSR">CSR</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            {/* Source 2 Filter */}
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Source 2</InputLabel>
+                <Select
+                  value={fundingSource2}
+                  label="Source 2"
+                  onChange={(e) => setFundingSource2(e.target.value)}
+                >
+                  <MenuItem value="">All Source 2 Options</MenuItem>
+                  <MenuItem value="Institutional">Institutional</MenuItem>
+                  <MenuItem value="GoR">GoR</MenuItem>
+                  <MenuItem value="GoMP">GoMP</MenuItem>
+                  <MenuItem value="GoI">GoI</MenuItem>
+                  <MenuItem value="PSU">PSU</MenuItem>
+                  <MenuItem value="District">District</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
           </Grid>
 
@@ -846,49 +892,51 @@ export default function Projects() {
             </Button>
           </Box>
         </AccordionDetails>
-      </Accordion>
+      </Accordion >
 
       {/* Table section */}
       {/* Contextual floating action banner for bulk actions */}
-      {selectedIds.length > 0 && (
-        <Paper 
-          elevation={3} 
-          sx={{ 
-            p: 2, 
-            mb: 3, 
-            backgroundColor: "#f0fdf4", 
-            border: "1px solid #bbf7d0", 
-            borderRadius: "12px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            boxShadow: "0 10px 15px -3px rgba(16, 185, 129, 0.1)"
-          }}
-        >
-          <Typography variant="body1" sx={{ color: "#166534", fontWeight: "bold" }}>
-            Selected {selectedIds.length} projects for bulk classification
-          </Typography>
-          <Stack direction="row" spacing={2}>
-            <Button
-              variant="contained"
-              color="success"
-              startIcon={<AiIcon />}
-              onClick={triggerBulkAiClassify}
-              sx={{ textTransform: "none", fontWeight: "bold", borderRadius: "20px" }}
-            >
-              Run Bulk AI Classification
-            </Button>
-            <Button
-              variant="outlined"
-              color="inherit"
-              onClick={() => setSelectedIds([])}
-              sx={{ textTransform: "none", fontWeight: "bold", borderRadius: "20px" }}
-            >
-              Deselect All
-            </Button>
-          </Stack>
-        </Paper>
-      )}
+      {
+        selectedIds.length > 0 && (
+          <Paper
+            elevation={3}
+            sx={{
+              p: 2,
+              mb: 3,
+              backgroundColor: "#f0fdf4",
+              border: "1px solid #bbf7d0",
+              borderRadius: "12px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              boxShadow: "0 10px 15px -3px rgba(16, 185, 129, 0.1)"
+            }}
+          >
+            <Typography variant="body1" sx={{ color: "#166534", fontWeight: "bold" }}>
+              Selected {selectedIds.length} projects for bulk classification
+            </Typography>
+            <Stack direction="row" spacing={2}>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<AiIcon />}
+                onClick={triggerBulkAiClassify}
+                sx={{ textTransform: "none", fontWeight: "bold", borderRadius: "20px" }}
+              >
+                Run Bulk AI Classification
+              </Button>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => setSelectedIds([])}
+                sx={{ textTransform: "none", fontWeight: "bold", borderRadius: "20px" }}
+              >
+                Deselect All
+              </Button>
+            </Stack>
+          </Paper>
+        )
+      }
 
       <Box sx={{ position: "relative", width: "100%" }}>
         {/* Loading Progress Bar at the top of the table to prevent layout shifts */}
@@ -1024,7 +1072,7 @@ export default function Projects() {
                 projects.map((project) => {
                   const isChecked = selectedIds.includes(project.project_id);
                   const isClassified = project.classification_status === "Completed";
-                  
+
                   let parsedCounts = [];
                   try {
                     if (project.beneficiary_counts) {
@@ -1033,17 +1081,17 @@ export default function Projects() {
                   } catch (e) {
                     console.error("Error parsing beneficiary_counts", e);
                   }
-                  
+
                   const genders = Array.from(new Set(parsedCounts.map(c => c.gender))).filter(Boolean).join(", ");
                   const educations = Array.from(new Set(parsedCounts.map(c => c.educationStage))).filter(Boolean).join(", ");
                   const vulnerabilities = Array.from(new Set(parsedCounts.flatMap(c => c.vulnerabilities || []))).filter(Boolean).join(", ");
 
                   return (
-                    <TableRow 
-                      key={project.project_id} 
-                      hover 
+                    <TableRow
+                      key={project.project_id}
+                      hover
                       checked={isChecked}
-                      sx={{ 
+                      sx={{
                         "&:nth-of-type(even)": { backgroundColor: "#f8fafc" },
                         "&:hover": { backgroundColor: "#f1f5f9 !important" },
                         transition: "background-color 0.2s"
@@ -1052,7 +1100,7 @@ export default function Projects() {
                       <TableCell padding="checkbox">
                         <Checkbox checked={isChecked} onChange={(e) => handleSelectRow(e, project.project_id)} />
                       </TableCell>
-                      
+
                       {/* Basic details */}
                       <TableCell>{project.year || "-"}</TableCell>
                       <TableCell>{project.doc_no || "-"}</TableCell>
@@ -1215,11 +1263,11 @@ export default function Projects() {
                                 project.project_name
                               )
                             }
-                            sx={{ 
-                              backgroundColor: "#fef2f2", 
-                              color: "#ef4444", 
-                              "&:hover": { backgroundColor: "#fee2e2" }, 
-                              p: 0.8 
+                            sx={{
+                              backgroundColor: "#fef2f2",
+                              color: "#ef4444",
+                              "&:hover": { backgroundColor: "#fee2e2" },
+                              p: 0.8
                             }}
                           >
                             <DeleteIcon fontSize="small" />

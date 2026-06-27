@@ -642,4 +642,138 @@ router.get("/export/pdf", async (req, res) => {
   }
 });
 
+// 5. GET ALL AGENCIES SUMMARY FOR EXCEL DASHBOARD TABLE
+router.get("/agencies/summary", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        a.agency_id,
+        a.agency_name,
+        COUNT(p.project_id)::integer AS total_projects,
+        COALESCE(SUM(p.sanctioned_amount), 0)::numeric AS total_sanctioned,
+        COUNT(CASE WHEN p.classification_status = 'Completed' THEN 1 END)::integer AS completed_projects,
+        COUNT(CASE WHEN p.classification_status = 'Pending' THEN 1 END)::integer AS pending_projects,
+        (
+          SELECT t.theme_name
+          FROM project_themes pt2
+          JOIN themes t ON pt2.theme_id = t.theme_id
+          WHERE pt2.project_id IN (
+            SELECT project_id FROM projects WHERE agency_id = a.agency_id AND is_archived = false
+          )
+          GROUP BY t.theme_name
+          ORDER BY COUNT(*) DESC
+          LIMIT 1
+        ) AS primary_theme
+      FROM agencies a
+      LEFT JOIN projects p ON p.agency_id = a.agency_id AND p.is_archived = false
+      GROUP BY a.agency_id, a.agency_name
+      ORDER BY total_projects DESC
+    `);
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error("Agency Summary Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// 6. GET PER-AGENCY DETAILED STATS FOR SELECTED AGENCY CHARTS
+router.get("/agency/:agency_id/stats", async (req, res) => {
+  try {
+    const agencyId = Number(req.params.agency_id);
+
+    // Agency info
+    const agencyRes = await pool.query(
+      `SELECT agency_id, agency_name FROM agencies WHERE agency_id = $1`,
+      [agencyId]
+    );
+    if (agencyRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: "Agency not found" });
+    }
+
+    // Summary stats
+    const summaryRes = await pool.query(`
+      SELECT
+        COUNT(*)::integer AS total_projects,
+        COALESCE(SUM(sanctioned_amount), 0)::numeric AS total_sanctioned,
+        COUNT(CASE WHEN classification_status = 'Completed' THEN 1 END)::integer AS completed,
+        COUNT(CASE WHEN classification_status = 'Pending' THEN 1 END)::integer AS pending,
+        COALESCE(AVG(duration_months), 0)::numeric AS avg_duration
+      FROM projects
+      WHERE agency_id = $1 AND is_archived = false
+    `, [agencyId]);
+
+    // Projects by year (bar chart)
+    const byYearRes = await pool.query(`
+      SELECT year, COUNT(*)::integer AS count
+      FROM projects
+      WHERE agency_id = $1 AND is_archived = false AND year IS NOT NULL AND year <> ''
+      GROUP BY year
+      ORDER BY year ASC
+    `, [agencyId]);
+
+    // Sanctioned amount by year (line chart)
+    const amountByYearRes = await pool.query(`
+      SELECT year, COALESCE(SUM(sanctioned_amount), 0)::numeric AS amount
+      FROM projects
+      WHERE agency_id = $1 AND is_archived = false AND year IS NOT NULL AND year <> ''
+      GROUP BY year
+      ORDER BY year ASC
+    `, [agencyId]);
+
+    // Theme distribution (pie chart)
+    const themeRes = await pool.query(`
+      SELECT t.theme_name AS name, COUNT(pt.project_id)::integer AS value
+      FROM project_themes pt
+      JOIN themes t ON pt.theme_id = t.theme_id
+      JOIN projects p ON pt.project_id = p.project_id
+      WHERE p.agency_id = $1 AND p.is_archived = false
+      GROUP BY t.theme_name
+      ORDER BY value DESC
+    `, [agencyId]);
+
+    // Status breakdown (donut chart)
+    const statusRes = await pool.query(`
+      SELECT classification_status AS name, COUNT(*)::integer AS value
+      FROM projects
+      WHERE agency_id = $1 AND is_archived = false
+      GROUP BY classification_status
+    `, [agencyId]);
+
+    // Recent projects list
+    const projectsRes = await pool.query(`
+      SELECT
+        p.project_id,
+        p.project_name,
+        p.year,
+        p.sanctioned_amount,
+        p.classification_status,
+        ps.status_name AS project_status,
+        COALESCE(
+          (SELECT STRING_AGG(t.theme_name, ', ') FROM project_themes pt JOIN themes t ON pt.theme_id = t.theme_id WHERE pt.project_id = p.project_id),
+          'Unclassified'
+        ) AS themes
+      FROM projects p
+      LEFT JOIN project_status ps ON p.status_id = ps.status_id
+      WHERE p.agency_id = $1 AND p.is_archived = false
+      ORDER BY p.project_id DESC
+      LIMIT 15
+    `, [agencyId]);
+
+    res.json({
+      success: true,
+      agency: agencyRes.rows[0],
+      summary: summaryRes.rows[0],
+      byYear: byYearRes.rows,
+      amountByYear: amountByYearRes.rows,
+      themeDistribution: themeRes.rows,
+      statusBreakdown: statusRes.rows,
+      recentProjects: projectsRes.rows
+    });
+  } catch (error) {
+    console.error("Agency Stats Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;
+

@@ -28,6 +28,7 @@ const aiClassificationRoutes = require("./routes/aiClassification");
 const districtRoutes = require("./routes/districts");
 const blockRoutes = require("./routes/blocks");
 const sdgRoutes = require("./routes/sdgs");
+const taxonomyRoutes = require("./routes/taxonomy");
 
 app.use(cors());
 app.use(express.json());
@@ -49,6 +50,7 @@ app.use("/ai-classify", aiClassificationRoutes);
 app.use("/districts", districtRoutes);
 app.use("/blocks", blockRoutes);
 app.use("/sdgs", sdgRoutes);
+app.use("/taxonomy", taxonomyRoutes);
 
 app.get("/", async (req, res) => {
   try {

@@ -73,6 +73,9 @@ export default function ProjectDetails() {
   const [states, setStates] = useState([]);
   const [statuses, setStatuses] = useState([]);
 
+  // Taxonomy (4-level cascading hierarchy)
+  const [taxonomy, setTaxonomy] = useState([]);
+
   const SUBTHEME1_NAMES = ["Education", "Health", "Livelihood", "Skill Development", "Capacity Building", "Water", "Awareness", "Climate Resilience", "Research", "Monitoring", "Agriculture"];
   const SUBTHEME2_NAMES = ["Primary Education", "Preprimary Education", "Secondary Education", "Maternal Health", "Eye Health", "Nutrition", "Disabilities", "Construction", "Behavior Change", "Evaluation Study", "Youth Development", "Water", "Community Mobilization"];
   const SUBTHEME3_NAMES = ["Reproductive Health", "Entrepreneurship", "Advocacy", "Natural Resource Management", "Impact Assessment", "Data Collection", "Water Management", "Check Dem construction", "ECCE", "Counselling", "WASH", "Social Securities", "Social Campaign"];
@@ -169,8 +172,8 @@ export default function ProjectDetails() {
   const [customFunding2, setCustomFunding2] = useState("");
   const [selectedStates, setSelectedStates] = useState([{ state_id: "", custom_name: "" }]);
 
-  // Classification States
-  const [selectedThemes, setSelectedThemes] = useState([{ themeId: "", subThemeIds: [] }]);
+  // Classification States — 4-level taxonomy shape with multiple subthemes under one theme
+  const [selectedThemes, setSelectedThemes] = useState([{ themeId: "", subThemes: [{ category: "", subCategory: "", activity: "" }] }]);
   const [selectedTargetGroups, setSelectedTargetGroups] = useState([]);
   const [selectedActivityTypes, setSelectedActivityTypes] = useState([]);
   const [selectedSdgs, setSelectedSdgs] = useState([]);
@@ -200,6 +203,12 @@ export default function ProjectDetails() {
   const [outcomeImpactNotes, setOutcomeImpactNotes] = useState("");
   const [projectImages, setProjectImages] = useState([]);
   const [inputUrl, setInputUrl] = useState("");
+
+  // Documents state
+  const [projectDocuments, setProjectDocuments] = useState([]);
+  const [inputDocUrl, setInputDocUrl] = useState("");
+  const [inputDocName, setInputDocName] = useState("");
+  const [inputDocType, setInputDocType] = useState("");
 
   const handleBeneficiaryCountChange = (index, field, value) => {
     const updated = [...beneficiaryCounts];
@@ -243,6 +252,54 @@ export default function ProjectDetails() {
     setProjectImages(projectImages.filter((_, idx) => idx !== index));
   };
 
+  // Document handlers
+  const DOCUMENT_TYPES = ["MOU", "Agreement", "Proposal", "Report", "Budget", "Completion Certificate", "Letter", "Invoice", "Other"];
+
+  const handleDocumentUpload = (e) => {
+    const files = Array.from(e.target.files);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProjectDocuments(prev => [...prev, {
+          name: file.name,
+          type: inputDocType || "Other",
+          url: reader.result,
+          remarks: "",
+          uploadedAt: new Date().toISOString()
+        }]);
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = "";
+  };
+
+  const handleAddDocUrl = () => {
+    if (inputDocUrl.trim() && inputDocName.trim()) {
+      setProjectDocuments(prev => [...prev, {
+        name: inputDocName.trim(),
+        type: inputDocType || "Other",
+        url: inputDocUrl.trim(),
+        remarks: "",
+        uploadedAt: new Date().toISOString()
+      }]);
+      setInputDocUrl("");
+      setInputDocName("");
+      setInputDocType("");
+    } else {
+      alert("Please enter both a Document Name and URL.");
+    }
+  };
+
+  const handleDocRemarkChange = (index, val) => {
+    const updated = [...projectDocuments];
+    updated[index].remarks = val;
+    setProjectDocuments(updated);
+  };
+
+  const handleRemoveDocument = (index) => {
+    setProjectDocuments(projectDocuments.filter((_, idx) => idx !== index));
+  };
+
   // SDGs
   const [sdgs, setSdgs] = useState([]);
 
@@ -266,19 +323,57 @@ export default function ProjectDetails() {
 
   const handleThemeChange = (index, themeId) => {
     const updated = [...selectedThemes];
-    updated[index].themeId = themeId;
-    updated[index].subThemeIds = []; // reset subthemes
+    updated[index] = { themeId, subThemes: [{ category: "", subCategory: "", activity: "" }] };
     setSelectedThemes(updated);
   };
 
-  const handleSubThemeChange = (index, subThemeIds) => {
+  const handleCategoryChange = (index, subIndex, category) => {
     const updated = [...selectedThemes];
-    updated[index].subThemeIds = subThemeIds;
+    updated[index].subThemes[subIndex] = {
+      ...updated[index].subThemes[subIndex],
+      category,
+      subCategory: "",
+      activity: ""
+    };
+    setSelectedThemes(updated);
+  };
+
+  const handleSubCategoryChange = (index, subIndex, subCategory) => {
+    const updated = [...selectedThemes];
+    updated[index].subThemes[subIndex] = {
+      ...updated[index].subThemes[subIndex],
+      subCategory,
+      activity: ""
+    };
+    setSelectedThemes(updated);
+  };
+
+  const handleActivityChange = (index, subIndex, activity) => {
+    const updated = [...selectedThemes];
+    updated[index].subThemes[subIndex] = {
+      ...updated[index].subThemes[subIndex],
+      activity
+    };
+    setSelectedThemes(updated);
+  };
+
+  const handleAddSubThemePath = (index) => {
+    const updated = [...selectedThemes];
+    updated[index].subThemes.push({ category: "", subCategory: "", activity: "" });
+    setSelectedThemes(updated);
+  };
+
+  const handleRemoveSubThemePath = (index, subIndex) => {
+    const updated = [...selectedThemes];
+    updated[index].subThemes = updated[index].subThemes.filter((_, idx) => idx !== subIndex);
+    if (updated[index].subThemes.length === 0) {
+      updated[index].subThemes.push({ category: "", subCategory: "", activity: "" });
+    }
     setSelectedThemes(updated);
   };
 
   const handleAddThemeRow = () => {
-    setSelectedThemes([...selectedThemes, { themeId: "", subThemeIds: [] }]);
+    setSelectedThemes([...selectedThemes, { themeId: "", subThemes: [{ category: "", subCategory: "", activity: "" }] }]);
   };
 
   const handleRemoveThemeRow = (index) => {
@@ -346,11 +441,27 @@ export default function ProjectDetails() {
         setSelectedSdgs(proj.classification.sdg_ids || []);
 
         if (proj.classification.themes && proj.classification.themes.length > 0) {
-          setSelectedThemes(proj.classification.themes);
+          const grouped = {};
+          proj.classification.themes.forEach(t => {
+            const tid = t.themeId;
+            if (!grouped[tid]) {
+              grouped[tid] = { themeId: tid, subThemes: [] };
+            }
+            grouped[tid].subThemes.push({
+              category: t.category || "",
+              subCategory: t.subCategory || "",
+              activity: t.activity || ""
+            });
+          });
+          const loadedThemes = Object.values(grouped);
+          if (loadedThemes.length === 0) {
+            loadedThemes.push({ themeId: "", subThemes: [{ category: "", subCategory: "", activity: "" }] });
+          }
+          setSelectedThemes(loadedThemes);
         } else if (proj.classification.theme_id) {
-          setSelectedThemes([{ themeId: proj.classification.theme_id, subThemeIds: proj.classification.sub_theme_ids || [] }]);
+          setSelectedThemes([{ themeId: proj.classification.theme_id, subThemes: [{ category: "", subCategory: "", activity: "" }] }]);
         } else {
-          setSelectedThemes([{ themeId: "", subThemeIds: [] }]);
+          setSelectedThemes([{ themeId: "", subThemes: [{ category: "", subCategory: "", activity: "" }] }]);
         }
       }
 
@@ -444,8 +555,24 @@ export default function ProjectDetails() {
         setProjectImages([]);
       }
 
-      // 2. Fetch all metadata dropdowns
-      const [themesRes, subThemesRes, targetGroupsRes, activityTypesRes, agenciesRes, fundingRes, statesRes, statusesRes, sdgsRes] = await Promise.all([
+      if (proj.documents) {
+        try {
+          const parsedDocs = typeof proj.documents === 'string' ? JSON.parse(proj.documents) : proj.documents;
+          if (Array.isArray(parsedDocs)) {
+            setProjectDocuments(parsedDocs);
+          } else {
+            setProjectDocuments([]);
+          }
+        } catch (e) {
+          console.error("Error parsing documents field:", e);
+          setProjectDocuments([]);
+        }
+      } else {
+        setProjectDocuments([]);
+      }
+
+      // 2. Fetch all metadata dropdowns + taxonomy
+      const [themesRes, subThemesRes, targetGroupsRes, activityTypesRes, agenciesRes, fundingRes, statesRes, statusesRes, sdgsRes, taxonomyRes] = await Promise.all([
         axios.get("http://localhost:5000/themes"),
         axios.get("http://localhost:5000/subthemes"),
         axios.get("http://localhost:5000/targetgroups"),
@@ -454,7 +581,8 @@ export default function ProjectDetails() {
         axios.get("http://localhost:5000/fundingsources"),
         axios.get("http://localhost:5000/states"),
         axios.get("http://localhost:5000/statuses"),
-        axios.get("http://localhost:5000/sdgs")
+        axios.get("http://localhost:5000/sdgs"),
+        axios.get("http://localhost:5000/taxonomy")
       ]);
 
       setThemes(themesRes.data.data || themesRes.data);
@@ -466,6 +594,7 @@ export default function ProjectDetails() {
       setStates(statesRes.data);
       setStatuses(statusesRes.data.filter(s => s.status_name === 'Pending' || s.status_name === 'Ongoing'));
       setSdgs(sdgsRes.data);
+      setTaxonomy(taxonomyRes.data.data?.themes || []);
 
       setLoading(false);
     } catch (err) {
@@ -543,17 +672,27 @@ export default function ProjectDetails() {
   // Save classifications to DB
   const saveClassification = async () => {
     try {
-      const activeThemes = selectedThemes.filter(t => t.themeId);
+      const activeThemes = [];
+      selectedThemes.forEach(t => {
+        if (!t.themeId) return;
+        t.subThemes.forEach(st => {
+          activeThemes.push({
+            themeId: Number(t.themeId),
+            category: st.category || null,
+            subCategory: st.subCategory || null,
+            activity: st.activity || null,
+            subThemeIds: [] // kept for legacy compat
+          });
+        });
+      });
+
       if (activeThemes.length === 0) {
         alert("Please select at least one Theme.");
         return;
       }
 
       const response = await axios.post(`http://localhost:5000/classify-project/${id}`, {
-        themes: activeThemes.map(t => ({
-          themeId: Number(t.themeId),
-          subThemeIds: t.subThemeIds
-        })),
+        themes: activeThemes,
         targetGroupIds: selectedTargetGroups,
         activityTypeIds: selectedActivityTypes,
         sdgIds: selectedSdgs,
@@ -578,7 +717,8 @@ export default function ProjectDetails() {
         beneficiariesBoys: beneficiariesBoys,
         beneficiariesGirls: beneficiariesGirls,
         outcomeImpactNotes: outcomeImpactNotes,
-        images: projectImages
+        images: projectImages,
+        documents: projectDocuments
       });
 
       alert(response.data.message);
@@ -1088,7 +1228,10 @@ export default function ProjectDetails() {
               color="secondary"
               onClick={() => {
                 if (aiSuggestion.themeId) {
-                  setSelectedThemes([{ themeId: aiSuggestion.themeId, subThemeIds: aiSuggestion.subThemeIds || [] }]);
+                  setSelectedThemes([{
+                    themeId: aiSuggestion.themeId,
+                    subThemes: [{ category: "", subCategory: "", activity: "" }]
+                  }]);
                 }
                 setSelectedTargetGroups(aiSuggestion.targetGroupIds || []);
                 setSelectedActivityTypes(aiSuggestion.activityTypeIds || []);
@@ -1113,120 +1256,190 @@ export default function ProjectDetails() {
               1. Thematic Areas & Sub-Themes
             </Typography>
             {selectedThemes.map((t, index) => {
-              const sub1Selected = subThemes.filter(st => st.theme_id === Number(t.themeId) && t.subThemeIds.includes(st.sub_theme_id) && SUBTHEME1_NAMES.includes(st.sub_theme_name));
-              const sub2Selected = subThemes.filter(st => st.theme_id === Number(t.themeId) && t.subThemeIds.includes(st.sub_theme_id) && SUBTHEME2_NAMES.includes(st.sub_theme_name));
-              const sub3Selected = subThemes.filter(st => st.theme_id === Number(t.themeId) && t.subThemeIds.includes(st.sub_theme_id) && SUBTHEME3_NAMES.includes(st.sub_theme_name));
-
               return (
-                <Paper key={index} sx={{ p: 3, mb: 3, border: "1px solid #e2e8f0", borderRadius: "8px", position: "relative" }}>
+                <Paper
+                  key={index}
+                  sx={{
+                    p: 3, mb: 3, border: "1px solid #e2e8f0", borderRadius: "12px",
+                    position: "relative",
+                    background: "linear-gradient(135deg, #f8fafc 0%, #f0fdf4 100%)",
+                    boxShadow: "0 1px 4px rgba(15,23,42,0.06)"
+                  }}
+                >
                   {selectedThemes.length > 1 && (
                     <Button
                       variant="text"
                       color="error"
                       onClick={() => handleRemoveThemeRow(index)}
-                      sx={{ position: "absolute", right: 10, top: 10, textTransform: "none", fontWeight: "bold" }}
+                      sx={{ position: "absolute", right: 10, top: 10, textTransform: "none", fontWeight: "bold", fontSize: "12px" }}
                     >
-                      Remove Theme Block
+                      ✕ Remove Block
                     </Button>
                   )}
-                  <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 2, color: "#0f766e" }}>
-                    Theme #{index + 1}
-                  </Typography>
-                  <Grid container spacing={2}>
+
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5 }}>
+                    <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#0f766e" }} />
+                    <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: "#0f766e" }}>
+                      Theme Block #{index + 1}
+                    </Typography>
+                  </Box>
+
+                  <Grid container spacing={2.5}>
+                    {/* Level 1: Primary Theme */}
                     <Grid size={12}>
+                      <Typography variant="caption" sx={{ color: "#64748b", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", display: "block", mb: 0.5 }}>
+                        Level 1 — Primary Theme *
+                      </Typography>
                       <Autocomplete
                         options={themes}
                         getOptionLabel={(option) => option.theme_name || ""}
-                        value={themes.find((theme) => theme.theme_id === Number(t.themeId)) || null}
-                        onChange={(event, newValue) => {
-                          handleThemeChange(index, newValue ? newValue.theme_id : "");
-                        }}
+                        value={themes.find(th => th.theme_id === Number(t.themeId)) || null}
+                        onChange={(_, newValue) => handleThemeChange(index, newValue ? newValue.theme_id : "")}
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="Select Thematic Area"
+                            placeholder="Search and select a primary theme..."
                             size="small"
                             required
+                            sx={{ "& .MuiOutlinedInput-root": { backgroundColor: "#fff" } }}
                           />
                         )}
                       />
                     </Grid>
 
+                    {/* Subtheme Paths under this Theme */}
                     {t.themeId && (
-                      <>
-                        <Grid size={{ xs: 12, md: 4 }}>
-                          <Autocomplete
-                            multiple
-                            options={subThemes.filter(st => st.theme_id === Number(t.themeId) && SUBTHEME1_NAMES.includes(st.sub_theme_name))}
-                            getOptionLabel={(option) => option.sub_theme_name || ""}
-                            value={sub1Selected}
-                            onChange={(event, newValue) => {
-                              const newSubThemeIds = [
-                                ...newValue.map(x => x.sub_theme_id),
-                                ...sub2Selected.map(x => x.sub_theme_id),
-                                ...sub3Selected.map(x => x.sub_theme_id)
-                              ];
-                              handleSubThemeChange(index, newSubThemeIds);
-                            }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Subtheme 1 Options"
-                                placeholder="Choose subtheme 1..."
-                                size="small"
-                              />
-                            )}
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 12, md: 4 }}>
-                          <Autocomplete
-                            multiple
-                            options={subThemes.filter(st => st.theme_id === Number(t.themeId) && SUBTHEME2_NAMES.includes(st.sub_theme_name))}
-                            getOptionLabel={(option) => option.sub_theme_name || ""}
-                            value={sub2Selected}
-                            onChange={(event, newValue) => {
-                              const newSubThemeIds = [
-                                ...sub1Selected.map(x => x.sub_theme_id),
-                                ...newValue.map(x => x.sub_theme_id),
-                                ...sub3Selected.map(x => x.sub_theme_id)
-                              ];
-                              handleSubThemeChange(index, newSubThemeIds);
-                            }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Subtheme 2 Options"
-                                placeholder="Choose subtheme 2..."
-                                size="small"
-                              />
-                            )}
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 12, md: 4 }}>
-                          <Autocomplete
-                            multiple
-                            options={subThemes.filter(st => st.theme_id === Number(t.themeId) && SUBTHEME3_NAMES.includes(st.sub_theme_name))}
-                            getOptionLabel={(option) => option.sub_theme_name || ""}
-                            value={sub3Selected}
-                            onChange={(event, newValue) => {
-                              const newSubThemeIds = [
-                                ...sub1Selected.map(x => x.sub_theme_id),
-                                ...sub2Selected.map(x => x.sub_theme_id),
-                                ...newValue.map(x => x.sub_theme_id)
-                              ];
-                              handleSubThemeChange(index, newSubThemeIds);
-                            }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Subtheme 3 Options"
-                                placeholder="Choose subtheme 3..."
-                                size="small"
-                              />
-                            )}
-                          />
-                        </Grid>
-                      </>
+                      <Grid size={12}>
+                        <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 3 }}>
+                          {t.subThemes.map((st, subIndex) => {
+                            // Derive taxonomy options by cascading
+                            const taxonomyTheme = taxonomy.find(tx => tx.id === Number(t.themeId));
+                            const categoryOptions = taxonomyTheme ? taxonomyTheme.categories.map(c => c.name) : [];
+
+                            const taxonomyCategory = taxonomyTheme?.categories.find(c => c.name === st.category);
+                            const subCategoryOptions = taxonomyCategory ? taxonomyCategory.subCategories.map(sc => sc.name) : [];
+
+                            const taxonomySubCat = taxonomyCategory?.subCategories.find(sc => sc.name === st.subCategory);
+                            const activityOptions = taxonomySubCat ? taxonomySubCat.activities : [];
+
+                            return (
+                              <Paper
+                                key={subIndex}
+                                variant="outlined"
+                                sx={{
+                                  p: 2,
+                                  borderRadius: "8px",
+                                  backgroundColor: "#ffffff",
+                                  borderColor: "#cbd5e1",
+                                  position: "relative"
+                                }}
+                              >
+                                {t.subThemes.length > 1 && (
+                                  <Button
+                                    variant="text"
+                                    color="error"
+                                    onClick={() => handleRemoveSubThemePath(index, subIndex)}
+                                    sx={{ position: "absolute", right: 10, top: 10, textTransform: "none", fontWeight: "bold", fontSize: "11px" }}
+                                  >
+                                    ✕ Remove Subtheme
+                                  </Button>
+                                )}
+
+                                <Typography variant="caption" sx={{ color: "#0f766e", fontWeight: "bold", display: "block", mb: 2 }}>
+                                  Subtheme Path #{subIndex + 1}
+                                </Typography>
+
+                                <Grid container spacing={2}>
+                                  {/* Level 2: Category */}
+                                  <Grid size={{ xs: 12, md: 6 }}>
+                                    <Typography variant="caption" sx={{ color: "#64748b", fontWeight: "600", display: "block", mb: 0.5 }}>
+                                      Category (Subtheme 1)
+                                    </Typography>
+                                    <Autocomplete
+                                      options={categoryOptions}
+                                      value={st.category || null}
+                                      onChange={(_, newValue) => handleCategoryChange(index, subIndex, newValue || "")}
+                                      renderInput={(params) => (
+                                        <TextField
+                                          {...params}
+                                          placeholder="Select Category..."
+                                          size="small"
+                                        />
+                                      )}
+                                    />
+                                  </Grid>
+
+                                  {/* Level 3: Sub-category */}
+                                  <Grid size={{ xs: 12, md: 6 }}>
+                                    <Typography variant="caption" sx={{ color: st.category ? "#64748b" : "#cbd5e1", fontWeight: "600", display: "block", mb: 0.5 }}>
+                                      Sub-category (Subtheme 2)
+                                    </Typography>
+                                    <Autocomplete
+                                      disabled={!st.category}
+                                      options={subCategoryOptions}
+                                      value={st.subCategory || null}
+                                      onChange={(_, newValue) => handleSubCategoryChange(index, subIndex, newValue || "")}
+                                      renderInput={(params) => (
+                                        <TextField
+                                          {...params}
+                                          placeholder="Select Sub-category..."
+                                          size="small"
+                                        />
+                                      )}
+                                    />
+                                  </Grid>
+
+                                  {/* Level 4: Activity / Intervention */}
+                                  <Grid size={12}>
+                                    <Typography variant="caption" sx={{ color: st.subCategory ? "#64748b" : "#cbd5e1", fontWeight: "600", display: "block", mb: 0.5 }}>
+                                      Activity / Intervention (Subtheme 3)
+                                    </Typography>
+                                    <Autocomplete
+                                      disabled={!st.subCategory}
+                                      options={activityOptions}
+                                      value={st.activity || null}
+                                      onChange={(_, newValue) => handleActivityChange(index, subIndex, newValue || "")}
+                                      renderInput={(params) => (
+                                        <TextField
+                                          {...params}
+                                          placeholder="Select Activity..."
+                                          size="small"
+                                        />
+                                      )}
+                                    />
+                                  </Grid>
+
+                                  {/* Path Breadcrumb summary */}
+                                  {(st.category || st.subCategory || st.activity) && (
+                                    <Grid size={12}>
+                                      <Typography variant="caption" sx={{ color: "#166534", fontWeight: "600" }}>
+                                        📍 Selected Path: {[
+                                          themes.find(th => th.theme_id === Number(t.themeId))?.theme_name,
+                                          st.category,
+                                          st.subCategory,
+                                          st.activity
+                                        ].filter(Boolean).join(" → ")}
+                                      </Typography>
+                                    </Grid>
+                                  )}
+                                </Grid>
+                              </Paper>
+                            );
+                          })}
+
+                          <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              color="secondary"
+                              onClick={() => handleAddSubThemePath(index)}
+                              sx={{ textTransform: "none", fontWeight: "bold" }}
+                            >
+                              + Add another subtheme path under this theme
+                            </Button>
+                          </Box>
+                        </Box>
+                      </Grid>
                     )}
                   </Grid>
                 </Paper>
@@ -1808,6 +2021,159 @@ export default function ProjectDetails() {
                     </Grid>
                   ))}
                 </Grid>
+              )}
+            </Paper>
+          </Grid>
+
+          {/* Documents Upload Section */}
+          <Grid size={12}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+              11. Project Documents (MOU, Agreements &amp; Other)
+            </Typography>
+            <Paper sx={{ p: 3, border: "1px solid #e2e8f0", borderRadius: "8px", mb: 2 }}>
+              {/* Row 1: Type selector + local upload button */}
+              <Grid container spacing={2} sx={{ mb: 2 }}>
+                <Grid size={{ xs: 12, sm: 4 }}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Document Type</InputLabel>
+                    <Select
+                      value={inputDocType}
+                      label="Document Type"
+                      onChange={(e) => setInputDocType(e.target.value)}
+                    >
+                      <MenuItem value="">Select Type</MenuItem>
+                      {["MOU", "Agreement", "Proposal", "Report", "Budget", "Completion Certificate", "Letter", "Invoice", "Other"].map(t => (
+                        <MenuItem key={t} value={t}>{t}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 8 }}>
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    fullWidth
+                    sx={{ textTransform: "none", fontWeight: "bold", height: "40px", borderStyle: "dashed" }}
+                  >
+                    📁 Upload Local Document (PDF, DOC, XLS, Image)
+                    <input
+                      type="file"
+                      hidden
+                      multiple
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                      onChange={handleDocumentUpload}
+                    />
+                  </Button>
+                </Grid>
+              </Grid>
+
+              {/* Row 2: Name + URL + Add button */}
+              <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+                <Grid size={{ xs: 12, sm: 5 }}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Document Name"
+                    value={inputDocName}
+                    onChange={(e) => setInputDocName(e.target.value)}
+                    placeholder="e.g. MOU with XYZ Foundation"
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 5 }}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Or enter Document URL"
+                    value={inputDocUrl}
+                    onChange={(e) => setInputDocUrl(e.target.value)}
+                    placeholder="https://drive.google.com/..."
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 2 }}>
+                  <Button
+                    variant="contained"
+                    onClick={handleAddDocUrl}
+                    fullWidth
+                    sx={{ textTransform: "none", fontWeight: "bold", height: "40px" }}
+                  >
+                    Add
+                  </Button>
+                </Grid>
+              </Grid>
+
+              {/* Document List */}
+              {projectDocuments.length === 0 ? (
+                <Box sx={{ p: 3, textAlign: "center", border: "1px dashed #cbd5e1", borderRadius: "8px", backgroundColor: "#f8fafc" }}>
+                  <Typography variant="body2" sx={{ color: "#94a3b8" }}>
+                    📄 No documents uploaded yet. Upload files or add document URLs above.
+                  </Typography>
+                </Box>
+              ) : (
+                <Stack spacing={2}>
+                  {projectDocuments.map((doc, idx) => (
+                    <Paper
+                      key={idx}
+                      variant="outlined"
+                      sx={{
+                        p: 2,
+                        borderRadius: "8px",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 2,
+                        flexWrap: "wrap",
+                        borderColor: "#e2e8f0",
+                        backgroundColor: "#f8fafc"
+                      }}
+                    >
+                      <Box sx={{ fontSize: "28px", lineHeight: 1, flexShrink: 0 }}>
+                        {doc.type === "MOU" || doc.type === "Agreement" ? "📝" :
+                         doc.type === "Report" || doc.type === "Proposal" ? "📋" :
+                         doc.type === "Budget" || doc.type === "Invoice" ? "💰" :
+                         doc.type === "Completion Certificate" ? "🏆" : "📄"}
+                      </Box>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5, flexWrap: "wrap" }}>
+                          <Typography variant="body2" sx={{ fontWeight: "600", color: "#1e293b", wordBreak: "break-word" }}>
+                            {doc.name}
+                          </Typography>
+                          <Chip label={doc.type || "Other"} size="small" color="primary" variant="outlined" sx={{ fontSize: "11px" }} />
+                        </Box>
+                        {doc.uploadedAt && (
+                          <Typography variant="caption" sx={{ color: "#94a3b8", display: "block", mb: 1 }}>
+                            Added: {new Date(doc.uploadedAt).toLocaleDateString("en-GB")}
+                          </Typography>
+                        )}
+                        <TextField
+                          fullWidth
+                          size="small"
+                          placeholder="Remarks / description..."
+                          value={doc.remarks || ""}
+                          onChange={(e) => handleDocRemarkChange(idx, e.target.value)}
+                          sx={{ mb: 1, "& input": { fontSize: "12px" } }}
+                        />
+                        <Button
+                          variant="text"
+                          size="small"
+                          href={doc.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{ textTransform: "none", fontSize: "12px", p: 0, color: "#3b82f6" }}
+                        >
+                          🔗 View / Download
+                        </Button>
+                      </Box>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        size="small"
+                        onClick={() => handleRemoveDocument(idx)}
+                        sx={{ minWidth: 0, width: "28px", height: "28px", p: 0, borderRadius: "50%", fontSize: "12px", fontWeight: "bold", flexShrink: 0, mt: 0.5 }}
+                      >
+                        ✕
+                      </Button>
+                    </Paper>
+                  ))}
+                </Stack>
               )}
             </Paper>
           </Grid>

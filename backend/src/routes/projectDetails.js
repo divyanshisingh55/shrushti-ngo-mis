@@ -39,7 +39,7 @@ router.get("/:id", async (req, res) => {
 
     // Fetch project themes (all of them)
     const themesRes = await pool.query(
-      `SELECT theme_id, primary_flag FROM project_themes WHERE project_id = $1`,
+      `SELECT theme_id, primary_flag, taxonomy_category, taxonomy_sub_category, taxonomy_activity FROM project_themes WHERE project_id = $1`,
       [id]
     );
     
@@ -67,10 +67,15 @@ router.get("/:id", async (req, res) => {
       themesMap[st.theme_id].push(st.sub_theme_id);
     }
 
-    const themesList = Object.keys(themesMap).map(tId => ({
-      themeId: Number(tId),
-      subThemeIds: themesMap[tId]
-    }));
+    const themesList = themesRes.rows.map(row => {
+      return {
+        themeId: row.theme_id,
+        subThemeIds: themesMap[row.theme_id] || [],
+        category: row.taxonomy_category || "",
+        subCategory: row.taxonomy_sub_category || "",
+        activity: row.taxonomy_activity || ""
+      };
+    });
 
     const allSubThemeIds = subThemesMapRes.rows.map(row => row.sub_theme_id);
 

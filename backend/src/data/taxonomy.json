@@ -1,0 +1,739 @@
+{
+  "themes": [
+    {
+      "id": 1,
+      "name": "Education & Youth Development",
+      "categories": [
+        {
+          "name": "Education",
+          "subCategories": [
+            {
+              "name": "ECCE",
+              "activities": ["School Readiness", "FLN", "Learning Enhancement", "Children with Disabilities"]
+            },
+            {
+              "name": "Pre-primary Education",
+              "activities": ["School Readiness", "FLN", "Learning Enhancement", "Smart Classroom"]
+            },
+            {
+              "name": "Primary Education",
+              "activities": ["FLN", "Learning Enhancement", "School Retention", "Children with Disabilities", "Smart Classroom", "Teacher Training"]
+            },
+            {
+              "name": "Upper Primary Education",
+              "activities": ["Learning Enhancement", "School Retention", "Children with Disabilities", "Smart Classroom", "Teacher Training", "Sports Promotion"]
+            },
+            {
+              "name": "Secondary Education",
+              "activities": ["Learning Enhancement", "School Retention", "Children with Disabilities", "Smart Classroom", "Teacher Training", "Sports Promotion", "Counselling"]
+            },
+            {
+              "name": "Inclusive Education",
+              "activities": ["Children with Disabilities", "School Retention", "Learning Enhancement", "Teacher Training"]
+            },
+            {
+              "name": "Digital Education",
+              "activities": ["Smart Classroom", "Digital Skills", "Learning Enhancement", "Teacher Training"]
+            },
+            {
+              "name": "Teacher Development",
+              "activities": ["Teacher Training", "Learning Enhancement", "Behavioural Development"]
+            },
+            {
+              "name": "School Infrastructure",
+              "activities": ["School Readiness", "Smart Classroom", "Sports Promotion"]
+            },
+            {
+              "name": "Sports & Physical Education",
+              "activities": ["Sports Promotion", "Behavioural Development", "School Retention"]
+            },
+            {
+              "name": "Life Skills Education",
+              "activities": ["Behavioural Development", "Counselling", "Soft Skills"]
+            }
+          ]
+        },
+        {
+          "name": "Youth Development",
+          "subCategories": [
+            {
+              "name": "Career Guidance",
+              "activities": ["Career Planning", "Counselling", "Soft Skills"]
+            },
+            {
+              "name": "Leadership Development",
+              "activities": ["Youth Clubs", "Civic Engagement", "Soft Skills"]
+            },
+            {
+              "name": "Employability",
+              "activities": ["Soft Skills", "Digital Skills", "Career Planning", "Placement Support"]
+            },
+            {
+              "name": "Digital Literacy",
+              "activities": ["Digital Skills", "Smart Classroom"]
+            },
+            {
+              "name": "Entrepreneurship",
+              "activities": ["Start-up Support", "Business Planning", "Career Planning"]
+            },
+            {
+              "name": "Financial Literacy",
+              "activities": ["Career Planning", "Start-up Support"]
+            },
+            {
+              "name": "Volunteerism",
+              "activities": ["Youth Clubs", "Civic Engagement"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Health, Nutrition & Community Well-being",
+      "categories": [
+        {
+          "name": "Health",
+          "subCategories": [
+            {
+              "name": "Maternal Health",
+              "activities": ["Antenatal & Postnatal Care", "Family Planning", "Counselling", "Health Camps"]
+            },
+            {
+              "name": "Child Health",
+              "activities": ["Immunization", "Growth Monitoring", "Health Camps", "Screening & Early Detection"]
+            },
+            {
+              "name": "Adolescent Health",
+              "activities": ["Menstrual Hygiene Management", "Counselling", "Health Camps", "Family Planning"]
+            },
+            {
+              "name": "Reproductive Health",
+              "activities": ["Family Planning", "Counselling", "Antenatal & Postnatal Care"]
+            },
+            {
+              "name": "Mental Health",
+              "activities": ["Counselling", "Health Camps", "Screening & Early Detection"]
+            },
+            {
+              "name": "Eye Health",
+              "activities": ["Vision Screening", "Health Camps", "Screening & Early Detection"]
+            },
+            {
+              "name": "Community Health",
+              "activities": ["Health Camps", "Screening & Early Detection", "Counselling", "Government Scheme Linkages"]
+            },
+            {
+              "name": "Disease Prevention",
+              "activities": ["Immunization", "Screening & Early Detection", "Health Camps", "Counselling"]
+            },
+            {
+              "name": "Disability & Rehabilitation",
+              "activities": ["Inclusive Services", "Counselling", "Government Scheme Linkages"]
+            }
+          ]
+        },
+        {
+          "name": "Nutrition",
+          "subCategories": [
+            {
+              "name": "Maternal Nutrition",
+              "activities": ["Antenatal & Postnatal Care", "Growth Monitoring", "Kitchen Garden"]
+            },
+            {
+              "name": "Child Nutrition",
+              "activities": ["Growth Monitoring", "Kitchen Garden", "Health Camps"]
+            },
+            {
+              "name": "Supplementary Nutrition",
+              "activities": ["Growth Monitoring", "Kitchen Garden", "Government Scheme Linkages"]
+            },
+            {
+              "name": "Food Security",
+              "activities": ["Kitchen Garden", "Government Scheme Linkages"]
+            },
+            {
+              "name": "Behaviour Change Communication",
+              "activities": ["Counselling", "Health Camps"]
+            }
+          ]
+        },
+        {
+          "name": "WASH",
+          "subCategories": [
+            {
+              "name": "Drinking Water",
+              "activities": ["Safe Water Access", "Government Scheme Linkages"]
+            },
+            {
+              "name": "Sanitation",
+              "activities": ["Handwashing", "Government Scheme Linkages"]
+            },
+            {
+              "name": "Hygiene Promotion",
+              "activities": ["Handwashing", "Counselling", "Health Camps"]
+            },
+            {
+              "name": "Menstrual Hygiene",
+              "activities": ["Menstrual Hygiene Management", "Counselling"]
+            }
+          ]
+        },
+        {
+          "name": "Community Well-being",
+          "subCategories": [
+            {
+              "name": "Community Mobilization",
+              "activities": ["Government Scheme Linkages", "Counselling", "Health Camps"]
+            },
+            {
+              "name": "Capacity Building",
+              "activities": ["Counselling", "Health Camps", "Government Scheme Linkages"]
+            },
+            {
+              "name": "Social Security",
+              "activities": ["Government Scheme Linkages", "Inclusive Services"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Climate Resilience, Water & Natural Resource Management",
+      "categories": [
+        {
+          "name": "Climate Resilience",
+          "subCategories": [
+            {
+              "name": "Climate Awareness",
+              "activities": ["Environmental Education", "Community Institutions"]
+            },
+            {
+              "name": "Climate-smart Practices",
+              "activities": ["Plantation", "Soil & Moisture Conservation", "Environmental Education"]
+            }
+          ]
+        },
+        {
+          "name": "Water Management",
+          "subCategories": [
+            {
+              "name": "Drinking Water",
+              "activities": ["Rainwater Harvesting", "Recharge Structures", "Water Budgeting"]
+            },
+            {
+              "name": "Water Conservation",
+              "activities": ["Rainwater Harvesting", "Farm Pond", "Anicut", "Check Dam", "Water Budgeting"]
+            },
+            {
+              "name": "Watershed Development",
+              "activities": ["Check Dam", "Farm Pond", "Anicut", "Recharge Structures", "Soil & Moisture Conservation", "Watershed Protection"]
+            },
+            {
+              "name": "Groundwater Recharge",
+              "activities": ["Recharge Structures", "Rainwater Harvesting", "Check Dam"]
+            },
+            {
+              "name": "Water Governance",
+              "activities": ["Water Budgeting", "Community Institutions"]
+            },
+            {
+              "name": "Construction",
+              "activities": ["Check Dam", "Farm Pond", "Anicut", "Recharge Structures"]
+            }
+          ]
+        },
+        {
+          "name": "Natural Resource Management",
+          "subCategories": [
+            {
+              "name": "Soil Conservation",
+              "activities": ["Soil & Moisture Conservation", "Watershed Protection", "Plantation"]
+            },
+            {
+              "name": "Afforestation",
+              "activities": ["Plantation", "Environmental Education"]
+            },
+            {
+              "name": "Biodiversity Conservation",
+              "activities": ["Plantation", "Environmental Education", "Watershed Protection"]
+            },
+            {
+              "name": "Pasture Development",
+              "activities": ["Plantation", "Soil & Moisture Conservation"]
+            },
+            {
+              "name": "River & Catchment Management",
+              "activities": ["Watershed Protection", "Soil & Moisture Conservation", "Plantation"]
+            },
+            {
+              "name": "Sustainable Agriculture",
+              "activities": ["Soil & Moisture Conservation", "Plantation", "Environmental Education"]
+            },
+            {
+              "name": "Capacity Building",
+              "activities": ["Community Institutions", "Environmental Education"]
+            },
+            {
+              "name": "Awareness",
+              "activities": ["Environmental Education", "Community Institutions"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Livelihoods, Skills & Entrepreneurship",
+      "categories": [
+        {
+          "name": "Livelihood",
+          "subCategories": [
+            {
+              "name": "Agriculture",
+              "activities": ["Sustainable Agriculture", "Organic Farming", "Climate-smart Agriculture", "Kitchen Gardening", "Market Linkages", "Farmer Producer Organizations"]
+            },
+            {
+              "name": "Animal Husbandry",
+              "activities": ["Dairy Development", "Goat Rearing", "Market Linkages"]
+            },
+            {
+              "name": "Horticulture",
+              "activities": ["Kitchen Gardening", "Market Linkages", "Sustainable Agriculture"]
+            },
+            {
+              "name": "Non-Farm Livelihood",
+              "activities": ["Micro Enterprise", "Market Linkages", "Certification"]
+            },
+            {
+              "name": "Financial Inclusion",
+              "activities": ["Access to Credit", "SHG Strengthening", "Market Linkages"]
+            }
+          ]
+        },
+        {
+          "name": "Skill Development",
+          "subCategories": [
+            {
+              "name": "Vocational Training",
+              "activities": ["Certification", "Placement Support", "Soft Skills"]
+            },
+            {
+              "name": "Digital Skills",
+              "activities": ["Certification", "Placement Support"]
+            },
+            {
+              "name": "Employability",
+              "activities": ["Placement Support", "Soft Skills", "Business Planning"]
+            },
+            {
+              "name": "Soft Skills",
+              "activities": ["Placement Support", "Business Planning"]
+            }
+          ]
+        },
+        {
+          "name": "Entrepreneurship",
+          "subCategories": [
+            {
+              "name": "Enterprise Development",
+              "activities": ["Micro Enterprise", "Business Planning", "Market Linkages", "Access to Credit"]
+            },
+            {
+              "name": "Start-up Promotion",
+              "activities": ["Business Planning", "Market Linkages", "Access to Credit"]
+            },
+            {
+              "name": "Women Entrepreneurship",
+              "activities": ["SHG Strengthening", "Micro Enterprise", "Business Planning", "Market Linkages"]
+            },
+            {
+              "name": "Financial Literacy",
+              "activities": ["Access to Credit", "Business Planning"]
+            }
+          ]
+        },
+        {
+          "name": "Capacity Building",
+          "subCategories": [
+            {
+              "name": "Farmer Capacity Building",
+              "activities": ["Sustainable Agriculture", "Organic Farming", "Climate-smart Agriculture", "Farmer Producer Organizations", "Leadership Development"]
+            },
+            {
+              "name": "SHG Capacity Building",
+              "activities": ["SHG Strengthening", "Access to Credit", "Market Linkages", "Leadership Development"]
+            },
+            {
+              "name": "Producer Groups",
+              "activities": ["Farmer Producer Organizations", "Market Linkages", "Business Planning"]
+            },
+            {
+              "name": "Community Institutions",
+              "activities": ["Leadership Development", "SHG Strengthening", "Farmer Producer Organizations"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Infrastructure Development",
+      "categories": [
+        {
+          "name": "Education Infrastructure",
+          "subCategories": [
+            {
+              "name": "School Infrastructure",
+              "activities": ["ECCE", "Primary Education", "Secondary Education", "Inclusive Education"]
+            },
+            {
+              "name": "Anganwadi Infrastructure",
+              "activities": ["ECCE", "Primary Education"]
+            }
+          ]
+        },
+        {
+          "name": "Water Infrastructure",
+          "subCategories": [
+            {
+              "name": "Check Dam",
+              "activities": ["Water Conservation", "Groundwater Recharge", "Irrigation"]
+            },
+            {
+              "name": "Anicut",
+              "activities": ["Water Conservation", "Groundwater Recharge", "Irrigation"]
+            },
+            {
+              "name": "Farm Pond",
+              "activities": ["Water Conservation", "Irrigation"]
+            },
+            {
+              "name": "Drinking Water System",
+              "activities": ["Safe Drinking Water"]
+            },
+            {
+              "name": "Rainwater Harvesting",
+              "activities": ["Water Conservation", "Groundwater Recharge", "Safe Drinking Water"]
+            }
+          ]
+        },
+        {
+          "name": "Health Infrastructure",
+          "subCategories": [
+            {
+              "name": "Health Centre",
+              "activities": ["Community Development"]
+            },
+            {
+              "name": "Nutrition Centre",
+              "activities": ["Community Development"]
+            }
+          ]
+        },
+        {
+          "name": "Community Infrastructure",
+          "subCategories": [
+            {
+              "name": "Sanitation Infrastructure",
+              "activities": ["WASH", "Community Development"]
+            },
+            {
+              "name": "Community Hall",
+              "activities": ["Community Development"]
+            },
+            {
+              "name": "Rural Roads / Pathways",
+              "activities": ["Rural Connectivity", "Community Development"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Integrated Rural Transformation",
+      "categories": [
+        {
+          "name": "Village Development",
+          "subCategories": [
+            {
+              "name": "Model Village Development",
+              "activities": ["Convergence Planning", "Participatory Planning", "Asset Creation"]
+            },
+            {
+              "name": "Village Development Plan",
+              "activities": ["Convergence Planning", "Participatory Planning", "Community Participation"]
+            }
+          ]
+        },
+        {
+          "name": "Governance",
+          "subCategories": [
+            {
+              "name": "Gram Panchayat Strengthening",
+              "activities": ["Local Governance", "Institutional Strengthening", "PRI Capacity Building"]
+            },
+            {
+              "name": "Village Development Committee",
+              "activities": ["Local Governance", "Community Participation", "Institutional Strengthening"]
+            }
+          ]
+        },
+        {
+          "name": "Community Institutions",
+          "subCategories": [
+            {
+              "name": "SHGs & Federations",
+              "activities": ["Institutional Strengthening", "Collective Action", "Gender Equality"]
+            },
+            {
+              "name": "Farmer Producer Organizations",
+              "activities": ["Institutional Strengthening", "Collective Action"]
+            }
+          ]
+        },
+        {
+          "name": "Social Inclusion",
+          "subCategories": [
+            {
+              "name": "Women Empowerment",
+              "activities": ["Gender Equality", "Government Scheme Convergence", "Institutional Strengthening"]
+            },
+            {
+              "name": "Tribal Development",
+              "activities": ["PVTG Development", "Government Scheme Convergence", "Poverty Reduction"]
+            },
+            {
+              "name": "Social Protection",
+              "activities": ["Government Scheme Convergence", "Poverty Reduction"]
+            }
+          ]
+        },
+        {
+          "name": "Natural Resource Management",
+          "subCategories": [
+            {
+              "name": "Watershed-based Development",
+              "activities": ["Climate Resilience", "Asset Creation", "Participatory Planning"]
+            }
+          ]
+        },
+        {
+          "name": "Rural Economy",
+          "subCategories": [
+            {
+              "name": "Livelihood Diversification",
+              "activities": ["Poverty Reduction", "Asset Creation", "Government Scheme Convergence"]
+            }
+          ]
+        },
+        {
+          "name": "Infrastructure Planning",
+          "subCategories": [
+            {
+              "name": "Village Infrastructure Planning",
+              "activities": ["Participatory Planning", "Asset Creation", "Rural Connectivity"]
+            }
+          ]
+        },
+        {
+          "name": "Capacity Building",
+          "subCategories": [
+            {
+              "name": "Community Leadership",
+              "activities": ["Institutional Strengthening", "Collective Action", "Participatory Planning"]
+            },
+            {
+              "name": "PRI Capacity Building",
+              "activities": ["Local Governance", "Institutional Strengthening"]
+            },
+            {
+              "name": "Community Ownership",
+              "activities": ["Collective Action", "Sustainability Planning", "Community Participation"]
+            }
+          ]
+        },
+        {
+          "name": "Monitoring & Sustainability",
+          "subCategories": [
+            {
+              "name": "Community Ownership",
+              "activities": ["Sustainability Planning", "Collective Action"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Research, Evaluation & Impact Assessment",
+      "categories": [
+        {
+          "name": "Research",
+          "subCategories": [
+            {
+              "name": "Baseline Study",
+              "activities": ["Data Collection", "Household Survey", "Situation Analysis"]
+            },
+            {
+              "name": "Need Assessment",
+              "activities": ["Data Collection", "Situation Analysis", "Knowledge Generation"]
+            },
+            {
+              "name": "Socio-economic Survey",
+              "activities": ["Data Collection", "Household Survey", "Situation Analysis"]
+            },
+            {
+              "name": "Action Research",
+              "activities": ["Data Collection", "Knowledge Generation", "Best Practices"]
+            }
+          ]
+        },
+        {
+          "name": "Evaluation",
+          "subCategories": [
+            {
+              "name": "Midline Evaluation",
+              "activities": ["Progress Assessment", "Outcome Evaluation", "Quality Assurance"]
+            },
+            {
+              "name": "Endline Evaluation",
+              "activities": ["Outcome Evaluation", "Independent Assessment", "SDG Mapping"]
+            },
+            {
+              "name": "Third-Party Evaluation",
+              "activities": ["Independent Assessment", "Outcome Evaluation", "Quality Assurance"]
+            }
+          ]
+        },
+        {
+          "name": "Impact Assessment",
+          "subCategories": [
+            {
+              "name": "Social Impact Assessment",
+              "activities": ["Independent Assessment", "SDG Mapping", "Knowledge Generation"]
+            },
+            {
+              "name": "CSR Impact Assessment",
+              "activities": ["Independent Assessment", "SDG Mapping", "Outcome Evaluation"]
+            }
+          ]
+        },
+        {
+          "name": "Monitoring",
+          "subCategories": [
+            {
+              "name": "Project Monitoring",
+              "activities": ["MIS & Data Management", "Progress Assessment", "Quality Assurance"]
+            },
+            {
+              "name": "Process Monitoring",
+              "activities": ["Data Collection", "Progress Assessment", "Quality Assurance"]
+            }
+          ]
+        },
+        {
+          "name": "Learning & Documentation",
+          "subCategories": [
+            {
+              "name": "Case Studies",
+              "activities": ["Knowledge Management", "Best Practices", "Dissemination"]
+            },
+            {
+              "name": "Documentation",
+              "activities": ["Knowledge Management", "Best Practices", "Dissemination"]
+            },
+            {
+              "name": "Publications",
+              "activities": ["Knowledge Management", "Dissemination", "Best Practices"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Awareness, Advocacy & Behavior Change",
+      "categories": [
+        {
+          "name": "Awareness",
+          "subCategories": [
+            {
+              "name": "Health Awareness",
+              "activities": ["Social Campaign", "Community Outreach", "IEC/BCC Campaign", "Community Mobilization"]
+            },
+            {
+              "name": "Education Awareness",
+              "activities": ["Social Campaign", "Community Outreach", "IEC/BCC Campaign"]
+            },
+            {
+              "name": "Nutrition Awareness",
+              "activities": ["Social Campaign", "Community Outreach", "IEC/BCC Campaign"]
+            },
+            {
+              "name": "Water, Sanitation & Hygiene (WASH)",
+              "activities": ["Social Campaign", "Community Outreach", "IEC/BCC Campaign"]
+            },
+            {
+              "name": "Climate & Environment Awareness",
+              "activities": ["Social Campaign", "Community Outreach", "IEC/BCC Campaign"]
+            },
+            {
+              "name": "Government Scheme Awareness",
+              "activities": ["Entitlement Awareness", "Government Scheme Convergence", "Community Outreach"]
+            }
+          ]
+        },
+        {
+          "name": "Advocacy",
+          "subCategories": [
+            {
+              "name": "Policy Advocacy",
+              "activities": ["Rights-Based Advocacy", "Government Scheme Convergence"]
+            },
+            {
+              "name": "Social Security",
+              "activities": ["Entitlement Awareness", "Rights-Based Advocacy", "Government Scheme Convergence"]
+            },
+            {
+              "name": "Gender Equality",
+              "activities": ["Women Empowerment", "Rights-Based Advocacy"]
+            },
+            {
+              "name": "Child Rights",
+              "activities": ["Child Protection", "Rights-Based Advocacy"]
+            }
+          ]
+        },
+        {
+          "name": "Behavior Change",
+          "subCategories": [
+            {
+              "name": "Behaviour Change Communication (BCC)",
+              "activities": ["IEC/BCC Campaign", "Behaviour Change", "Positive Behaviour Adoption", "Habit Formation"]
+            },
+            {
+              "name": "Social & Behaviour Change Communication (SBCC)",
+              "activities": ["IEC/BCC Campaign", "Behaviour Change", "Community Mobilization", "Habit Formation"]
+            }
+          ]
+        },
+        {
+          "name": "Capacity Building",
+          "subCategories": [
+            {
+              "name": "Community Leadership",
+              "activities": ["Volunteer Development", "Institutional Strengthening"]
+            },
+            {
+              "name": "PRI & Community Institutions",
+              "activities": ["Institutional Strengthening", "Community Mobilization"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

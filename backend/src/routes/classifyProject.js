@@ -32,7 +32,8 @@ router.post("/:id", async (req, res) => {
     beneficiariesBoys = null,
     beneficiariesGirls = null,
     outcomeImpactNotes = null,
-    images = null
+    images = null,
+    documents = null
   } = req.body;
 
   let finalThemes = themes;
@@ -58,13 +59,20 @@ router.post("/:id", async (req, res) => {
       for (const t of finalThemes) {
         if (!t.themeId) continue;
         await client.query(
-          `INSERT INTO project_themes (project_id, theme_id, primary_flag)
-           VALUES ($1, $2, $3)`,
-          [projectId, t.themeId, isFirst]
+          `INSERT INTO project_themes (project_id, theme_id, primary_flag, taxonomy_category, taxonomy_sub_category, taxonomy_activity)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [
+            projectId,
+            t.themeId,
+            isFirst,
+            t.category || null,
+            t.subCategory || null,
+            t.activity || null
+          ]
         );
         isFirst = false;
-        
-        // Insert sub-themes
+
+        // Insert sub-themes (legacy support — keep existing sub_theme_id links)
         if (Array.isArray(t.subThemeIds) && t.subThemeIds.length > 0) {
           for (const stId of t.subThemeIds) {
             await client.query(
@@ -147,8 +155,9 @@ router.post("/:id", async (req, res) => {
            beneficiaries_girls = $21,
            outcome_impact_notes = $22,
            images = $23,
+           documents = $24,
            updated_at = NOW()
-       WHERE project_id = $24`,
+       WHERE project_id = $25`,
       [
         status,
         projectSummary || null,
@@ -173,6 +182,7 @@ router.post("/:id", async (req, res) => {
         beneficiariesGirls !== "" && beneficiariesGirls !== null ? Number(beneficiariesGirls) : null,
         outcomeImpactNotes || null,
         images ? (typeof images === 'string' ? images : JSON.stringify(images)) : null,
+        documents ? (typeof documents === 'string' ? documents : JSON.stringify(documents)) : null,
         projectId
       ]
     );

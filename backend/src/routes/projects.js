@@ -106,7 +106,9 @@ router.get("/", async (req, res) => {
       include_archived,
       beneficiary_main_group,
       beneficiary_sub_groups,
-      target_group_filters
+      target_group_filters,
+      funding_source,
+      funding_source2
     } = req.query;
 
     const values = [];
@@ -218,6 +220,18 @@ router.get("/", async (req, res) => {
     if (funding_source_id) {
       query += ` AND p.funding_source_id = $${paramCount}`;
       values.push(Number(funding_source_id));
+      paramCount++;
+    }
+
+    if (funding_source) {
+      query += ` AND fs1.source_name = $${paramCount}`;
+      values.push(String(funding_source));
+      paramCount++;
+    }
+
+    if (funding_source2) {
+      query += ` AND fs2.source_name = $${paramCount}`;
+      values.push(String(funding_source2));
       paramCount++;
     }
 
@@ -483,7 +497,7 @@ router.post("/", async (req, res) => {
     const agencyId = await getOrCreateAgency(agency);
     const fundingSourceId = await getOrCreateFunding(funding_source);
     const fundingSource2Id = await getOrCreateFunding(funding_source2);
-    
+
     // Resolve multiple states
     const statesArray = Array.isArray(state) ? state : (state ? [state] : []);
     const stateIds = [];
@@ -585,7 +599,7 @@ router.put("/:id", async (req, res) => {
     const agencyId = await getOrCreateAgency(agency);
     const fundingSourceId = await getOrCreateFunding(funding_source);
     const fundingSource2Id = await getOrCreateFunding(funding_source2);
-    
+
     // Resolve multiple states
     const statesArray = Array.isArray(state) ? state : (state ? [state] : []);
     const stateIds = [];
@@ -695,7 +709,7 @@ router.post("/:id/duplicate", async (req, res) => {
       return res.status(404).json({ success: false, message: "Project not found" });
     }
     const orig = origRes.rows[0];
-    
+
     // Create cloned project record
     const cloneName = `Copy of ${orig.project_name}`;
     const insertRes = await pool.query(
@@ -714,9 +728,9 @@ router.post("/:id/duplicate", async (req, res) => {
         orig.state_id
       ]
     );
-    
+
     const newProjectId = insertRes.rows[0].project_id;
-    
+
     // 1. Primary theme
     const themes = await pool.query("SELECT * FROM project_themes WHERE project_id = $1", [id]);
     for (const t of themes.rows) {
@@ -725,7 +739,7 @@ router.post("/:id/duplicate", async (req, res) => {
         [newProjectId, t.theme_id, t.primary_flag, t.remarks]
       );
     }
-    
+
     // 2. Sub-themes
     const subThemes = await pool.query("SELECT * FROM project_sub_themes WHERE project_id = $1", [id]);
     for (const st of subThemes.rows) {
@@ -734,7 +748,7 @@ router.post("/:id/duplicate", async (req, res) => {
         [newProjectId, st.sub_theme_id]
       );
     }
-    
+
     // 3. Target groups
     const targetGroups = await pool.query("SELECT * FROM project_target_groups WHERE project_id = $1", [id]);
     for (const tg of targetGroups.rows) {
@@ -743,7 +757,7 @@ router.post("/:id/duplicate", async (req, res) => {
         [newProjectId, tg.target_group_id, tg.primary_group, tg.remarks]
       );
     }
-    
+
     // 4. Activity types
     const activityTypes = await pool.query("SELECT * FROM project_activity_types WHERE project_id = $1", [id]);
     for (const at of activityTypes.rows) {
@@ -807,5 +821,4 @@ router.post("/:id/unarchive", async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 module.exports = router;
