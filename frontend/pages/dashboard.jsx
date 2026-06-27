@@ -34,6 +34,8 @@ import {
   Legend,
   LineChart,
   Line,
+  AreaChart,
+  Area,
   CartesianGrid,
   PieChart,
   Pie,
@@ -52,7 +54,18 @@ import {
   Paid as PaidIcon
 } from "@mui/icons-material";
 
-const COLORS = ["#1abc9c", "#3498db", "#9b59b6", "#e67e22", "#e74c3c", "#2ecc71", "#34495e", "#16a085", "#2980b9", "#8e44ad"];
+const COLORS = ["#0f766e", "#eab308", "#2563eb", "#8b5cf6", "#10b981", "#f97316", "#06b6d4", "#ec4899", "#6366f1", "#14b8a6"];
+
+const glassTooltipStyle = {
+  backgroundColor: "rgba(255, 255, 255, 0.98)",
+  borderRadius: "10px",
+  border: "1px solid #e2e8f0",
+  boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02)",
+  padding: "8px 12px",
+  fontSize: "12px",
+  fontWeight: "600",
+  color: "#0f172a"
+};
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -254,36 +267,54 @@ export default function Dashboard() {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={formattedThemeData} margin={{ top: 20, right: 20, left: 10, bottom: 85 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11 }} interval={0} />
+              <defs>
+                <linearGradient id="themeGradFS" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#0f766e" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#0d9488" stopOpacity={0.4} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11, fontWeight: "500" }} interval={0} />
               <YAxis />
-              <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
-              <Bar dataKey="count" fill="#14b8a6" radius={[6, 6, 0, 0]} />
+              <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+              <Bar dataKey="count" fill="url(#themeGradFS)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         );
       case 'year':
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={charts.projectsByYear} margin={{ top: 20, right: 35, left: 10, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" style={{ fontSize: "12px" }} />
+            <AreaChart data={charts.projectsByYear} margin={{ top: 20, right: 35, left: 10, bottom: 20 }}>
+              <defs>
+                <linearGradient id="yearGradFS" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#2563eb" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#2563eb" stopOpacity={0.0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <XAxis dataKey="year" style={{ fontSize: "12px", fontWeight: "600", fill: "#475569" }} />
               <YAxis />
-              <Tooltip />
+              <Tooltip contentStyle={glassTooltipStyle} />
               <Legend />
-              <Line type="monotone" dataKey="count" name="Projects Count" stroke="#3b82f6" strokeWidth={4} activeDot={{ r: 10 }} />
-            </LineChart>
+              <Area type="monotone" dataKey="count" name="Projects Count" stroke="#2563eb" strokeWidth={3} fill="url(#yearGradFS)" activeDot={{ r: 8 }} />
+            </AreaChart>
           </ResponsiveContainer>
         );
       case 'agency':
         return (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={formattedAgencyData} margin={{ top: 20, right: 20, left: 10, bottom: 85 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11 }} interval={0} />
+              <defs>
+                <linearGradient id="agencyGradFS" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#6366f1" stopOpacity={0.4} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11, fontWeight: "500" }} interval={0} />
               <YAxis />
-              <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
-              <Bar dataKey="count" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
+              <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+              <Bar dataKey="count" fill="url(#agencyGradFS)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -297,16 +328,18 @@ export default function Dashboard() {
                 nameKey="state_name"
                 cx="50%"
                 cy="50%"
-                outerRadius={150}
+                innerRadius={70}
+                outerRadius={130}
+                paddingAngle={3}
                 fill="#3b82f6"
                 label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                style={{ fontSize: "13px", fontWeight: "600" }}
+                style={{ fontSize: "12px", fontWeight: "600" }}
               >
                 {charts.projectsByState.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip contentStyle={glassTooltipStyle} />
             </PieChart>
           </ResponsiveContainer>
         );
@@ -320,16 +353,18 @@ export default function Dashboard() {
                 nameKey="classification_status"
                 cx="50%"
                 cy="50%"
-                outerRadius={150}
+                innerRadius={70}
+                outerRadius={130}
+                paddingAngle={4}
                 fill="#10b981"
                 label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                style={{ fontSize: "13px", fontWeight: "600" }}
+                style={{ fontSize: "12px", fontWeight: "600" }}
               >
                 {(charts.projectsByStatus || []).map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#10b981' : '#f59e0b'} />
+                  <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#0f766e' : '#eab308'} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip contentStyle={glassTooltipStyle} />
             </PieChart>
           </ResponsiveContainer>
         );
@@ -337,36 +372,54 @@ export default function Dashboard() {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={formattedFundingData} margin={{ top: 20, right: 20, left: 10, bottom: 85 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11 }} interval={0} />
+              <defs>
+                <linearGradient id="fundingGradFS" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#d97706" stopOpacity={0.4} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11, fontWeight: "500" }} interval={0} />
               <YAxis />
-              <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
-              <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} />
+              <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+              <Bar dataKey="count" fill="url(#fundingGradFS)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         );
       case 'turnover':
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={formattedTurnoverData} margin={{ top: 20, right: 35, left: 20, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" style={{ fontSize: "12px" }} />
+            <AreaChart data={formattedTurnoverData} margin={{ top: 20, right: 35, left: 20, bottom: 20 }}>
+              <defs>
+                <linearGradient id="turnoverGradFS" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#10b981" stopOpacity={0.0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <XAxis dataKey="year" style={{ fontSize: "12px", fontWeight: "600", fill: "#475569" }} />
               <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: 0 }} />
-              <Tooltip formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
+              <Tooltip contentStyle={glassTooltipStyle} formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
               <Legend />
-              <Line type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#e11d48" strokeWidth={4} activeDot={{ r: 10 }} />
-            </LineChart>
+              <Area type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#10b981" strokeWidth={3} fill="url(#turnoverGradFS)" activeDot={{ r: 8 }} />
+            </AreaChart>
           </ResponsiveContainer>
         );
       case 'frequency':
         return (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={formattedFrequencyData} margin={{ top: 20, right: 20, left: 10, bottom: 85 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11 }} interval={0} />
+              <defs>
+                <linearGradient id="frequencyGradFS" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#0891b2" stopOpacity={0.4} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11, fontWeight: "500" }} interval={0} />
               <YAxis />
-              <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
-              <Bar dataKey="count" fill="#0284c7" radius={[6, 6, 0, 0]} />
+              <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+              <Bar dataKey="count" fill="url(#frequencyGradFS)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -655,12 +708,12 @@ export default function Dashboard() {
       <Grid container spacing={3}>
         {/* Projects By Primary Theme */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
                 Projects by Primary Theme
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('theme')}>
+              <IconButton size="small" onClick={() => setFullscreenChart('theme')} sx={{ color: "#0f766e" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
@@ -671,11 +724,17 @@ export default function Dashboard() {
                   data={formattedThemeData}
                   margin={{ top: 10, right: 10, left: 0, bottom: 65 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10 }} interval={0} />
-                  <YAxis style={{ fontSize: "11px" }} />
-                  <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
-                  <Bar dataKey="count" fill="#14b8a6" radius={[4, 4, 0, 0]} />
+                  <defs>
+                    <linearGradient id="themeGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0f766e" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#0d9488" stopOpacity={0.4} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10, fontWeight: "500", fill: "#475569" }} interval={0} />
+                  <YAxis style={{ fontSize: "11px", fill: "#475569" }} />
+                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+                  <Bar dataKey="count" fill="url(#themeGrad)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </Box>
@@ -684,29 +743,35 @@ export default function Dashboard() {
 
         {/* Projects By Financial Year */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
                 Projects by Financial Year
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('year')}>
+              <IconButton size="small" onClick={() => setFullscreenChart('year')} sx={{ color: "#0f766e" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ width: "100%", height: 320 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart
+                <AreaChart
                   data={charts.projectsByYear}
                   margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="year" style={{ fontSize: "11px" }} />
-                  <YAxis />
-                  <Tooltip />
+                  <defs>
+                    <linearGradient id="yearGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#2563eb" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#2563eb" stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="year" style={{ fontSize: "11px", fontWeight: "600", fill: "#475569" }} />
+                  <YAxis style={{ fontSize: "11px", fill: "#475569" }} />
+                  <Tooltip contentStyle={glassTooltipStyle} />
                   <Legend />
-                  <Line type="monotone" dataKey="count" name="Projects Count" stroke="#3b82f6" strokeWidth={3} activeDot={{ r: 8 }} />
-                </LineChart>
+                  <Area type="monotone" dataKey="count" name="Projects Count" stroke="#2563eb" strokeWidth={3} fill="url(#yearGrad)" activeDot={{ r: 8 }} />
+                </AreaChart>
               </ResponsiveContainer>
             </Box>
           </Paper>
@@ -714,12 +779,12 @@ export default function Dashboard() {
 
         {/* Projects By Top Agencies */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
                 Top 10 Agencies
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('agency')}>
+              <IconButton size="small" onClick={() => setFullscreenChart('agency')} sx={{ color: "#0f766e" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
@@ -730,11 +795,17 @@ export default function Dashboard() {
                   data={formattedAgencyData}
                   margin={{ top: 10, right: 10, left: 0, bottom: 65 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10 }} interval={0} />
-                  <YAxis style={{ fontSize: "11px" }} />
-                  <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
-                  <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                  <defs>
+                    <linearGradient id="agencyGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity={0.4} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10, fontWeight: "500", fill: "#475569" }} interval={0} />
+                  <YAxis style={{ fontSize: "11px", fill: "#475569" }} />
+                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+                  <Bar dataKey="count" fill="url(#agencyGrad)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </Box>
@@ -743,12 +814,12 @@ export default function Dashboard() {
 
         {/* Projects By State */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
                 Geographical Distribution (States)
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('state')}>
+              <IconButton size="small" onClick={() => setFullscreenChart('state')} sx={{ color: "#0f766e" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
@@ -762,16 +833,18 @@ export default function Dashboard() {
                     nameKey="state_name"
                     cx="50%"
                     cy="50%"
-                    outerRadius={90}
+                    innerRadius={50}
+                    outerRadius={85}
+                    paddingAngle={3}
                     fill="#3b82f6"
                     label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    style={{ fontSize: "11px", fontWeight: "600" }}
+                    style={{ fontSize: "10px", fontWeight: "600" }}
                   >
                     {charts.projectsByState.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip contentStyle={glassTooltipStyle} />
                 </PieChart>
               </ResponsiveContainer>
             </Box>
@@ -780,12 +853,12 @@ export default function Dashboard() {
 
         {/* Projects by Classification Status (Pie Chart) */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
                 Classification Status Distribution
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('status')}>
+              <IconButton size="small" onClick={() => setFullscreenChart('status')} sx={{ color: "#0f766e" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
@@ -799,16 +872,18 @@ export default function Dashboard() {
                     nameKey="classification_status"
                     cx="50%"
                     cy="50%"
-                    outerRadius={90}
+                    innerRadius={50}
+                    outerRadius={85}
+                    paddingAngle={4}
                     fill="#10b981"
                     label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    style={{ fontSize: "11px", fontWeight: "600" }}
+                    style={{ fontSize: "10px", fontWeight: "600" }}
                   >
                     {(charts.projectsByStatus || []).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#10b981' : '#f59e0b'} />
+                      <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#0f766e' : '#eab308'} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip contentStyle={glassTooltipStyle} />
                 </PieChart>
               </ResponsiveContainer>
             </Box>
@@ -817,12 +892,12 @@ export default function Dashboard() {
 
         {/* Funding Source Distribution (Bar Chart) */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
                 Funding Source Distribution
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('funding')}>
+              <IconButton size="small" onClick={() => setFullscreenChart('funding')} sx={{ color: "#0f766e" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
@@ -833,42 +908,54 @@ export default function Dashboard() {
                   data={formattedFundingData}
                   margin={{ top: 10, right: 10, left: 0, bottom: 65 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10 }} interval={0} />
-                  <YAxis style={{ fontSize: "11px" }} />
-                  <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
-                  <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                  <defs>
+                    <linearGradient id="fundingGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#d97706" stopOpacity={0.4} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10, fontWeight: "500", fill: "#475569" }} interval={0} />
+                  <YAxis style={{ fontSize: "11px", fill: "#475569" }} />
+                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+                  <Bar dataKey="count" fill="url(#fundingGrad)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </Box>
           </Paper>
         </Grid>
 
-        {/* Total Turnover Every Year (Line Chart) */}
+        {/* Total Turnover Every Year (Area Chart) */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
                 Total Turnover Every Year
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('turnover')}>
+              <IconButton size="small" onClick={() => setFullscreenChart('turnover')} sx={{ color: "#0f766e" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ width: "100%", height: 320 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart
+                <AreaChart
                   data={formattedTurnoverData}
                   margin={{ top: 10, right: 30, left: 15, bottom: 10 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="year" style={{ fontSize: "11px" }} />
-                  <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: -5 }} style={{ fontSize: "11px" }} />
-                  <Tooltip formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
+                  <defs>
+                    <linearGradient id="turnoverGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="year" style={{ fontSize: "11px", fontWeight: "600", fill: "#475569" }} />
+                  <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: -5 }} style={{ fontSize: "11px", fill: "#475569" }} />
+                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
                   <Legend />
-                  <Line type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#e11d48" strokeWidth={3} activeDot={{ r: 8 }} />
-                </LineChart>
+                  <Area type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#10b981" strokeWidth={3} fill="url(#turnoverGrad)" activeDot={{ r: 8 }} />
+                </AreaChart>
               </ResponsiveContainer>
             </Box>
           </Paper>
@@ -876,12 +963,12 @@ export default function Dashboard() {
 
         {/* Themes Frequencies (Bar Chart) */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
+          <Paper sx={{ p: 3, borderRadius: "12px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid #f1f5f9" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#0f172a", fontSize: "16px" }}>
                 Theme Selection Frequencies
               </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('frequency')}>
+              <IconButton size="small" onClick={() => setFullscreenChart('frequency')} sx={{ color: "#0f766e" }}>
                 <FullscreenIcon />
               </IconButton>
             </Box>
@@ -892,11 +979,17 @@ export default function Dashboard() {
                   data={formattedFrequencyData}
                   margin={{ top: 10, right: 10, left: 0, bottom: 65 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10 }} interval={0} />
-                  <YAxis style={{ fontSize: "11px" }} />
-                  <Tooltip formatter={(value, name, props) => [value, props.payload.fullName]} />
-                  <Bar dataKey="count" fill="#0284c7" radius={[4, 4, 0, 0]} />
+                  <defs>
+                    <linearGradient id="frequencyGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#0891b2" stopOpacity={0.4} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 10, fontWeight: "500", fill: "#475569" }} interval={0} />
+                  <YAxis style={{ fontSize: "11px", fill: "#475569" }} />
+                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+                  <Bar dataKey="count" fill="url(#frequencyGrad)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </Box>

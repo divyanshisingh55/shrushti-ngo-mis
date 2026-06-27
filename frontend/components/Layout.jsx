@@ -48,10 +48,11 @@ export default function Layout({ children }) {
   ];
 
   const drawer = (
-    <Box sx={{ height: "100%", backgroundColor: "#0f172a", color: "#f8fafc", overflowX: "hidden" }}>
-      <Toolbar style={{ backgroundColor: "#0b1329", color: "#f8fafc" }}>
-        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: "bold", color: "#14b8a6" }}>
-          Shrushti Seva Samiti MIS
+    <Box sx={{ height: "100%", backgroundColor: "#0b0f19", color: "#f8fafc", overflowX: "hidden" }}>
+      <Toolbar style={{ backgroundColor: "#070a12", color: "#f8fafc" }}>
+        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: "bold" }}>
+          <span style={{ color: "#10b981" }}>Shrushti</span>{" "}
+          <span style={{ color: "#eab308" }}>MIS</span>
         </Typography>
       </Toolbar>
       <Divider sx={{ borderColor: "#1e293b" }} />
@@ -67,22 +68,22 @@ export default function Layout({ children }) {
                 to={item.path}
                 sx={{
                   borderRadius: "8px",
-                  backgroundColor: isActive ? "rgba(20, 184, 166, 0.15)" : "transparent",
-                  color: isActive ? "#14b8a6" : "#94a3b8",
+                  backgroundColor: isActive ? "rgba(16, 185, 129, 0.12)" : "transparent",
+                  color: isActive ? "#34d399" : "#94a3b8",
                   "&:hover": {
                     backgroundColor: "rgba(255, 255, 255, 0.05)",
                     color: "#f8fafc"
                   }
                 }}
               >
-                <ListItemIcon sx={{ color: isActive ? "#14b8a6" : "#64748b", minWidth: "40px" }}>
+                <ListItemIcon sx={{ color: isActive ? "#34d399" : "#64748b", minWidth: "40px" }}>
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText
                   primary={item.text}
                   primaryTypographyProps={{
                     fontWeight: isActive ? "bold" : "500",
-                    color: isActive ? "#14b8a6" : "#94a3b8",
+                    color: isActive ? "#34d399" : "#94a3b8",
                     fontSize: "14px"
                   }}
                 />
@@ -101,7 +102,7 @@ export default function Layout({ children }) {
         sx={{
           width: { sm: `calc(100% - ${activeDrawerWidth}px)` },
           ml: { sm: `${activeDrawerWidth}px` },
-          backgroundColor: "#0f172a",
+          backgroundColor: "#0b0f19",
           boxShadow: "none",
           borderBottom: "1px solid #1e293b",
           transition: "width 0.2s ease-in-out, margin-left 0.2s ease-in-out"
