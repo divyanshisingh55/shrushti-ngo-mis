@@ -54,7 +54,7 @@ import {
   Paid as PaidIcon
 } from "@mui/icons-material";
 
-const COLORS = ["#0f766e", "#eab308", "#2563eb", "#8b5cf6", "#10b981", "#f97316", "#06b6d4", "#ec4899", "#6366f1", "#14b8a6"];
+const COLORS = ["#3b82f6", "#eab308", "#0d9488", "#8b5cf6", "#ec4899", "#f97316", "#06b6d4", "#10b981", "#6366f1", "#14b8a6"];
 
 const glassTooltipStyle = {
   backgroundColor: "rgba(255, 255, 255, 0.98)",
@@ -206,12 +206,8 @@ export default function Dashboard() {
       }
     } else if (type === 'sanctioned') {
       setDialogType('sanctioned');
-      setDialogTitle('Total Sanctioned Amount Details');
+      setDialogTitle('Budget Information');
       setDialogOpen(true);
-      setDialogData([
-        { label: 'Total Active Projects Budget', value: formatCurrency(summary.totalSanctionedAmount) },
-        { label: 'Total Active Projects Count', value: summary.totalProjects }
-      ]);
     }
   };
 
@@ -269,7 +265,6 @@ export default function Dashboard() {
   }));
 
   const renderFullscreenChart = () => {
-    if (!fullscreenChart) return null;
     switch (fullscreenChart) {
       case 'theme':
         return (
@@ -277,8 +272,8 @@ export default function Dashboard() {
             <BarChart data={formattedThemeData} margin={{ top: 20, right: 20, left: 10, bottom: 85 }}>
               <defs>
                 <linearGradient id="themeGradFS" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0f766e" stopOpacity={0.9} />
-                  <stop offset="100%" stopColor="#0d9488" stopOpacity={0.4} />
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.4} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -292,7 +287,7 @@ export default function Dashboard() {
       case 'year':
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={charts.projectsByYear} margin={{ top: 20, right: 35, left: 10, bottom: 20 }}>
+            <AreaChart data={charts.projectsByYear} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
               <defs>
                 <linearGradient id="yearGradFS" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#2563eb" stopOpacity={0.4} />
@@ -336,12 +331,12 @@ export default function Dashboard() {
                 nameKey="state_name"
                 cx="50%"
                 cy="50%"
-                innerRadius={70}
+                innerRadius={80}
                 outerRadius={130}
-                paddingAngle={3}
+                paddingAngle={4}
                 fill="#3b82f6"
                 label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                style={{ fontSize: "12px", fontWeight: "600" }}
+                style={{ fontSize: "12px", fontWeight: "700" }}
               >
                 {charts.projectsByState.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -361,15 +356,15 @@ export default function Dashboard() {
                 nameKey="classification_status"
                 cx="50%"
                 cy="50%"
-                innerRadius={70}
+                innerRadius={80}
                 outerRadius={130}
-                paddingAngle={4}
+                paddingAngle={5}
                 fill="#10b981"
                 label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                style={{ fontSize: "12px", fontWeight: "600" }}
+                style={{ fontSize: "12px", fontWeight: "700" }}
               >
                 {(charts.projectsByStatus || []).map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#0f766e' : '#eab308'} />
+                  <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#10b981' : '#eab308'} />
                 ))}
               </Pie>
               <Tooltip contentStyle={glassTooltipStyle} />
@@ -400,8 +395,8 @@ export default function Dashboard() {
             <AreaChart data={formattedTurnoverData} margin={{ top: 20, right: 35, left: 20, bottom: 20 }}>
               <defs>
                 <linearGradient id="turnoverGradFS" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.4} />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity={0.0} />
+                  <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -409,7 +404,7 @@ export default function Dashboard() {
               <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: 0 }} />
               <Tooltip contentStyle={glassTooltipStyle} formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
               <Legend />
-              <Area type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#10b981" strokeWidth={3} fill="url(#turnoverGradFS)" activeDot={{ r: 8 }} />
+              <Area type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#06b6d4" strokeWidth={3} fill="url(#turnoverGradFS)" activeDot={{ r: 8 }} />
             </AreaChart>
           </ResponsiveContainer>
         );
@@ -732,8 +727,8 @@ export default function Dashboard() {
                 >
                   <defs>
                     <linearGradient id="turnoverGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.15} />
-                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.0} />
+                      <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.15} />
+                      <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -741,7 +736,7 @@ export default function Dashboard() {
                   <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: -5 }} style={{ fontSize: "11px", fill: "#64748b" }} />
                   <Tooltip contentStyle={glassTooltipStyle} formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
                   <Legend />
-                  <Area type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#10b981" strokeWidth={3} fill="url(#turnoverGrad)" activeDot={{ r: 8 }} />
+                  <Area type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#06b6d4" strokeWidth={3} fill="url(#turnoverGrad)" activeDot={{ r: 8 }} />
                 </AreaChart>
               </ResponsiveContainer>
             </Box>
@@ -775,7 +770,7 @@ export default function Dashboard() {
                     fill="#10b981"
                   >
                     {(charts.projectsByStatus || []).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#0f766e' : '#eab308'} />
+                      <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#10b981' : '#eab308'} />
                     ))}
                   </Pie>
                   <Tooltip contentStyle={glassTooltipStyle} />
@@ -808,8 +803,8 @@ export default function Dashboard() {
                 >
                   <defs>
                     <linearGradient id="themeGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#0f766e" stopOpacity={0.9} />
-                      <stop offset="100%" stopColor="#0d9488" stopOpacity={0.4} />
+                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.4} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
