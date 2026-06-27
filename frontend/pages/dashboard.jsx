@@ -928,10 +928,10 @@ export default function Dashboard() {
                   <Box key={project.project_id} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: 0.5, borderBottom: "1px solid #f1f5f9", "&:last-child": { borderBottom: 0 } }}>
                     <Box sx={{ maxWidth: "70%" }}>
                       <Typography variant="subtitle2" sx={{ fontWeight: "700", color: "#1f2937", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", fontSize: "13px" }}>
-                        {project.funding_agency || "Others"}
+                        {project.agency_name || project.donor_agency_name || "Others"}
                       </Typography>
                       <Typography variant="caption" sx={{ color: "#6b7280", display: "block", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", fontSize: "11px" }}>
-                        {project.project_title || "Untitled Project"}
+                        {project.project_name || "Untitled Project"}
                       </Typography>
                     </Box>
                     <Typography variant="body2" sx={{ fontWeight: "700", color: "#10b981", fontSize: "13px", whiteSpace: "nowrap" }}>
