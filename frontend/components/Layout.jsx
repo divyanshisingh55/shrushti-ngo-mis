@@ -64,7 +64,7 @@ export default function Layout({ children }) {
         </Box>
         <Box>
           <Typography variant="body1" sx={{ fontWeight: "800", color: "#0f172a", fontSize: "14px", lineHeight: "1.2" }}>
-            NGO MIS
+            Shrushti MIS
           </Typography>
           <Typography variant="caption" sx={{ color: "#64748b", fontWeight: "500", fontSize: "10px" }}>
             Management Portal
@@ -152,31 +152,6 @@ export default function Layout({ children }) {
                 <NotificationsIcon fontSize="small" />
               </Badge>
             </IconButton>
-
-            <Divider orientation="vertical" flexItem sx={{ mx: 0.5, my: 1.5, borderColor: "#e2e8f0" }} />
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Avatar
-                sx={{
-                  width: 32,
-                  height: 32,
-                  bgcolor: "#0d9488",
-                  color: "#ffffff",
-                  fontSize: "13px",
-                  fontWeight: "bold"
-                }}
-              >
-                DS
-              </Avatar>
-              <Box sx={{ display: { xs: "none", md: "block" } }}>
-                <Typography variant="body2" sx={{ fontWeight: "700", color: "#0f172a", lineHeight: 1.2 }}>
-                  Divyanshi Singh
-                </Typography>
-                <Typography variant="caption" sx={{ color: "#64748b", fontWeight: "600", fontSize: "10px", display: "block" }}>
-                  Admin
-                </Typography>
-              </Box>
-            </Box>
           </Box>
         </Toolbar>
       </AppBar>

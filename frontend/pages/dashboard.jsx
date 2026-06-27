@@ -70,12 +70,6 @@ const glassTooltipStyle = {
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
-  };
 
   const [summary, setSummary] = useState({
     totalProjects: 0,
@@ -439,7 +433,7 @@ export default function Dashboard() {
     <Box sx={{ flexGrow: 1, p: 1 }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", fontSize: "22px" }}>
-          {getGreeting()}, Divyanshi
+          Dashboard Analytics
         </Typography>
         <Typography variant="body2" sx={{ color: "#64748b", mt: 0.5, fontWeight: "500" }}>
           Operations Overview, Funding Distributions and AI Classification Statistics. Click on any card for details.
