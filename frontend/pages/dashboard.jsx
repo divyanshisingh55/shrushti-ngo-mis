@@ -1061,7 +1061,7 @@ export default function Dashboard() {
         <DialogTitle sx={{ fontWeight: "bold", color: "#1e293b", borderBottom: "1px solid #e2e8f0", pb: 2 }}>
           {dialogTitle}
         </DialogTitle>
-        <DialogContent sx={{ mt: 2, maxHeight: "60vh" }}>
+        <DialogContent sx={{ mt: 2, maxHeight: "60vh", overflowX: "hidden" }}>
           {dialogLoading ? (
             <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
               <CircularProgress />
