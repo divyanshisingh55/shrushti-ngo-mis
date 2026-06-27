@@ -640,74 +640,6 @@ export default function Projects() {
               </FormControl>
             </Grid>
 
-            {/* Dynamic Target Group Filters */}
-            {targetGroupFilters.map((filter, index) => (
-              <Fragment key={index}>
-                <Grid size={{ xs: 12, sm: 5, md: 3 }}>
-                  <FormControl fullWidth size="small">
-                    <InputLabel>Main Target Group {targetGroupFilters.length > 1 ? `#${index + 1}` : ""}</InputLabel>
-                    <Select
-                      value={filter.mainGroup}
-                      label={`Main Target Group ${targetGroupFilters.length > 1 ? `#${index + 1}` : ""}`}
-                      onChange={(e) => {
-                        const newFilters = [...targetGroupFilters];
-                        newFilters[index].mainGroup = e.target.value;
-                        newFilters[index].subGroups = [];
-                        setTargetGroupFilters(newFilters);
-                      }}
-                    >
-                      <MenuItem value="">All Main Groups</MenuItem>
-                      {Object.keys(TARGET_GROUPS_MAPPING).map(g => (
-                        <MenuItem key={g} value={g}>{g}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 5, md: 3 }}>
-                  <Autocomplete
-                    multiple
-                    size="small"
-                    disabled={!filter.mainGroup}
-                    options={filter.mainGroup ? TARGET_GROUPS_MAPPING[filter.mainGroup] : []}
-                    getOptionLabel={(option) => option}
-                    value={filter.subGroups}
-                    onChange={(event, newValue) => {
-                      const newFilters = [...targetGroupFilters];
-                      newFilters[index].subGroups = newValue;
-                      setTargetGroupFilters(newFilters);
-                    }}
-                    renderInput={(params) => (
-                      <TextField {...params} label="Sub-target groups" placeholder="Select..." />
-                    )}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 2, md: 2 }} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  {index === targetGroupFilters.length - 1 && (
-                    <IconButton 
-                      color="primary" 
-                      onClick={() => setTargetGroupFilters([...targetGroupFilters, { mainGroup: "", subGroups: [] }])}
-                      title="Add target group filter"
-                    >
-                      <AddIcon />
-                    </IconButton>
-                  )}
-                  {targetGroupFilters.length > 1 && (
-                    <IconButton 
-                      color="error" 
-                      onClick={() => {
-                        const newFilters = targetGroupFilters.filter((_, idx) => idx !== index);
-                        setTargetGroupFilters(newFilters);
-                      }}
-                      title="Remove target group filter"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  )}
-                </Grid>
-                <Grid size={{ xs: 12, sm: 0, md: 4 }}></Grid>
-              </Fragment>
-            ))}
-
             {/* Geographical Filters */}
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth size="small">
@@ -727,6 +659,7 @@ export default function Projects() {
                 </Select>
               </FormControl>
             </Grid>
+
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth size="small" disabled={!districtId}>
                 <InputLabel>Block</InputLabel>
@@ -758,7 +691,81 @@ export default function Projects() {
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <TextField fullWidth label="Min Sanctioned Amount" type="number" size="small" value={minAmount} onChange={(e) => setMinAmount(e.target.value)} />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 6 }}></Grid>
+
+            {/* Dynamic Target Group Filters Section (Full Width) */}
+            <Grid size={12}>
+              <Box sx={{ p: 2, bgcolor: "#f8fafc", borderRadius: "8px", border: "1px dashed #cbd5e1", mt: 1, mb: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#475569", mb: 2 }}>
+                  Target Group Filters
+                </Typography>
+                <Stack spacing={2}>
+                  {targetGroupFilters.map((filter, index) => (
+                    <Box key={index} sx={{ display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap" }}>
+                      <FormControl size="small" sx={{ minWidth: 220, flex: 1 }}>
+                        <InputLabel>Main Target Group {targetGroupFilters.length > 1 ? `#${index + 1}` : ""}</InputLabel>
+                        <Select
+                          value={filter.mainGroup}
+                          label={`Main Target Group ${targetGroupFilters.length > 1 ? `#${index + 1}` : ""}`}
+                          onChange={(e) => {
+                            const newFilters = [...targetGroupFilters];
+                            newFilters[index].mainGroup = e.target.value;
+                            newFilters[index].subGroups = [];
+                            setTargetGroupFilters(newFilters);
+                          }}
+                        >
+                          <MenuItem value="">All Main Groups</MenuItem>
+                          {Object.keys(TARGET_GROUPS_MAPPING).map(g => (
+                            <MenuItem key={g} value={g}>{g}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+
+                      <Autocomplete
+                        multiple
+                        size="small"
+                        disabled={!filter.mainGroup}
+                        options={filter.mainGroup ? TARGET_GROUPS_MAPPING[filter.mainGroup] : []}
+                        getOptionLabel={(option) => option}
+                        value={filter.subGroups}
+                        onChange={(event, newValue) => {
+                          const newFilters = [...targetGroupFilters];
+                          newFilters[index].subGroups = newValue;
+                          setTargetGroupFilters(newFilters);
+                        }}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Sub-target groups" placeholder="Select..." />
+                        )}
+                        sx={{ minWidth: 280, flex: 2 }}
+                      />
+
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: "90px", minWidth: "90px", justifyContent: "flex-start" }}>
+                        {index === targetGroupFilters.length - 1 && (
+                          <IconButton 
+                            color="primary" 
+                            onClick={() => setTargetGroupFilters([...targetGroupFilters, { mainGroup: "", subGroups: [] }])}
+                            title="Add target group filter"
+                          >
+                            <AddIcon />
+                          </IconButton>
+                        )}
+                        {targetGroupFilters.length > 1 && (
+                          <IconButton 
+                            color="error" 
+                            onClick={() => {
+                              const newFilters = targetGroupFilters.filter((_, idx) => idx !== index);
+                              setTargetGroupFilters(newFilters);
+                            }}
+                            title="Remove target group filter"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        )}
+                      </Box>
+                    </Box>
+                  ))}
+                </Stack>
+              </Box>
+            </Grid>
           </Grid>
 
           <Divider sx={{ my: 2 }} />
