@@ -445,30 +445,31 @@ export default function Dashboard() {
       {/* KPI Cards Grid */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {/* Total Projects */}
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card
             onClick={() => handleKpiClick('projects')}
             sx={{
               boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
               border: "1px solid #e2e8f0",
+              borderLeft: "5px solid #2563eb",
               cursor: "pointer",
-              transition: "all 0.2s ease-in-out",
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              background: "linear-gradient(135deg, #ffffff 0%, rgba(37, 99, 235, 0.01) 100%)",
               "&:hover": {
-                transform: "translateY(-2px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
-                borderColor: "#0d9488"
-              },
-              backgroundColor: "#ffffff"
+                transform: "translateY(-4px)",
+                boxShadow: "0 12px 20px -5px rgba(37, 99, 235, 0.12)",
+                borderColor: "#2563eb"
+              }
             }}
           >
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Total Projects
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "22px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "850", color: "#1d4ed8", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
                     {summary.totalProjects}
                   </Typography>
                 </Box>
@@ -488,36 +489,37 @@ export default function Dashboard() {
         </Grid>
 
         {/* Completed Classification */}
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card
             onClick={() => handleKpiClick('completed')}
             sx={{
               boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
               border: "1px solid #e2e8f0",
+              borderLeft: "5px solid #10b981",
               cursor: "pointer",
-              transition: "all 0.2s ease-in-out",
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              background: "linear-gradient(135deg, #ffffff 0%, rgba(16, 185, 129, 0.01) 100%)",
               "&:hover": {
-                transform: "translateY(-2px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
-                borderColor: "#0f766e"
-              },
-              backgroundColor: "#ffffff"
+                transform: "translateY(-4px)",
+                boxShadow: "0 12px 20px -5px rgba(16, 185, 129, 0.12)",
+                borderColor: "#10b981"
+              }
             }}
           >
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Completed
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "22px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "850", color: "#047857", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
                     {summary.completedProjects}
                   </Typography>
                 </Box>
                 <Box sx={{
-                  backgroundColor: "rgba(15, 118, 110, 0.08)",
-                  color: "#0f766e",
+                  backgroundColor: "rgba(16, 185, 129, 0.08)",
+                  color: "#10b981",
                   p: 1.2,
                   borderRadius: "12px",
                   display: "flex",
@@ -531,30 +533,31 @@ export default function Dashboard() {
         </Grid>
 
         {/* Total Themes */}
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card
             onClick={() => handleKpiClick('themes')}
             sx={{
               boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
               border: "1px solid #e2e8f0",
+              borderLeft: "5px solid #14b8a6",
               cursor: "pointer",
-              transition: "all 0.2s ease-in-out",
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              background: "linear-gradient(135deg, #ffffff 0%, rgba(20, 180, 166, 0.01) 100%)",
               "&:hover": {
-                transform: "translateY(-2px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
+                transform: "translateY(-4px)",
+                boxShadow: "0 12px 20px -5px rgba(20, 180, 166, 0.12)",
                 borderColor: "#14b8a6"
-              },
-              backgroundColor: "#ffffff"
+              }
             }}
           >
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Total Themes
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "22px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "850", color: "#0f766e", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
                     {summary.totalThemes}
                   </Typography>
                 </Box>
@@ -574,30 +577,31 @@ export default function Dashboard() {
         </Grid>
 
         {/* Total Agencies */}
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card
             onClick={() => handleKpiClick('agencies')}
             sx={{
               boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
               border: "1px solid #e2e8f0",
+              borderLeft: "5px solid #8b5cf6",
               cursor: "pointer",
-              transition: "all 0.2s ease-in-out",
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              background: "linear-gradient(135deg, #ffffff 0%, rgba(139, 92, 246, 0.01) 100%)",
               "&:hover": {
-                transform: "translateY(-2px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
+                transform: "translateY(-4px)",
+                boxShadow: "0 12px 20px -5px rgba(139, 92, 246, 0.12)",
                 borderColor: "#8b5cf6"
-              },
-              backgroundColor: "#ffffff"
+              }
             }}
           >
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Total Agencies
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "22px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "850", color: "#6d28d9", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
                     {summary.totalAgencies}
                   </Typography>
                 </Box>
@@ -617,30 +621,31 @@ export default function Dashboard() {
         </Grid>
 
         {/* Manual Classified Projects */}
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card
             onClick={() => handleKpiClick('manual')}
             sx={{
               boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
               border: "1px solid #e2e8f0",
+              borderLeft: "5px solid #6366f1",
               cursor: "pointer",
-              transition: "all 0.2s ease-in-out",
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              background: "linear-gradient(135deg, #ffffff 0%, rgba(99, 102, 241, 0.01) 100%)",
               "&:hover": {
-                transform: "translateY(-2px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
+                transform: "translateY(-4px)",
+                boxShadow: "0 12px 20px -5px rgba(99, 102, 241, 0.12)",
                 borderColor: "#6366f1"
-              },
-              backgroundColor: "#ffffff"
+              }
             }}
           >
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Manual Classified
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "22px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "850", color: "#4f46e5", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
                     {summary.manualClassifiedProjects || 0}
                   </Typography>
                 </Box>
@@ -660,36 +665,37 @@ export default function Dashboard() {
         </Grid>
 
         {/* Total Budget / Sanctioned Amount */}
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card
             onClick={() => handleKpiClick('sanctioned')}
             sx={{
               boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
               border: "1px solid #e2e8f0",
+              borderLeft: "5px solid #f59e0b",
               cursor: "pointer",
-              transition: "all 0.2s ease-in-out",
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              background: "linear-gradient(135deg, #ffffff 0%, rgba(245, 158, 11, 0.01) 100%)",
               "&:hover": {
-                transform: "translateY(-2px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
-                borderColor: "#10b981"
-              },
-              backgroundColor: "#ffffff"
+                transform: "translateY(-4px)",
+                boxShadow: "0 12px 20px -5px rgba(245, 158, 11, 0.12)",
+                borderColor: "#f59e0b"
+              }
             }}
           >
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Total Budget
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1, fontSize: "19px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "850", color: "#b45309", mt: 1, fontSize: "24px", letterSpacing: "-0.5px" }}>
                     {formatCurrency(summary.totalSanctionedAmount)}
                   </Typography>
                 </Box>
                 <Box sx={{
-                  backgroundColor: "rgba(16, 185, 129, 0.08)",
-                  color: "#10b981",
+                  backgroundColor: "rgba(245, 158, 11, 0.08)",
+                  color: "#f59e0b",
                   p: 1.2,
                   borderRadius: "12px",
                   display: "flex",
