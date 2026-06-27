@@ -603,6 +603,15 @@ export default function Projects() {
                 onChange={(event, newValue) => {
                   setAgencyIds(newValue.map(v => v.agency_id));
                 }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      width: "max-content",
+                      minWidth: "100%",
+                      maxWidth: 600
+                    }
+                  }
+                }}
                 renderInput={(params) => (
                   <TextField {...params} label="Donor Agency" placeholder="Select..." />
                 )}
@@ -731,6 +740,15 @@ export default function Projects() {
                           const newFilters = [...targetGroupFilters];
                           newFilters[index].subGroups = newValue;
                           setTargetGroupFilters(newFilters);
+                        }}
+                        slotProps={{
+                          paper: {
+                            sx: {
+                              width: "max-content",
+                              minWidth: "100%",
+                              maxWidth: 600
+                            }
+                          }
                         }}
                         renderInput={(params) => (
                           <TextField {...params} label="Sub-target groups" placeholder="Select..." />
