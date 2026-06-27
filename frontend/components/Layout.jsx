@@ -53,7 +53,19 @@ export default function Layout({ children }) {
 
   const drawer = (
     <Box sx={{ height: "100%", backgroundColor: "#ffffff", color: "#0f172a", overflowX: "hidden", borderRight: "1px solid #f1f5f9" }}>
-      <Toolbar style={{ backgroundColor: "#ffffff", padding: "16px 24px", display: "flex", alignItems: "center" }}>
+      <Toolbar style={{ backgroundColor: "#ffffff", padding: "12px 20px", display: "flex", gap: "12px", alignItems: "center" }}>
+        <Box 
+          component="img"
+          src="/shrushti-logo.png"
+          alt="Shrushti Logo"
+          sx={{
+            width: 38,
+            height: 38,
+            borderRadius: "50%",
+            objectFit: "contain",
+            border: "1px solid #e2e8f0"
+          }}
+        />
         <Box>
           <Typography variant="body1" sx={{ fontWeight: "800", color: "#0d9488", fontSize: "17px", lineHeight: "1.2", letterSpacing: "0.5px" }}>
             Shrushti MIS
