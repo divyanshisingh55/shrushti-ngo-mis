@@ -503,12 +503,7 @@ export default function Projects() {
     }
 
     const url = `http://localhost:5000/reports/export/${format}?${params.toString()}`;
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `projects_report.${format === 'excel' ? 'xlsx' : format === 'pdf' ? 'pdf' : 'csv'}`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.open(url, "_blank");
   };
 
   return (

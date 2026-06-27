@@ -431,48 +431,7 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-        {/* Pending Classification */}
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card
-            onClick={() => handleKpiClick('pending')}
-            sx={{
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
-              borderRadius: "12px",
-              borderLeft: "6px solid #f59e0b",
-              cursor: "pointer",
-              transition: "transform 0.2s, box-shadow 0.2s",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
-              },
-              position: "relative",
-              overflow: "visible"
-            }}
-          >
-            <CardContent sx={{ p: 2 }}>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
-                    Pending
-                  </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
-                    {summary.pendingProjects}
-                  </Typography>
-                </Box>
-                <Box sx={{
-                  backgroundColor: "#fef3c7",
-                  color: "#f59e0b",
-                  p: 1,
-                  borderRadius: "10px",
-                  display: "flex",
-                  alignItems: "center"
-                }}>
-                  <PendingIcon fontSize="small" />
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+
 
         {/* Completed Classification */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
@@ -603,48 +562,7 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-        {/* AI Classified Projects */}
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-          <Card
-            onClick={() => handleKpiClick('ai')}
-            sx={{
-              boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)",
-              borderRadius: "12px",
-              borderLeft: "6px solid #8b5cf6",
-              cursor: "pointer",
-              transition: "transform 0.2s, box-shadow 0.2s",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.1)"
-              },
-              position: "relative",
-              overflow: "visible"
-            }}
-          >
-            <CardContent sx={{ p: 2 }}>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
-                    AI Classified
-                  </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", mt: 1 }}>
-                    {summary.aiClassifiedProjects || 0}
-                  </Typography>
-                </Box>
-                <Box sx={{
-                  backgroundColor: "#f5f3ff",
-                  color: "#8b5cf6",
-                  p: 1,
-                  borderRadius: "10px",
-                  display: "flex",
-                  alignItems: "center"
-                }}>
-                  <AiIcon fontSize="small" />
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+
 
         {/* Manual Classified Projects */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
