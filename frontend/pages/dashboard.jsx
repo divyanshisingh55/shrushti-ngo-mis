@@ -162,13 +162,13 @@ export default function Dashboard() {
       }
     } else if (type === 'themes') {
       setDialogType('themes');
-      setDialogTitle('All Registered Themes');
-      setDialogLoading(type);
+      setDialogTitle('Registered Themes & Subthemes Taxonomy');
       setDialogOpen(true);
       setDialogLoading(true);
       try {
-        const res = await axios.get("http://localhost:5000/themes?all=true");
-        setDialogData(res.data.data || res.data);
+        const res = await axios.get("http://localhost:5000/taxonomy");
+        const list = res.data.data?.themes || res.data.themes || res.data.data || [];
+        setDialogData(list);
       } catch (err) {
         console.error(err);
       } finally {
@@ -1131,19 +1131,55 @@ export default function Dashboard() {
               )}
 
               {dialogType === 'themes' && (
-                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "8px" }}>
-                  <Table size="small">
+                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                  <Table size="medium">
                     <TableHead sx={{ backgroundColor: "#f8fafc" }}>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>Theme Name</TableCell>
+                        <TableCell sx={{ fontWeight: "700", width: "80px", color: "#0f172a" }}>ID</TableCell>
+                        <TableCell sx={{ fontWeight: "700", width: "250px", color: "#0f172a" }}>Primary Theme</TableCell>
+                        <TableCell sx={{ fontWeight: "700", color: "#0f172a" }}>Taxonomy Structure (Categories, Subcategories & Activities)</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {dialogData.map((row) => (
-                        <TableRow key={row.theme_id} hover>
-                          <TableCell>{row.theme_id}</TableCell>
-                          <TableCell sx={{ fontWeight: "600" }}>{row.theme_name}</TableCell>
+                      {dialogData.map((theme) => (
+                        <TableRow key={theme.id} hover sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                          <TableCell sx={{ fontWeight: "600", color: "#64748b", verticalAlign: "top", pt: 2 }}>{theme.id}</TableCell>
+                          <TableCell sx={{ fontWeight: "700", color: "#0f766e", verticalAlign: "top", pt: 2 }}>{theme.name}</TableCell>
+                          <TableCell sx={{ p: 2 }}>
+                            {theme.categories && theme.categories.map((cat, cIdx) => (
+                              <Box key={cIdx} sx={{ mb: cat.subCategories && cat.subCategories.length > 0 ? 2 : 0, pb: cIdx < theme.categories.length - 1 ? 2 : 0, borderBottom: cIdx < theme.categories.length - 1 ? "1px dashed #e2e8f0" : "none" }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: "700", color: "#1e293b", mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
+                                  <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#0d9488" }} />
+                                  {cat.name}
+                                </Typography>
+                                <Box sx={{ pl: 2, display: "flex", flexDirection: "column", gap: 1 }}>
+                                  {cat.subCategories && cat.subCategories.map((sub, sIdx) => (
+                                    <Box key={sIdx} sx={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: 1 }}>
+                                      <Typography variant="caption" sx={{ fontWeight: "600", color: "#475569", minWidth: "120px" }}>
+                                        {sub.name} &rarr;
+                                      </Typography>
+                                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                                        {sub.activities && sub.activities.map((act, aIdx) => (
+                                          <Chip 
+                                            key={aIdx} 
+                                            label={act} 
+                                            size="small" 
+                                            sx={{ 
+                                              fontSize: "10px", 
+                                              bgcolor: "#f1f5f9", 
+                                              color: "#475569", 
+                                              border: "1px solid #e2e8f0",
+                                              fontWeight: "500"
+                                            }} 
+                                          />
+                                        ))}
+                                      </Box>
+                                    </Box>
+                                  ))}
+                                </Box>
+                              </Box>
+                            ))}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
