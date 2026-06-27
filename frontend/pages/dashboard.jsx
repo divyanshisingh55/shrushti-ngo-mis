@@ -1069,7 +1069,7 @@ export default function Dashboard() {
           ) : (
             <>
               {dialogType === 'agencies' && (
-                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "8px" }}>
+                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "8px", overflowX: "hidden" }}>
                   <Table size="small">
                     <TableHead sx={{ backgroundColor: "#f8fafc" }}>
                       <TableRow>
@@ -1096,7 +1096,7 @@ export default function Dashboard() {
               )}
 
               {dialogType === 'themes' && (
-                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "12px", border: "1px solid #e2e8f0", overflowX: "hidden" }}>
                   <Table size="medium">
                     <TableHead sx={{ backgroundColor: "#f8fafc" }}>
                       <TableRow>
@@ -1153,7 +1153,7 @@ export default function Dashboard() {
               )}
 
               {dialogType === 'projects-list' && (
-                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "8px" }}>
+                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "8px", overflowX: "hidden" }}>
                   <Table size="small">
                     <TableHead sx={{ backgroundColor: "#f8fafc" }}>
                       <TableRow>
