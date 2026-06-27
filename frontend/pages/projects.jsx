@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -143,10 +143,8 @@ export default function Projects() {
   const [subThemeId, setSubThemeId] = useState("");
   const [activityTypeId, setActivityTypeId] = useState("");
   const [sdgId, setSdgId] = useState("");
-  const [filterMainGroup, setFilterMainGroup] = useState("");
-  const [filterSubGroups, setFilterSubGroups] = useState([]);
+  const [targetGroupFilters, setTargetGroupFilters] = useState([{ mainGroup: "", subGroups: [] }]);
   const [minAmount, setMinAmount] = useState("");
-  const [maxAmount, setMaxAmount] = useState("");
   const [approvalDateStart, setApprovalDateStart] = useState("");
   const [approvalDateEnd, setApprovalDateEnd] = useState("");
 
@@ -184,7 +182,7 @@ export default function Projects() {
   }, [
     search, docNo, year, agencyIds, fundingSourceId, stateId,
     districtId, blockId, statusId, themeId, subThemeId,
-    activityTypeId, sdgId, filterMainGroup, filterSubGroups, minAmount, maxAmount,
+    activityTypeId, sdgId, JSON.stringify(targetGroupFilters), minAmount,
     approvalDateStart, approvalDateEnd
   ]);
 
@@ -243,6 +241,7 @@ export default function Projects() {
 
   const fetchProjects = () => {
     setLoading(true);
+    const activeTargetGroupFilters = targetGroupFilters.filter(f => f.mainGroup);
     const params = {
       search,
       doc_no: docNo,
@@ -257,10 +256,8 @@ export default function Projects() {
       sub_theme_id: subThemeId,
       activity_type_id: activityTypeId,
       sdg_id: sdgId,
-      beneficiary_main_group: filterMainGroup,
-      beneficiary_sub_groups: filterSubGroups.join(","),
+      target_group_filters: activeTargetGroupFilters.length > 0 ? JSON.stringify(activeTargetGroupFilters) : undefined,
       min_amount: minAmount,
-      max_amount: maxAmount,
       approval_date_start: approvalDateStart,
       approval_date_end: approvalDateEnd,
       is_archived: false
@@ -334,7 +331,7 @@ export default function Projects() {
     const currentFilters = {
       search, docNo, year, agencyIds, fundingSourceId, stateId,
       districtId, blockId, statusId, themeId, subThemeId,
-      activityTypeId, sdgId, filterMainGroup, filterSubGroups, minAmount, maxAmount,
+      activityTypeId, sdgId, targetGroupFilters, minAmount,
       approvalDateStart, approvalDateEnd
     };
 
@@ -362,10 +359,8 @@ export default function Projects() {
       setSubThemeId(filters.subThemeId || "");
       setActivityTypeId(filters.activityTypeId || "");
       setSdgId(filters.sdgId || "");
-      setFilterMainGroup(filters.filterMainGroup || "");
-      setFilterSubGroups(filters.filterSubGroups || []);
+      setTargetGroupFilters(filters.targetGroupFilters || [{ mainGroup: "", subGroups: [] }]);
       setMinAmount(filters.minAmount || "");
-      setMaxAmount(filters.maxAmount || "");
       setApprovalDateStart(filters.approvalDateStart || "");
       setApprovalDateEnd(filters.approvalDateEnd || "");
     }
@@ -400,10 +395,8 @@ export default function Projects() {
     setSubThemeId("");
     setActivityTypeId("");
     setSdgId("");
-    setFilterMainGroup("");
-    setFilterSubGroups([]);
+    setTargetGroupFilters([{ mainGroup: "", subGroups: [] }]);
     setMinAmount("");
-    setMaxAmount("");
     setApprovalDateStart("");
     setApprovalDateEnd("");
     setSelectedPreset("");
@@ -499,10 +492,11 @@ export default function Projects() {
       if (subThemeId) params.append("sub_theme_id", subThemeId);
       if (activityTypeId) params.append("activity_type_id", activityTypeId);
       if (sdgId) params.append("sdg_id", sdgId);
-      if (filterMainGroup) params.append("beneficiary_main_group", filterMainGroup);
-      if (filterSubGroups && filterSubGroups.length > 0) params.append("beneficiary_sub_groups", filterSubGroups.join(","));
+      const activeTargetGroupFilters = targetGroupFilters.filter(f => f.mainGroup);
+      if (activeTargetGroupFilters.length > 0) {
+        params.append("target_group_filters", JSON.stringify(activeTargetGroupFilters));
+      }
       if (minAmount) params.append("min_amount", minAmount);
-      if (maxAmount) params.append("max_amount", maxAmount);
       if (approvalDateStart) params.append("approval_date_start", approvalDateStart);
       if (approvalDateEnd) params.append("approval_date_end", approvalDateEnd);
       params.append("is_archived", "false");
@@ -600,15 +594,6 @@ export default function Projects() {
           <Grid container spacing={2}>
             {/* Project Info Filters */}
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <TextField fullWidth label="Search Donor Agency / Agency Name" size="small" value={search} onChange={(e) => setSearch(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <TextField fullWidth label="Doc Number" size="small" value={docNo} onChange={(e) => setDocNo(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <TextField fullWidth label="Financial Year" size="small" value={year} placeholder="e.g. 2024-25" onChange={(e) => setYear(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Autocomplete
                 multiple
                 size="small"
@@ -622,6 +607,15 @@ export default function Projects() {
                   <TextField {...params} label="Donor Agency" placeholder="Select..." />
                 )}
               />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <TextField fullWidth label="Search Project Name" size="small" value={search} onChange={(e) => setSearch(e.target.value)} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <TextField fullWidth label="Doc Number" size="small" value={docNo} onChange={(e) => setDocNo(e.target.value)} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <TextField fullWidth label="Financial Year" size="small" value={year} placeholder="e.g. 2024-25" onChange={(e) => setYear(e.target.value)} />
             </Grid>
 
             {/* Classification Filters */}
@@ -645,33 +639,74 @@ export default function Projects() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Main Target Group</InputLabel>
-                <Select value={filterMainGroup} label="Main Target Group" onChange={(e) => { setFilterMainGroup(e.target.value); setFilterSubGroups([]); }}>
-                  <MenuItem value="">All Main Groups</MenuItem>
-                  {Object.keys(TARGET_GROUPS_MAPPING).map(g => (
-                    <MenuItem key={g} value={g}>{g}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Autocomplete
-                multiple
-                size="small"
-                disabled={!filterMainGroup}
-                options={filterMainGroup ? TARGET_GROUPS_MAPPING[filterMainGroup] : []}
-                getOptionLabel={(option) => option}
-                value={filterSubGroups}
-                onChange={(event, newValue) => {
-                  setFilterSubGroups(newValue);
-                }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Sub-target groups" placeholder="Select..." />
-                )}
-              />
-            </Grid>
+
+            {/* Dynamic Target Group Filters */}
+            {targetGroupFilters.map((filter, index) => (
+              <Fragment key={index}>
+                <Grid size={{ xs: 12, sm: 5, md: 3 }}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Main Target Group {targetGroupFilters.length > 1 ? `#${index + 1}` : ""}</InputLabel>
+                    <Select
+                      value={filter.mainGroup}
+                      label={`Main Target Group ${targetGroupFilters.length > 1 ? `#${index + 1}` : ""}`}
+                      onChange={(e) => {
+                        const newFilters = [...targetGroupFilters];
+                        newFilters[index].mainGroup = e.target.value;
+                        newFilters[index].subGroups = [];
+                        setTargetGroupFilters(newFilters);
+                      }}
+                    >
+                      <MenuItem value="">All Main Groups</MenuItem>
+                      {Object.keys(TARGET_GROUPS_MAPPING).map(g => (
+                        <MenuItem key={g} value={g}>{g}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 5, md: 3 }}>
+                  <Autocomplete
+                    multiple
+                    size="small"
+                    disabled={!filter.mainGroup}
+                    options={filter.mainGroup ? TARGET_GROUPS_MAPPING[filter.mainGroup] : []}
+                    getOptionLabel={(option) => option}
+                    value={filter.subGroups}
+                    onChange={(event, newValue) => {
+                      const newFilters = [...targetGroupFilters];
+                      newFilters[index].subGroups = newValue;
+                      setTargetGroupFilters(newFilters);
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Sub-target groups" placeholder="Select..." />
+                    )}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 2, md: 2 }} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  {index === targetGroupFilters.length - 1 && (
+                    <IconButton 
+                      color="primary" 
+                      onClick={() => setTargetGroupFilters([...targetGroupFilters, { mainGroup: "", subGroups: [] }])}
+                      title="Add target group filter"
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  )}
+                  {targetGroupFilters.length > 1 && (
+                    <IconButton 
+                      color="error" 
+                      onClick={() => {
+                        const newFilters = targetGroupFilters.filter((_, idx) => idx !== index);
+                        setTargetGroupFilters(newFilters);
+                      }}
+                      title="Remove target group filter"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  )}
+                </Grid>
+                <Grid size={{ xs: 12, sm: 0, md: 4 }}></Grid>
+              </Fragment>
+            ))}
 
             {/* Geographical Filters */}
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -723,10 +758,7 @@ export default function Projects() {
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <TextField fullWidth label="Min Sanctioned Amount" type="number" size="small" value={minAmount} onChange={(e) => setMinAmount(e.target.value)} />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <TextField fullWidth label="Max Sanctioned Amount" type="number" size="small" value={maxAmount} onChange={(e) => setMaxAmount(e.target.value)} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}></Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 6 }}></Grid>
           </Grid>
 
           <Divider sx={{ my: 2 }} />
@@ -877,6 +909,7 @@ export default function Projects() {
                 <TableCell sx={{ width: "140px", backgroundColor: "#f1f5f9" }}>Status (Implementation)</TableCell>
 
                 <TableCell sx={{ width: "150px", backgroundColor: "#f1f5f9" }}>Source of Funding</TableCell>
+                <TableCell sx={{ width: "150px", backgroundColor: "#f1f5f9" }}>Funding Source 2</TableCell>
                 <TableCell sx={{ width: "120px", backgroundColor: "#f1f5f9" }}>Funding Type</TableCell>
                 <TableCell sx={{ width: "180px", backgroundColor: "#f1f5f9" }}>Donor Agency Name</TableCell>
                 <TableCell sx={{ width: "150px", backgroundColor: "#f1f5f9" }}>Donor Category</TableCell>
@@ -931,7 +964,7 @@ export default function Projects() {
             <TableBody>
               {projects.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={38} sx={{ textAlign: "center", py: 6, color: "#94a3b8" }}>
+                  <TableCell colSpan={39} sx={{ textAlign: "center", py: 6, color: "#94a3b8" }}>
                     No projects found matching the criteria.
                   </TableCell>
                 </TableRow>
@@ -999,6 +1032,7 @@ export default function Projects() {
 
                       {/* Funding details */}
                       <TableCell>{project.funding_source || "-"}</TableCell>
+                      <TableCell>{project.funding_source2 || "-"}</TableCell>
                       <TableCell>{project.funding_type || "-"}</TableCell>
                       <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={project.donor_agency_name}>
                         {project.donor_agency_name || "-"}

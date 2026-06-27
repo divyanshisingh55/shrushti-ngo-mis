@@ -29,7 +29,8 @@ function buildQuery(req) {
     is_archived,
     project_ids,
     beneficiary_main_group,
-    beneficiary_sub_groups
+    beneficiary_sub_groups,
+    target_group_filters
   } = req.query;
 
   let query = `
@@ -169,7 +170,7 @@ function buildQuery(req) {
   }
 
   if (search) {
-    query += ` AND a.agency_name ILIKE $${paramCount}`;
+    query += ` AND p.project_name ILIKE $${paramCount}`;
     values.push(`%${search}%`);
     paramCount++;
   }
@@ -293,26 +294,61 @@ function buildQuery(req) {
     }
   }
 
-  if (beneficiary_main_group) {
-    query += ` AND EXISTS (
-      SELECT 1 FROM project_target_groups ptg 
-      JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
-      WHERE ptg.project_id = p.project_id AND tg.main_group = $${paramCount}
-    )`;
-    values.push(beneficiary_main_group);
-    paramCount++;
-  }
+  if (target_group_filters) {
+    try {
+      const filters = typeof target_group_filters === 'string'
+        ? JSON.parse(target_group_filters)
+        : target_group_filters;
+      if (Array.isArray(filters) && filters.length > 0) {
+        const filterConditions = [];
+        for (const f of filters) {
+          if (f.mainGroup) {
+            let condition = `tg.main_group = $${paramCount}`;
+            values.push(f.mainGroup);
+            paramCount++;
 
-  if (beneficiary_sub_groups) {
-    const subs = String(beneficiary_sub_groups).split(',').filter(Boolean);
-    if (subs.length > 0) {
+            if (f.subGroups && f.subGroups.length > 0) {
+              condition += ` AND tg.sub_group = ANY($${paramCount})`;
+              values.push(f.subGroups);
+              paramCount++;
+            }
+            filterConditions.push(`(${condition})`);
+          }
+        }
+
+        if (filterConditions.length > 0) {
+          query += ` AND EXISTS (
+            SELECT 1 FROM project_target_groups ptg
+            JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
+            WHERE ptg.project_id = p.project_id AND (${filterConditions.join(" OR ")})
+          )`;
+        }
+      }
+    } catch (err) {
+      console.error("Error parsing target_group_filters:", err);
+    }
+  } else {
+    if (beneficiary_main_group) {
       query += ` AND EXISTS (
         SELECT 1 FROM project_target_groups ptg 
         JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
-        WHERE ptg.project_id = p.project_id AND tg.sub_group = ANY($${paramCount})
+        WHERE ptg.project_id = p.project_id AND tg.main_group = $${paramCount}
       )`;
-      values.push(subs);
+      values.push(beneficiary_main_group);
       paramCount++;
+    }
+
+    if (beneficiary_sub_groups) {
+      const subs = String(beneficiary_sub_groups).split(',').filter(Boolean);
+      if (subs.length > 0) {
+        query += ` AND EXISTS (
+          SELECT 1 FROM project_target_groups ptg 
+          JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
+          WHERE ptg.project_id = p.project_id AND tg.sub_group = ANY($${paramCount})
+        )`;
+        values.push(subs);
+        paramCount++;
+      }
     }
   }
 
