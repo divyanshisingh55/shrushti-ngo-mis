@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
 const XLSX = require("xlsx");
+const PDFDocument = require("pdfkit");
 
 // Helper function to build the base query and parameters
 function buildQuery(req) {
@@ -498,6 +499,145 @@ router.get("/export/excel", async (req, res) => {
     res.send(buf);
   } catch (error) {
     console.error("Excel Export Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// 4. EXPORT TO PDF
+router.get("/export/pdf", async (req, res) => {
+  try {
+    const { query, values } = buildQuery(req);
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: "No projects found to export." });
+    }
+
+    if (result.rows.length >= 10) {
+      return res.status(400).json({ success: false, message: "PDF export is only available for below 10 projects." });
+    }
+
+    // Helper functions for formatting
+    function formatDate(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return "";
+      const day = String(d.getDate()).padStart(2, "0");
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const year = d.getFullYear();
+      return `${day}.${month}.${year}`;
+    }
+
+    function formatAmount(amount) {
+      if (amount === null || amount === undefined) return "";
+      const num = Number(amount);
+      return num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=projects_report.pdf");
+
+    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    doc.pipe(res);
+
+    for (let i = 0; i < result.rows.length; i++) {
+      if (i > 0) {
+        doc.addPage();
+      }
+
+      const p = result.rows[i];
+
+      // Fetch all themes associated with the project in order
+      const themesRes = await pool.query(
+        `SELECT t.theme_name 
+         FROM project_themes pt 
+         JOIN themes t ON pt.theme_id = t.theme_id 
+         WHERE pt.project_id = $1 
+         ORDER BY pt.primary_flag DESC, t.theme_id ASC`,
+        [p.project_id]
+      );
+      const themeNames = themesRes.rows.map(r => r.theme_name);
+
+      // Fetch all target groups associated with the project in order
+      const targetGroupsRes = await pool.query(
+        `SELECT tg.main_group, tg.sub_group 
+         FROM project_target_groups ptg 
+         JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id 
+         WHERE ptg.project_id = $1 
+         ORDER BY ptg.primary_group DESC, tg.target_group_id ASC`,
+        [p.project_id]
+      );
+      const targetGroupNames = targetGroupsRes.rows.map(r => `${r.main_group} - ${r.sub_group}`);
+
+      // Title
+      doc.fillColor("#000000").font("Helvetica-Bold").fontSize(22).text("Project Details", 50, 40, { align: "center" });
+
+      // Table mapping
+      const tableRows = [
+        { field: "Year", value: p.year },
+        { field: "Document #", value: p.doc_no },
+        { field: "Name of Agency", value: p.agency_name },
+        { field: "Name of Project", value: p.project_name },
+        { field: "Date of Approval", value: formatDate(p.approval_date) },
+        { field: "Sanctioned Amount (Rs.)", value: formatAmount(p.sanctioned_amount) },
+        { field: "Source", value: p.funding_source },
+        { field: "Source 2", value: p.funding_source2 },
+        { field: "Status", value: p.project_status },
+        { field: "State", value: p.state },
+        { field: "Theme 1", value: themeNames[0] || "" },
+        { field: "Theme 2", value: themeNames[1] || "" },
+        { field: "Theme 3", value: themeNames[2] || "" },
+        { field: "Theme 4", value: themeNames[3] || "" },
+        { field: "Target Group 1", value: targetGroupNames[0] || "" },
+        { field: "Target Group 2", value: targetGroupNames[1] || "" }
+      ];
+
+      let y = 80;
+      const leftX = 50;
+      const col1Width = 175;
+      const col2Width = 320;
+      const totalWidth = col1Width + col2Width;
+
+      // Table Header Row
+      doc.fillColor("#dbeafe").rect(leftX, y, totalWidth, 24).fill();
+      doc.strokeColor("#cbd5e1").lineWidth(1)
+         .rect(leftX, y, col1Width, 24).stroke()
+         .rect(leftX + col1Width, y, col2Width, 24).stroke();
+
+      doc.fillColor("#1e3a8a").font("Helvetica-Bold").fontSize(10);
+      doc.text("Field", leftX + 8, y + 7);
+      doc.text("Value", leftX + col1Width + 8, y + 7);
+      y += 24;
+
+      // Body Rows
+      for (const row of tableRows) {
+        const valText = String(row.value || "");
+        const valueHeight = doc.heightOfString(valText, { width: col2Width - 16 });
+        const rowHeight = Math.max(22, valueHeight + 10);
+
+        // Draw background for field column
+        doc.fillColor("#f8fafc").rect(leftX, y, col1Width, rowHeight).fill();
+        
+        // Draw borders
+        doc.strokeColor("#cbd5e1").lineWidth(1)
+           .rect(leftX, y, col1Width, rowHeight).stroke()
+           .rect(leftX + col1Width, y, col2Width, rowHeight).stroke();
+
+        // Field Text
+        doc.fillColor("#1e293b").font("Helvetica-Bold").fontSize(9);
+        doc.text(row.field, leftX + 8, y + 6, { width: col1Width - 16 });
+
+        // Value Text
+        doc.fillColor("#334155").font("Helvetica").fontSize(9);
+        doc.text(valText, leftX + col1Width + 8, y + 6, { width: col2Width - 16 });
+
+        y += rowHeight;
+      }
+    }
+
+    doc.end();
+  } catch (error) {
+    console.error("PDF Export Error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
