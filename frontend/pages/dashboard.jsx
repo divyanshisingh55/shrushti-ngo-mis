@@ -22,7 +22,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip
+  Chip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  ListItemText,
+  OutlinedInput
 } from "@mui/material";
 import {
   ResponsiveContainer,
@@ -56,6 +63,18 @@ import {
 
 const COLORS = ["#3b82f6", "#eab308", "#0d9488", "#8b5cf6", "#ec4899", "#f97316", "#06b6d4", "#10b981", "#6366f1", "#14b8a6"];
 
+const AVAILABLE_YEARS = [
+  "2018-19",
+  "2019-20",
+  "2020-21",
+  "2021-22",
+  "2022-23",
+  "2023-24",
+  "2024-25",
+  "2025-26",
+  "2026-27"
+];
+
 const glassTooltipStyle = {
   backgroundColor: "rgba(255, 255, 255, 0.98)",
   borderRadius: "10px",
@@ -69,7 +88,7 @@ const glassTooltipStyle = {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-
+  const [selectedYears, setSelectedYears] = useState([]);
 
   const [summary, setSummary] = useState({
     totalProjects: 0,
@@ -108,13 +127,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [selectedYears]);
 
   const loadDashboardData = async () => {
     try {
+      const yearsParam = selectedYears.length > 0 ? `?years=${selectedYears.join(",")}` : "";
       const [summaryRes, chartsRes, projectsRes] = await Promise.all([
-        axios.get("http://localhost:5000/dashboard/summary"),
-        axios.get("http://localhost:5000/dashboard/charts"),
+        axios.get(`http://localhost:5000/dashboard/summary${yearsParam}`),
+        axios.get(`http://localhost:5000/dashboard/charts${yearsParam}`),
         axios.get("http://localhost:5000/projects?include_archived=false")
       ]);
 
@@ -433,13 +453,42 @@ export default function Dashboard() {
 
   return (
     <Box sx={{ flexGrow: 1, p: 1 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", fontSize: "22px" }}>
-          Dashboard Analytics
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#64748b", mt: 0.5, fontWeight: "500" }}>
-          Operations Overview, Funding Distributions and AI Classification Statistics. Click on any card for details.
-        </Typography>
+      <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 2 }}>
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", fontSize: "22px" }}>
+            Dashboard Analytics
+          </Typography>
+          <Typography variant="body2" sx={{ color: "#64748b", mt: 0.5, fontWeight: "500" }}>
+            Operations Overview, Funding Distributions and AI Classification Statistics. Click on any card for details.
+          </Typography>
+        </Box>
+
+        <FormControl sx={{ minWidth: 240, maxWidth: 320 }}>
+          <InputLabel id="year-filter-label" sx={{ fontSize: "13px", fontWeight: "600" }}>Filter Financial Years</InputLabel>
+          <Select
+            labelId="year-filter-label"
+            id="year-filter"
+            multiple
+            value={selectedYears}
+            onChange={(e) => setSelectedYears(typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value)}
+            input={<OutlinedInput label="Filter Financial Years" sx={{ borderRadius: "10px", height: "42px", fontSize: "13px" }} />}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((value) => (
+                  <Chip key={value} label={value} size="small" sx={{ fontSize: "11px", fontWeight: "600", bgcolor: "#f1f5f9" }} />
+                ))}
+              </Box>
+            )}
+            sx={{ borderRadius: "10px", height: "42px" }}
+          >
+            {AVAILABLE_YEARS.map((y) => (
+              <MenuItem key={y} value={y} sx={{ fontSize: "13px" }}>
+                <Checkbox size="small" checked={selectedYears.indexOf(y) > -1} sx={{ color: "#0d9488", "&.Mui-checked": { color: "#0d9488" } }} />
+                <ListItemText primary={y} primaryTypographyProps={{ fontSize: '13px', fontWeight: '500' }} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
 
       {/* KPI Cards Grid */}
