@@ -515,7 +515,7 @@ export default function Projects() {
   };
 
   return (
-    <Box sx={{ flexGrow: 1, p: 1 }}>
+    <Box sx={{ flexGrow: 1, p: 1, minWidth: 0, width: "100%", overflowX: "hidden" }}>
 
       {/* Header Panel */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4, flexWrap: "wrap", gap: 2 }}>

@@ -49,7 +49,7 @@ export default function ClassifyProjects() {
   }
 
   return (
-    <Box sx={{ flexGrow: 1, p: 1 }}>
+    <Box sx={{ flexGrow: 1, p: 1, minWidth: 0, width: "100%", overflowX: "hidden" }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0f172a", mb: 1 }}>
           Project Classification Queue

@@ -155,7 +155,7 @@ export default function Reports() {
   };
 
   return (
-    <Box sx={{ flexGrow: 1, p: 1 }}>
+    <Box sx={{ flexGrow: 1, p: 1, minWidth: 0, width: "100%", overflowX: "hidden" }}>
       <style dangerouslySetInnerHTML={{
         __html: `
         @media print {

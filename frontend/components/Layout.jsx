@@ -203,7 +203,8 @@ export default function Layout({ children }) {
           width: { sm: `calc(100% - ${activeDrawerWidth}px)` },
           transition: "width 0.2s ease-in-out, margin-left 0.2s ease-in-out",
           display: "flex",
-          flexDirection: "column"
+          flexDirection: "column",
+          minWidth: 0
         }}
       >
         <Toolbar />
