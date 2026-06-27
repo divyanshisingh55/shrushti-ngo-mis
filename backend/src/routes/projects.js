@@ -2,6 +2,43 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
 
+// Helper to parse year input (e.g. 2022-25, comma-separated, single)
+function parseYearInput(input) {
+  if (!input) return [];
+  const cleanInput = String(input).trim();
+  
+  // Pattern 1: Range like 2022-25 or 2022-2025 or 2022/25
+  const rangeMatch = cleanInput.match(/^(\d{4})[-/](\d{2,4})$/);
+  if (rangeMatch) {
+    const startStr = rangeMatch[1];
+    let endStr = rangeMatch[2];
+    
+    const startYear = parseInt(startStr, 10);
+    if (endStr.length === 2) {
+      const century = startStr.substring(0, 2);
+      endStr = century + endStr;
+    }
+    const endYear = parseInt(endStr, 10);
+    
+    if (startYear < endYear) {
+      const years = [];
+      for (let y = startYear; y < endYear; y++) {
+        const nextY = (y + 1) % 100;
+        const nextYStr = nextY < 10 ? `0${nextY}` : `${nextY}`;
+        years.push(`${y}-${nextYStr}`);
+      }
+      return years;
+    }
+  }
+
+  // Pattern 2: Comma separated values
+  if (cleanInput.includes(",")) {
+    return cleanInput.split(",").map(s => s.trim()).filter(Boolean);
+  }
+
+  return [cleanInput];
+}
+
 // Helper function to resolve or create agency
 async function getOrCreateAgency(agency) {
   if (!agency) return null;
@@ -197,9 +234,13 @@ router.get("/", async (req, res) => {
     }
 
     if (year) {
-      query += ` AND p.year = $${paramCount}`;
-      values.push(year);
-      paramCount++;
+      const yearList = parseYearInput(year);
+      if (yearList.length > 0) {
+        const placeholders = yearList.map((_, i) => `$${paramCount + i}`).join(",");
+        query += ` AND p.year IN (${placeholders})`;
+        values.push(...yearList);
+        paramCount += yearList.length;
+      }
     }
 
     if (status) {
