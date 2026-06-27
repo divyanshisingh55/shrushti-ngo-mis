@@ -967,47 +967,11 @@ export default function Dashboard() {
           </Paper>
         </Grid>
 
-        {/* ROW 4: Theme Frequencies & Top Agencies & Key Performance Metrics */}
+        {/* ROW 4: Top Agencies & MIS Performance Stats */}
 
-        {/* Column 1: Theme Selection Frequencies */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
-                Theme Frequencies
-              </Typography>
-              <IconButton size="small" onClick={() => setFullscreenChart('frequency')} sx={{ color: "#0d9488" }}>
-                <FullscreenIcon />
-              </IconButton>
-            </Box>
-            <Divider sx={{ mb: 2 }} />
-            <Box sx={{ width: "100%", height: 320 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={formattedFrequencyData}
-                  margin={{ top: 10, right: 10, left: 0, bottom: 65 }}
-                  barSize={16}
-                >
-                  <defs>
-                    <linearGradient id="frequencyGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.9} />
-                      <stop offset="100%" stopColor="#0891b2" stopOpacity={0.4} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 9, fontWeight: "500", fill: "#64748b" }} interval={0} />
-                  <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
-                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
-                  <Bar dataKey="count" fill="url(#frequencyGrad)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </Box>
-          </Paper>
-        </Grid>
-
-        {/* Column 2: Top Agencies */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
+        {/* Column 1: Top Agencies */}
+        <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", width: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
                 Top 10 Agencies
@@ -1017,12 +981,12 @@ export default function Dashboard() {
               </IconButton>
             </Box>
             <Divider sx={{ mb: 2 }} />
-            <Box sx={{ width: "100%", height: 320 }}>
+            <Box sx={{ width: "100%", height: 320, flexGrow: 1 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={formattedAgencyData}
                   margin={{ top: 10, right: 10, left: 0, bottom: 65 }}
-                  barSize={16}
+                  barSize={20}
                 >
                   <defs>
                     <linearGradient id="agencyGrad" x1="0" y1="0" x2="0" y2="1">
@@ -1041,35 +1005,35 @@ export default function Dashboard() {
           </Paper>
         </Grid>
 
-        {/* Column 3: MIS Performance Stats */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", height: "100%", display: "flex", flexDirection: "column" }}>
+        {/* Column 2: MIS Performance Stats */}
+        <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", width: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
                 MIS Insights
               </Typography>
             </Box>
             <Divider sx={{ mb: 2 }} />
-            <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: 2, justifyContent: "center" }}>
-              <Box sx={{ display: "flex", justifyContent: "space-between", py: 1, borderBottom: "1px solid #f1f5f9" }}>
-                <Typography variant="body2" sx={{ color: "#64748b", fontWeight: "600" }}>Average Budget / Project</Typography>
-                <Typography variant="body2" sx={{ color: "#0f172a", fontWeight: "700" }}>
+            <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: 3, justifyContent: "center", height: 320 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", py: 1.5, borderBottom: "1px solid #f1f5f9" }}>
+                <Typography variant="body1" sx={{ color: "#64748b", fontWeight: "600" }}>Average Budget / Project</Typography>
+                <Typography variant="body1" sx={{ color: "#0f172a", fontWeight: "800" }}>
                   {summary.totalProjects > 0 ? formatCurrency(summary.totalSanctionedAmount / summary.totalProjects) : "Rs. 0"}
                 </Typography>
               </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between", py: 1, borderBottom: "1px solid #f1f5f9" }}>
-                <Typography variant="body2" sx={{ color: "#64748b", fontWeight: "600" }}>Taxonomy Themes Count</Typography>
-                <Typography variant="body2" sx={{ color: "#0f172a", fontWeight: "700" }}>8 Themes</Typography>
+              <Box sx={{ display: "flex", justifyContent: "space-between", py: 1.5, borderBottom: "1px solid #f1f5f9" }}>
+                <Typography variant="body1" sx={{ color: "#64748b", fontWeight: "600" }}>Taxonomy Themes Count</Typography>
+                <Typography variant="body1" sx={{ color: "#0f172a", fontWeight: "800" }}>8 Themes</Typography>
               </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between", py: 1, borderBottom: "1px solid #f1f5f9" }}>
-                <Typography variant="body2" sx={{ color: "#64748b", fontWeight: "600" }}>Classification Progress</Typography>
-                <Typography variant="body2" sx={{ color: "#0f766e", fontWeight: "700" }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", py: 1.5, borderBottom: "1px solid #f1f5f9" }}>
+                <Typography variant="body1" sx={{ color: "#64748b", fontWeight: "600" }}>Classification Progress</Typography>
+                <Typography variant="body1" sx={{ color: "#0d9488", fontWeight: "800" }}>
                   {summary.totalProjects > 0 ? `${((summary.completedProjects / summary.totalProjects) * 100).toFixed(0)}%` : "0%"}
                 </Typography>
               </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between", py: 1 }}>
-                <Typography variant="body2" sx={{ color: "#64748b", fontWeight: "600" }}>Registered States</Typography>
-                <Typography variant="body2" sx={{ color: "#0f172a", fontWeight: "700" }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", py: 1.5 }}>
+                <Typography variant="body1" sx={{ color: "#64748b", fontWeight: "600" }}>Registered States</Typography>
+                <Typography variant="body1" sx={{ color: "#0f172a", fontWeight: "800" }}>
                   {charts.projectsByState ? charts.projectsByState.length : 0} States
                 </Typography>
               </Box>
