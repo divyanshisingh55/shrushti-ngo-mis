@@ -24,12 +24,16 @@ import {
   AddBox as AddBoxIcon,
   Assessment as AssessmentIcon,
   Search as SearchIcon,
-  NotificationsNone as NotificationsIcon
+  NotificationsNone as NotificationsIcon,
+  DarkModeOutlined as DarkModeIcon,
+  LightModeOutlined as LightModeIcon
 } from "@mui/icons-material";
+import { useColorMode } from "../src/ThemeContext";
 
 const drawerWidth = 240;
 
 export default function Layout({ children }) {
+  const { mode, toggleColorMode } = useColorMode();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
@@ -52,8 +56,8 @@ export default function Layout({ children }) {
   ];
 
   const drawer = (
-    <Box sx={{ height: "100%", backgroundColor: "#ffffff", color: "#0f172a", overflowX: "hidden", borderRight: "1px solid #f1f5f9" }}>
-      <Toolbar style={{ backgroundColor: "#ffffff", padding: "12px 20px", display: "flex", gap: "12px", alignItems: "center" }}>
+    <Box sx={{ height: "100%", backgroundColor: "background.paper", color: "text.primary", overflowX: "hidden", borderRight: "1px solid", borderColor: "divider" }}>
+      <Toolbar style={{ padding: "12px 20px", display: "flex", gap: "12px", alignItems: "center" }}>
         <Box 
           component="img"
           src="/shrushti-logo.png"
@@ -75,7 +79,7 @@ export default function Layout({ children }) {
           </Typography>
         </Box>
       </Toolbar>
-      <Divider sx={{ borderColor: "#f1f5f9" }} />
+      <Divider sx={{ borderColor: "divider" }} />
       <List sx={{ p: 1.5 }}>
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path ||
@@ -90,10 +94,10 @@ export default function Layout({ children }) {
                   borderRadius: "10px",
                   py: 1, px: 2,
                   backgroundColor: isActive ? "rgba(13, 148, 136, 0.08)" : "transparent",
-                  color: isActive ? "#0d9488" : "#64748b",
+                  color: isActive ? "#0d9488" : "text.secondary",
                   "&:hover": {
                     backgroundColor: "rgba(13, 148, 136, 0.04)",
-                    color: "#0f172a"
+                    color: "text.primary"
                   }
                 }}
               >
@@ -119,17 +123,18 @@ export default function Layout({ children }) {
   );
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#f8fafc" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "background.default", color: "text.primary" }}>
       <AppBar
         position="fixed"
         sx={{
           width: { sm: `calc(100% - ${activeDrawerWidth}px)` },
           ml: { sm: `${activeDrawerWidth}px` },
-          backgroundColor: "#ffffff",
+          backgroundColor: "background.paper",
           boxShadow: "none",
-          borderBottom: "1px solid #f1f5f9",
+          borderBottom: "1px solid",
+          borderColor: "divider",
           transition: "width 0.2s ease-in-out, margin-left 0.2s ease-in-out",
-          color: "#0f172a"
+          color: "text.primary"
         }}
       >
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -138,7 +143,7 @@ export default function Layout({ children }) {
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ mr: 2, color: "#64748b" }}
+              sx={{ mr: 2, color: "text.secondary" }}
             >
               <MenuIcon />
             </IconButton>
@@ -147,7 +152,11 @@ export default function Layout({ children }) {
             </Typography>
           </Box>
 
-
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <IconButton onClick={toggleColorMode} color="inherit" sx={{ color: mode === "light" ? "text.secondary" : "#eab308" }}>
+              {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
       <Box
@@ -168,7 +177,7 @@ export default function Layout({ children }) {
           }}
           sx={{
             display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, backgroundColor: "#ffffff", borderRight: "1px solid #f1f5f9" }
+            "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, backgroundColor: "background.paper", borderRight: "1px solid", borderColor: "divider" }
           }}
         >
           {drawer}
@@ -183,8 +192,9 @@ export default function Layout({ children }) {
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
               width: activeDrawerWidth,
-              backgroundColor: "#ffffff",
-              borderRight: "1px solid #f1f5f9",
+              backgroundColor: "background.paper",
+              borderRight: "1px solid",
+              borderColor: "divider",
               transition: "width 0.2s ease-in-out",
               overflowX: "hidden"
             }

@@ -78,12 +78,12 @@ const AVAILABLE_YEARS = [
 const glassTooltipStyle = {
   backgroundColor: "rgba(255, 255, 255, 0.98)",
   borderRadius: "10px",
-  border: "1px solid #e2e8f0",
+  border: "1px solid", borderColor: "divider",
   boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02)",
   padding: "8px 12px",
   fontSize: "12px",
   fontWeight: "600",
-  color: "#0f172a"
+  color: "text.primary"
 };
 
 export default function Dashboard() {
@@ -507,10 +507,10 @@ export default function Dashboard() {
     <Box sx={{ flexGrow: 1, p: 1 }}>
       <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 2 }}>
         <Box>
-          <Typography variant="h5" sx={{ fontWeight: "800", color: "#0f172a", fontSize: "22px" }}>
+          <Typography variant="h5" sx={{ fontWeight: "800", color: "text.primary", fontSize: "22px" }}>
             Dashboard Analytics
           </Typography>
-          <Typography variant="body2" sx={{ color: "#64748b", mt: 0.5, fontWeight: "500" }}>
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5, fontWeight: "500" }}>
             Operations Overview, Funding Distributions and AI Classification Statistics. Click on any card for details.
           </Typography>
         </Box>
@@ -552,7 +552,7 @@ export default function Dashboard() {
             sx={{
               boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
-              border: "1px solid #e2e8f0",
+              border: "1px solid", borderColor: "divider",
               borderLeft: "5px solid #2563eb",
               cursor: "pointer",
               transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -567,7 +567,7 @@ export default function Dashboard() {
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Total Projects
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: "850", color: "#1d4ed8", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
@@ -596,7 +596,7 @@ export default function Dashboard() {
             sx={{
               boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
-              border: "1px solid #e2e8f0",
+              border: "1px solid", borderColor: "divider",
               borderLeft: "5px solid #10b981",
               cursor: "pointer",
               transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -611,7 +611,7 @@ export default function Dashboard() {
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Completed
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: "850", color: "#047857", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
@@ -640,7 +640,7 @@ export default function Dashboard() {
             sx={{
               boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
-              border: "1px solid #e2e8f0",
+              border: "1px solid", borderColor: "divider",
               borderLeft: "5px solid #14b8a6",
               cursor: "pointer",
               transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -655,7 +655,7 @@ export default function Dashboard() {
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Total Themes
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: "850", color: "#0f766e", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
@@ -684,7 +684,7 @@ export default function Dashboard() {
             sx={{
               boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
-              border: "1px solid #e2e8f0",
+              border: "1px solid", borderColor: "divider",
               borderLeft: "5px solid #8b5cf6",
               cursor: "pointer",
               transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -699,7 +699,7 @@ export default function Dashboard() {
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Total Agencies
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: "850", color: "#6d28d9", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
@@ -728,7 +728,7 @@ export default function Dashboard() {
             sx={{
               boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
-              border: "1px solid #e2e8f0",
+              border: "1px solid", borderColor: "divider",
               borderLeft: "5px solid #6366f1",
               cursor: "pointer",
               transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -743,7 +743,7 @@ export default function Dashboard() {
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Manual Classified
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: "850", color: "#4f46e5", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
@@ -772,7 +772,7 @@ export default function Dashboard() {
             sx={{
               boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
-              border: "1px solid #e2e8f0",
+              border: "1px solid", borderColor: "divider",
               borderLeft: "5px solid #f59e0b",
               cursor: "pointer",
               transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -787,7 +787,7 @@ export default function Dashboard() {
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: "#64748b", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
+                  <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Total Budget
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: "850", color: "#b45309", mt: 1, fontSize: "24px", letterSpacing: "-0.5px" }}>
@@ -816,9 +816,9 @@ export default function Dashboard() {
         
         {/* Left: Total Turnover Every Year */}
         <Grid size={{ xs: 12, md: 8 }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Total Turnover Every Year
               </Typography>
               <IconButton size="small" onClick={() => setFullscreenChart('turnover')} sx={{ color: "#0d9488" }}>
@@ -852,9 +852,9 @@ export default function Dashboard() {
 
         {/* Right: Classification Status Distribution */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", height: "100%", display: "flex", flexDirection: "column" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", height: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Classification Status
               </Typography>
               <IconButton size="small" onClick={() => setFullscreenChart('status')} sx={{ color: "#0d9488" }}>
@@ -891,9 +891,9 @@ export default function Dashboard() {
 
         {/* Column 1: Projects by Primary Theme */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Primary Theme Distribution
               </Typography>
               <IconButton size="small" onClick={() => setFullscreenChart('theme')} sx={{ color: "#0d9488" }}>
@@ -927,9 +927,9 @@ export default function Dashboard() {
 
         {/* Column 2: Geographical Distribution */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Geographical Distribution
               </Typography>
               <IconButton size="small" onClick={() => setFullscreenChart('state')} sx={{ color: "#0d9488" }}>
@@ -964,9 +964,9 @@ export default function Dashboard() {
 
         {/* Column 3: Recent Activity (Dynamic Project List) */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", height: "100%", display: "flex", flexDirection: "column" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", height: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Recent Projects
               </Typography>
               <Button size="small" onClick={() => navigate('/projects')} sx={{ color: "#0d9488", fontWeight: "700", fontSize: "12px", textTransform: "none" }}>
@@ -1004,9 +1004,9 @@ export default function Dashboard() {
 
         {/* Left: Projects By Financial Year */}
         <Grid size={{ xs: 12, md: 8 }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Projects by Financial Year
               </Typography>
               <IconButton size="small" onClick={() => setFullscreenChart('year')} sx={{ color: "#0d9488" }}>
@@ -1040,9 +1040,9 @@ export default function Dashboard() {
 
         {/* Right: Funding Source Distribution */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Funding Source Distribution
               </Typography>
               <IconButton size="small" onClick={() => setFullscreenChart('funding')} sx={{ color: "#0d9488" }}>
@@ -1078,9 +1078,9 @@ export default function Dashboard() {
 
         {/* Column 1: Top Agencies */}
         <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex" }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", width: "100%", display: "flex", flexDirection: "column" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", width: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Top 10 Agencies
               </Typography>
               <IconButton size="small" onClick={() => setFullscreenChart('agency')} sx={{ color: "#0d9488" }}>
@@ -1114,33 +1114,33 @@ export default function Dashboard() {
 
         {/* Column 2: MIS Performance Stats */}
         <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex" }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", width: "100%", display: "flex", flexDirection: "column" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", width: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 MIS Insights
               </Typography>
             </Box>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: 3, justifyContent: "center", height: 320 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", py: 1.5, borderBottom: "1px solid #f1f5f9" }}>
-                <Typography variant="body1" sx={{ color: "#64748b", fontWeight: "600" }}>Average Budget / Project</Typography>
-                <Typography variant="body1" sx={{ color: "#0f172a", fontWeight: "800" }}>
+                <Typography variant="body1" sx={{ color: "text.secondary", fontWeight: "600" }}>Average Budget / Project</Typography>
+                <Typography variant="body1" sx={{ color: "text.primary", fontWeight: "800" }}>
                   {summary.totalProjects > 0 ? formatCurrency(summary.totalSanctionedAmount / summary.totalProjects) : "Rs. 0"}
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", py: 1.5, borderBottom: "1px solid #f1f5f9" }}>
-                <Typography variant="body1" sx={{ color: "#64748b", fontWeight: "600" }}>Taxonomy Themes Count</Typography>
-                <Typography variant="body1" sx={{ color: "#0f172a", fontWeight: "800" }}>8 Themes</Typography>
+                <Typography variant="body1" sx={{ color: "text.secondary", fontWeight: "600" }}>Taxonomy Themes Count</Typography>
+                <Typography variant="body1" sx={{ color: "text.primary", fontWeight: "800" }}>8 Themes</Typography>
               </Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", py: 1.5, borderBottom: "1px solid #f1f5f9" }}>
-                <Typography variant="body1" sx={{ color: "#64748b", fontWeight: "600" }}>Classification Progress</Typography>
+                <Typography variant="body1" sx={{ color: "text.secondary", fontWeight: "600" }}>Classification Progress</Typography>
                 <Typography variant="body1" sx={{ color: "#0d9488", fontWeight: "800" }}>
                   {summary.totalProjects > 0 ? `${((summary.completedProjects / summary.totalProjects) * 100).toFixed(0)}%` : "0%"}
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", py: 1.5 }}>
-                <Typography variant="body1" sx={{ color: "#64748b", fontWeight: "600" }}>Registered States</Typography>
-                <Typography variant="body1" sx={{ color: "#0f172a", fontWeight: "800" }}>
+                <Typography variant="body1" sx={{ color: "text.secondary", fontWeight: "600" }}>Registered States</Typography>
+                <Typography variant="body1" sx={{ color: "text.primary", fontWeight: "800" }}>
                   {charts.projectsByState ? charts.projectsByState.length : 0} States
                 </Typography>
               </Box>
@@ -1152,9 +1152,9 @@ export default function Dashboard() {
 
         {/* Column 1: Top 10 Funding Agencies by Amount */}
         <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex" }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", width: "100%", display: "flex", flexDirection: "column" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", width: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Top 10 Funding Agencies (by Sanctioned Amount)
               </Typography>
               <IconButton size="small" onClick={() => setFullscreenChart('agencyAmount')} sx={{ color: "#0d9488" }}>
@@ -1188,9 +1188,9 @@ export default function Dashboard() {
 
         {/* Column 2: Amount of Funding Source Distribution */}
         <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex" }}>
-          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", width: "100%", display: "flex", flexDirection: "column" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", width: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Amount of Funding Source Distribution
               </Typography>
               <IconButton size="small" onClick={() => setFullscreenChart('fundingAmount')} sx={{ color: "#0d9488" }}>
@@ -1271,19 +1271,19 @@ export default function Dashboard() {
               )}
 
               {dialogType === 'themes' && (
-                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "12px", border: "1px solid #e2e8f0", overflowX: "hidden" }}>
+                <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "12px", border: "1px solid", borderColor: "divider", overflowX: "hidden" }}>
                   <Table size="medium">
                     <TableHead sx={{ backgroundColor: "#f8fafc" }}>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: "700", width: "80px", color: "#0f172a" }}>ID</TableCell>
-                        <TableCell sx={{ fontWeight: "700", width: "250px", color: "#0f172a" }}>Primary Theme</TableCell>
-                        <TableCell sx={{ fontWeight: "700", color: "#0f172a" }}>Taxonomy Structure (Categories, Subcategories & Activities)</TableCell>
+                        <TableCell sx={{ fontWeight: "700", width: "80px", color: "text.primary" }}>ID</TableCell>
+                        <TableCell sx={{ fontWeight: "700", width: "250px", color: "text.primary" }}>Primary Theme</TableCell>
+                        <TableCell sx={{ fontWeight: "700", color: "text.primary" }}>Taxonomy Structure (Categories, Subcategories & Activities)</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {dialogData.map((theme) => (
                         <TableRow key={theme.id} hover sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
-                          <TableCell sx={{ fontWeight: "600", color: "#64748b", verticalAlign: "top", pt: 2 }}>{theme.id}</TableCell>
+                          <TableCell sx={{ fontWeight: "600", color: "text.secondary", verticalAlign: "top", pt: 2 }}>{theme.id}</TableCell>
                           <TableCell sx={{ fontWeight: "700", color: "#0f766e", verticalAlign: "top", pt: 2 }}>{theme.name}</TableCell>
                           <TableCell sx={{ p: 2 }}>
                             {theme.categories && theme.categories.map((cat, cIdx) => (
@@ -1308,7 +1308,7 @@ export default function Dashboard() {
                                               fontSize: "10px", 
                                               bgcolor: "#f1f5f9", 
                                               color: "#475569", 
-                                              border: "1px solid #e2e8f0",
+                                              border: "1px solid", borderColor: "divider",
                                               fontWeight: "500"
                                             }} 
                                           />
@@ -1404,7 +1404,7 @@ export default function Dashboard() {
         }}
       >
         <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontWeight: "bold", borderBottom: "1px solid #e2e8f0", pb: 2 }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold", color: "#0f172a" }}>
+          <Typography variant="h5" sx={{ fontWeight: "bold", color: "text.primary" }}>
             {getFullscreenChartTitle()}
           </Typography>
           <IconButton onClick={() => setFullscreenChart(null)}>

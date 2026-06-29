@@ -190,10 +190,10 @@ export default function Reports() {
       `}} />
 
       <Box id="reports-header" sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0f172a", mb: 1 }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold", color: "text.primary", mb: 1 }}>
           Reports & Data Export
         </Typography>
-        <Typography variant="body1" sx={{ color: "#64748b" }}>
+        <Typography variant="body1" sx={{ color: "text.secondary" }}>
           Query, filter, and extract NGO datasets into Excel spreadsheets, CSV formats, or print PDF.
         </Typography>
       </Box>
@@ -364,7 +364,7 @@ export default function Reports() {
           Export PDF / Print
         </Button>
         <Box sx={{ flexGrow: 1 }} />
-        <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#64748b" }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.secondary" }}>
           Total projects matched: {projects.length}
         </Typography>
       </Stack>

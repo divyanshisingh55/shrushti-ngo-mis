@@ -5,20 +5,23 @@ import Projects from "../pages/projects";
 import ProjectDetails from "../pages/ProjectDetails";
 import ClassifyProjects from "../pages/classifyProjects";
 import AddProject from "../pages/AddProject";
+import { ColorModeProvider } from "./ThemeContext";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/add" element={<AddProject />} />
-          <Route path="/project/:id" element={<ProjectDetails />} />
-          <Route path="/classify-projects" element={<ClassifyProjects />} />
-        </Routes>
-      </Layout>
-    </BrowserRouter>
+    <ColorModeProvider>
+      <BrowserRouter>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/add" element={<AddProject />} />
+            <Route path="/project/:id" element={<ProjectDetails />} />
+            <Route path="/classify-projects" element={<ClassifyProjects />} />
+          </Routes>
+        </Layout>
+      </BrowserRouter>
+    </ColorModeProvider>
   );
 }
 

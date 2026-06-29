@@ -173,10 +173,10 @@ export default function AddProject() {
   return (
     <Box sx={{ flexGrow: 1, p: 1, maxWidth: "900px", mx: "auto" }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0f172a", mb: 1 }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold", color: "text.primary", mb: 1 }}>
           Add New Project
         </Typography>
-        <Typography variant="body1" sx={{ color: "#64748b" }}>
+        <Typography variant="body1" sx={{ color: "text.secondary" }}>
           Create a new project record in the NGO MIS. Once saved, it will appear in the Projects List and the Classification Queue.
         </Typography>
       </Box>

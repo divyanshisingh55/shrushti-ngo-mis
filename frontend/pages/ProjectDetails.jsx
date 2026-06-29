@@ -780,7 +780,7 @@ export default function ProjectDetails() {
           <Box component="form" onSubmit={handleUpdateDetails}>
             <Grid container spacing={3}>
               <Grid size={12}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#64748b" }}>Basic Details</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.secondary" }}>Basic Details</Typography>
               </Grid>
 
               <Grid size={{ xs: 12, sm: 8 }}>
@@ -832,7 +832,7 @@ export default function ProjectDetails() {
               </Grid>
 
               <Grid size={12}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#64748b", mt: 1 }}>Funding & Donor Details</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.secondary", mt: 1 }}>Funding & Donor Details</Typography>
               </Grid>
 
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -892,7 +892,7 @@ export default function ProjectDetails() {
               </Grid>
 
               <Grid size={12}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#64748b", mt: 1 }}>Geography & Location</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.secondary", mt: 1 }}>Geography & Location</Typography>
               </Grid>
 
               <Grid size={12}>
@@ -983,7 +983,7 @@ export default function ProjectDetails() {
                 <Typography variant="h5" sx={{ fontWeight: "bold", color: "#1e293b", mb: 0.5 }}>
                   {project.project_name}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748b" }}>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
                   Project ID: #{project.project_id} | Doc No: {project.doc_no || "N/A"}
                 </Typography>
               </Box>
@@ -998,63 +998,63 @@ export default function ProjectDetails() {
 
             <Grid container spacing={2} sx={{ mb: 2 }}>
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Donor Agency</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Donor Agency</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.agency_name || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Financial Year</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Financial Year</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.year || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>State Location</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>State Location</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.state_name || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Funding Source</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Funding Source</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.funding_source || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Funding Source 2</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Funding Source 2</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.funding_source2 || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Approval Date</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Approval Date</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>
                   {project.approval_date ? new Date(project.approval_date).toLocaleDateString() : "-"}
                 </Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Sanctioned Amount</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Sanctioned Amount</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>
                   {project.sanctioned_amount ? `Rs. ${Number(project.sanctioned_amount).toLocaleString()}` : "-"}
                 </Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Funding Type</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Funding Type</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.funding_type || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Donor Agency Name</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Donor Agency Name</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.donor_agency_name || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Donor Category</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Donor Category</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.donor_category || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Duration (Months)</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Duration (Months)</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.duration_months ? `${project.duration_months} Months` : "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>District</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>District</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.district || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Block / Village / ULB</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Block / Village / ULB</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.block_village_ulb || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Implementation Status</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Implementation Status</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.project_status || "-"}</Typography>
               </Grid>
             </Grid>
@@ -1064,26 +1064,26 @@ export default function ProjectDetails() {
                 <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#475569", mb: 1 }}>Output Scale & Outcomes</Typography>
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 6, sm: 3 }}>
-                    <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Total Beneficiaries</Typography>
+                    <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Total Beneficiaries</Typography>
                     <Typography variant="body2" sx={{ fontWeight: "600" }}>{project.total_beneficiaries ?? "-"}</Typography>
                   </Grid>
                   <Grid size={{ xs: 6, sm: 3 }}>
-                    <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Direct Beneficiaries</Typography>
+                    <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Direct Beneficiaries</Typography>
                     <Typography variant="body2" sx={{ fontWeight: "600" }}>{project.direct_beneficiaries ?? "-"}</Typography>
                   </Grid>
                   <Grid size={{ xs: 6, sm: 3 }}>
-                    <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Indirect Beneficiaries</Typography>
+                    <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Indirect Beneficiaries</Typography>
                     <Typography variant="body2" sx={{ fontWeight: "600" }}>{project.indirect_beneficiaries ?? "-"}</Typography>
                   </Grid>
                   <Grid size={{ xs: 6, sm: 3 }}>
-                    <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Male / Female / Boys / Girls</Typography>
+                    <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Male / Female / Boys / Girls</Typography>
                     <Typography variant="body2" sx={{ fontWeight: "600" }}>
                       {project.beneficiaries_male ?? 0} M / {project.beneficiaries_female ?? 0} F / {project.beneficiaries_boys ?? 0} B / {project.beneficiaries_girls ?? 0} G
                     </Typography>
                   </Grid>
                   {project.outcome_impact_notes && (
                     <Grid size={12}>
-                      <Typography variant="caption" sx={{ color: "#64748b", display: "block", mt: 1 }}>Outcome / Impact Notes</Typography>
+                      <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mt: 1 }}>Outcome / Impact Notes</Typography>
                       <Typography variant="body2" sx={{ color: "#334155" }}>{project.outcome_impact_notes}</Typography>
                     </Grid>
                   )}
@@ -1093,7 +1093,7 @@ export default function ProjectDetails() {
 
             {project.remarks && (
               <Box sx={{ mt: 2, p: 2, backgroundColor: "#f8fafc", borderRadius: "8px" }}>
-                <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Remarks</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Remarks</Typography>
                 <Typography variant="body2" sx={{ color: "#334155" }}>{project.remarks}</Typography>
               </Box>
             )}
@@ -1104,14 +1104,14 @@ export default function ProjectDetails() {
                 <Grid container spacing={2}>
                   {projectImages.map((img, idx) => (
                     <Grid size={{ xs: 12, sm: 6, md: 4 }} key={idx}>
-                      <Paper sx={{ p: 1, border: "1px solid #e2e8f0", borderRadius: "8px", overflow: "hidden", backgroundColor: "#fff" }}>
+                      <Paper sx={{ p: 1, border: "1px solid", borderColor: "divider", borderRadius: "8px", overflow: "hidden", backgroundColor: "#fff" }}>
                         <img 
                           src={img.url} 
                           alt={img.remarks || `Project Image ${idx + 1}`} 
                           style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "4px" }} 
                         />
                         {img.remarks && (
-                          <Typography variant="caption" sx={{ display: "block", mt: 1, textAlign: "center", color: "#64748b", fontWeight: "500" }}>
+                          <Typography variant="caption" sx={{ display: "block", mt: 1, textAlign: "center", color: "text.secondary", fontWeight: "500" }}>
                             {img.remarks}
                           </Typography>
                         )}
@@ -1132,7 +1132,7 @@ export default function ProjectDetails() {
             <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
               Assign Project Classification
             </Typography>
-            <Typography variant="body2" sx={{ color: "#64748b" }}>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
               Categorize the NGO project by selecting its primary theme and adding sub-themes, target beneficiaries, and activity types.
             </Typography>
           </Box>
@@ -1181,16 +1181,16 @@ export default function ProjectDetails() {
 
             <Grid container spacing={2} sx={{ mb: 3 }}>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                  <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Theme Suggestion (Confidence: {aiSuggestion.themeConfidence}%)</Typography>
+                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid", borderColor: "divider" }}>
+                  <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Theme Suggestion (Confidence: {aiSuggestion.themeConfidence}%)</Typography>
                   <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155", mt: 0.5 }}>
                     {aiSuggestion.themeName || themes.find(t => t.theme_id === aiSuggestion.themeId)?.theme_name || "None"}
                   </Typography>
                 </Paper>
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                  <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Sub-Themes Suggestion (Confidence: {aiSuggestion.subThemeConfidence}%)</Typography>
+                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid", borderColor: "divider" }}>
+                  <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Sub-Themes Suggestion (Confidence: {aiSuggestion.subThemeConfidence}%)</Typography>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
                     {aiSuggestion.subThemeIds.length === 0 ? "-" : aiSuggestion.subThemeIds.map(stId => {
                       const st = subThemes.find(x => x.sub_theme_id === stId);
@@ -1200,8 +1200,8 @@ export default function ProjectDetails() {
                 </Paper>
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                  <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Target Groups Suggestion (Confidence: {aiSuggestion.targetGroupConfidence}%)</Typography>
+                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid", borderColor: "divider" }}>
+                  <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Target Groups Suggestion (Confidence: {aiSuggestion.targetGroupConfidence}%)</Typography>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
                     {aiSuggestion.targetGroupIds.length === 0 ? "-" : aiSuggestion.targetGroupIds.map(tgId => {
                       const tg = targetGroups.find(x => x.target_group_id === tgId);
@@ -1211,8 +1211,8 @@ export default function ProjectDetails() {
                 </Paper>
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                  <Typography variant="caption" sx={{ color: "#64748b", display: "block" }}>Activity Types Suggestion (Confidence: {aiSuggestion.activityConfidence}%)</Typography>
+                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid", borderColor: "divider" }}>
+                  <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Activity Types Suggestion (Confidence: {aiSuggestion.activityConfidence}%)</Typography>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
                     {aiSuggestion.activityTypeIds.length === 0 ? "-" : aiSuggestion.activityTypeIds.map(atId => {
                       const at = activityTypes.find(x => x.activity_type_id === atId);
@@ -1260,7 +1260,7 @@ export default function ProjectDetails() {
                 <Paper
                   key={index}
                   sx={{
-                    p: 3, mb: 3, border: "1px solid #e2e8f0", borderRadius: "12px",
+                    p: 3, mb: 3, border: "1px solid", borderColor: "divider", borderRadius: "12px",
                     position: "relative",
                     background: "linear-gradient(135deg, #f8fafc 0%, #f0fdf4 100%)",
                     boxShadow: "0 1px 4px rgba(15,23,42,0.06)"
@@ -1287,7 +1287,7 @@ export default function ProjectDetails() {
                   <Grid container spacing={2.5}>
                     {/* Level 1: Primary Theme */}
                     <Grid size={12}>
-                      <Typography variant="caption" sx={{ color: "#64748b", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", display: "block", mb: 0.5 }}>
+                      <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", display: "block", mb: 0.5 }}>
                         Level 1 — Primary Theme *
                       </Typography>
                       <Autocomplete
@@ -1329,7 +1329,7 @@ export default function ProjectDetails() {
                                 sx={{
                                   p: 2,
                                   borderRadius: "8px",
-                                  backgroundColor: "#ffffff",
+                                  backgroundColor: "background.paper",
                                   borderColor: "#cbd5e1",
                                   position: "relative"
                                 }}
@@ -1352,7 +1352,7 @@ export default function ProjectDetails() {
                                 <Grid container spacing={2}>
                                   {/* Level 2: Category */}
                                   <Grid size={{ xs: 12, md: 6 }}>
-                                    <Typography variant="caption" sx={{ color: "#64748b", fontWeight: "600", display: "block", mb: 0.5 }}>
+                                    <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "600", display: "block", mb: 0.5 }}>
                                       Category (Subtheme 1)
                                     </Typography>
                                     <Autocomplete
@@ -1463,7 +1463,7 @@ export default function ProjectDetails() {
               2. Target Beneficiary Details
             </Typography>
             {selectedBeneficiaries.map((bg, index) => (
-              <Paper key={index} sx={{ p: 3, mb: 3, border: "1px solid #e2e8f0", borderRadius: "8px", position: "relative" }}>
+              <Paper key={index} sx={{ p: 3, mb: 3, border: "1px solid", borderColor: "divider", borderRadius: "8px", position: "relative" }}>
                 {selectedBeneficiaries.length > 1 && (
                   <Button
                     variant="text"
@@ -1532,7 +1532,7 @@ export default function ProjectDetails() {
               3. Beneficiary Counting Format
             </Typography>
             {beneficiaryCounts.map((bc, index) => (
-              <Paper key={index} sx={{ p: 3, mb: 3, border: "1px solid #e2e8f0", borderRadius: "8px", position: "relative" }}>
+              <Paper key={index} sx={{ p: 3, mb: 3, border: "1px solid", borderColor: "divider", borderRadius: "8px", position: "relative" }}>
                 {beneficiaryCounts.length > 1 && (
                   <Button
                     variant="text"
@@ -1661,7 +1661,7 @@ export default function ProjectDetails() {
             <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
               4. Geography Tagging
             </Typography>
-            <Paper sx={{ p: 3, border: "1px solid #e2e8f0", borderRadius: "8px" }}>
+            <Paper sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: "8px" }}>
               <Grid container spacing={3}>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <FormControl fullWidth size="small">
@@ -1760,7 +1760,7 @@ export default function ProjectDetails() {
             <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
               5. Output Scale
             </Typography>
-            <Paper sx={{ p: 3, border: "1px solid #e2e8f0", borderRadius: "8px" }}>
+            <Paper sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: "8px" }}>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, sm: 4 }}>
                   <TextField
@@ -1936,7 +1936,7 @@ export default function ProjectDetails() {
             <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
               10. Project Images
             </Typography>
-            <Paper sx={{ p: 3, border: "1px solid #e2e8f0", borderRadius: "8px", mb: 2 }}>
+            <Paper sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: "8px", mb: 2 }}>
               <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Button
@@ -2030,7 +2030,7 @@ export default function ProjectDetails() {
             <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
               11. Project Documents (MOU, Agreements &amp; Other)
             </Typography>
-            <Paper sx={{ p: 3, border: "1px solid #e2e8f0", borderRadius: "8px", mb: 2 }}>
+            <Paper sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: "8px", mb: 2 }}>
               {/* Row 1: Type selector + local upload button */}
               <Grid container spacing={2} sx={{ mb: 2 }}>
                 <Grid size={{ xs: 12, sm: 4 }}>
@@ -2121,7 +2121,7 @@ export default function ProjectDetails() {
                         alignItems: "flex-start",
                         gap: 2,
                         flexWrap: "wrap",
-                        borderColor: "#e2e8f0",
+                        borderColor: "divider",
                         backgroundColor: "#f8fafc"
                       }}
                     >

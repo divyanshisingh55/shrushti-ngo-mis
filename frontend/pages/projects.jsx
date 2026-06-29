@@ -539,7 +539,7 @@ export default function Projects() {
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4, flexWrap: "wrap", gap: 2 }}>
         <Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
-            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0f172a" }}>
+            <Typography variant="h4" sx={{ fontWeight: "bold", color: "text.primary" }}>
               Shrushti Projects
             </Typography>
             <Chip
@@ -549,7 +549,7 @@ export default function Projects() {
               sx={{ fontWeight: "bold", bgcolor: "#eff6ff", borderColor: "#bfdbfe" }}
             />
           </Box>
-          <Typography variant="body1" sx={{ color: "#64748b" }}>
+          <Typography variant="body1" sx={{ color: "text.secondary" }}>
             Manage, duplicate, archive, and run AI-assisted bulk classification.
           </Typography>
         </Box>
@@ -629,7 +629,7 @@ export default function Projects() {
       </Box>
 
       {/* Advanced Filters Accordion */}
-      <Accordion sx={{ mb: 3, borderRadius: "8px", border: "1px solid #e2e8f0", boxShadow: "none", "&:before": { display: "none" } }}>
+      <Accordion sx={{ mb: 3, borderRadius: "8px", border: "1px solid", borderColor: "divider", boxShadow: "none", "&:before": { display: "none" } }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: "#f8fafc", borderTopLeftRadius: "8px", borderTopRightRadius: "8px" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <FilterIcon color="primary" fontSize="small" />
@@ -973,7 +973,7 @@ export default function Projects() {
           component={Paper}
           sx={{
             borderRadius: "16px",
-            border: "1px solid #e2e8f0",
+            border: "1px solid", borderColor: "divider",
             boxShadow: "0 10px 15px -3px rgba(15, 23, 42, 0.05)",
             overflowX: "auto",
             maxHeight: "calc(100vh - 250px)",
@@ -1125,7 +1125,7 @@ export default function Projects() {
                       <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={project.agency_name}>
                         {project.agency_name || "-"}
                       </TableCell>
-                      <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 600, color: "#0f172a" }} title={project.project_name}>
+                      <TableCell sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 600, color: "text.primary" }} title={project.project_name}>
                         {project.project_name}
                       </TableCell>
                       <TableCell>
@@ -1303,7 +1303,7 @@ export default function Projects() {
 
       {/* --- BULK AI CLASSIFY DIALOG MODAL --- */}
       <Dialog open={bulkOpen} onClose={() => !bulkLoading && setBulkOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ fontWeight: "bold", color: "#0f172a" }}>
+        <DialogTitle sx={{ fontWeight: "bold", color: "text.primary" }}>
           AI Bulk Classification Pipeline
         </DialogTitle>
         <DialogContent>
