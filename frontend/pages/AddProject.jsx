@@ -50,6 +50,7 @@ export default function AddProject() {
   const [customFunding, setCustomFunding] = useState("");
   const [fundingSelect2, setFundingSelect2] = useState("");
   const [customFunding2, setCustomFunding2] = useState("");
+  const [fcraNature, setFcraNature] = useState("");
   const [selectedStates, setSelectedStates] = useState([{ state_id: "", custom_name: "" }]);
 
   // Database lists
@@ -133,6 +134,12 @@ export default function AddProject() {
       return;
     }
 
+    const isFcraSelected = 
+      (fundingSelect && fundingSources.find(f => f.funding_source_id === Number(fundingSelect))?.source_name === 'FCRA') || 
+      (fundingSelect2 && fundingSources.find(f => f.funding_source_id === Number(fundingSelect2))?.source_name === 'FCRA') ||
+      (fundingSelect === 'custom' && customFunding?.toUpperCase() === 'FCRA') ||
+      (fundingSelect2 === 'custom' && customFunding2?.toUpperCase() === 'FCRA');
+
     try {
       await axios.post("http://localhost:5000/projects", {
         project_name: projectName,
@@ -151,7 +158,8 @@ export default function AddProject() {
         duration_months: durationMonths ? Number(durationMonths) : null,
         district: district || null,
         block_village_ulb: blockVillageUlb || null,
-        doc_no: docNo || null
+        doc_no: docNo || null,
+        fcra_nature: isFcraSelected ? fcraNature : null
       });
 
       alert("Project added successfully!");
@@ -169,6 +177,12 @@ export default function AddProject() {
       </Box>
     );
   }
+
+  const isFcraSelected = 
+    (fundingSelect && fundingSources.find(f => f.funding_source_id === Number(fundingSelect))?.source_name === 'FCRA') || 
+    (fundingSelect2 && fundingSources.find(f => f.funding_source_id === Number(fundingSelect2))?.source_name === 'FCRA') ||
+    (fundingSelect === 'custom' && customFunding?.toUpperCase() === 'FCRA') ||
+    (fundingSelect2 === 'custom' && customFunding2?.toUpperCase() === 'FCRA');
 
   return (
     <Box sx={{ flexGrow: 1, p: 1, maxWidth: "900px", mx: "auto" }}>
@@ -395,6 +409,24 @@ export default function AddProject() {
                 />
               )}
             </Grid>
+
+            {isFcraSelected && (
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <FormControl fullWidth required>
+                  <InputLabel>FCRA Nature</InputLabel>
+                  <Select
+                    value={fcraNature}
+                    label="FCRA Nature"
+                    onChange={(e) => setFcraNature(e.target.value)}
+                  >
+                    <MenuItem value="">Select Nature</MenuItem>
+                    {["Education", "Culture", "Social", "Economic"].map((nat) => (
+                      <MenuItem key={nat} value={nat}>{nat}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            )}
 
             {/* Funding Type */}
             <Grid size={{ xs: 12, sm: 6 }}>

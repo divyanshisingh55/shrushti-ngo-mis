@@ -66,6 +66,7 @@ function buildQuery(req) {
       p.age_groups,
       p.remarks,
       p.staff_count,
+      p.fcra_nature,
       fs.source_name as funding_source,
       ps.status_name as project_status,
       COALESCE(
@@ -631,6 +632,7 @@ router.get("/export/pdf", async (req, res) => {
         { field: "Number of Staff", value: p.staff_count ? String(p.staff_count) : "" },
         { field: "Source", value: p.funding_source },
         { field: "Source 2", value: p.funding_source2 },
+        { field: "FCRA Nature", value: p.fcra_nature || "" },
         { field: "Status", value: p.project_status },
         { field: "State", value: p.state }
       ];

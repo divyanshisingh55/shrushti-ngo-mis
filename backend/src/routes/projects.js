@@ -657,7 +657,8 @@ router.put("/:id", async (req, res) => {
     staff_count,
     district,
     block_village_ulb,
-    doc_no
+    doc_no,
+    fcra_nature
   } = req.body;
 
   if (!project_name) {
@@ -688,9 +689,9 @@ router.put("/:id", async (req, res) => {
            sanctioned_amount = $9, status_id = $10, state_id = $11, remarks = $12, 
            funding_type = $13, donor_agency_name = $14, donor_category = $15,
            duration_months = $16, district = $17, block_village_ulb = $18, doc_no = $19,
-           staff_count = $20,
+           staff_count = $20, fcra_nature = $21,
            updated_at = NOW()
-       WHERE project_id = $21
+       WHERE project_id = $22
        RETURNING *`,
       [
         project_name,
@@ -713,6 +714,7 @@ router.put("/:id", async (req, res) => {
         block_village_ulb || null,
         doc_no || null,
         staff_count ? Number(staff_count) : null,
+        fcra_nature || null,
         id
       ]
     );

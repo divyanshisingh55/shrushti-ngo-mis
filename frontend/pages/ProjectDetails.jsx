@@ -175,6 +175,7 @@ export default function ProjectDetails() {
   const [customFunding, setCustomFunding] = useState("");
   const [fundingSelect2, setFundingSelect2] = useState("");
   const [customFunding2, setCustomFunding2] = useState("");
+  const [fcraNature, setFcraNature] = useState("");
   const [selectedStates, setSelectedStates] = useState([{ state_id: "", custom_name: "" }]);
 
   // Classification States — 4-level taxonomy shape with multiple subthemes under one theme
@@ -431,6 +432,7 @@ export default function ProjectDetails() {
       setEditStaffCount(proj.staff_count !== null && proj.staff_count !== undefined ? proj.staff_count : "");
       setEditDistrict(proj.district || "");
       setEditBlockVillageUlb(proj.block_village_ulb || "");
+      setFcraNature(proj.fcra_nature || "");
 
       setAgencySelect(proj.agency_id || "");
       setFundingSelect(proj.funding_source_id || "");
@@ -625,6 +627,12 @@ export default function ProjectDetails() {
       return stObj.state_id === "custom" ? stObj.custom_name : stObj.state_id;
     }).filter(Boolean);
 
+    const isFcraSelected = 
+      (fundingSelect && fundingSources.find(f => f.funding_source_id === Number(fundingSelect))?.source_name === 'FCRA') || 
+      (fundingSelect2 && fundingSources.find(f => f.funding_source_id === Number(fundingSelect2))?.source_name === 'FCRA') ||
+      (fundingSelect === 'custom' && customFunding?.toUpperCase() === 'FCRA') ||
+      (fundingSelect2 === 'custom' && customFunding2?.toUpperCase() === 'FCRA');
+
     try {
       await axios.put(`http://localhost:5000/projects/${id}`, {
         project_name: editName,
@@ -644,7 +652,8 @@ export default function ProjectDetails() {
         staff_count: editStaffCount ? Number(editStaffCount) : null,
         district: editDistrict || null,
         block_village_ulb: editBlockVillageUlb || null,
-        doc_no: editDocNo || null
+        doc_no: editDocNo || null,
+        fcra_nature: isFcraSelected ? fcraNature : null
       });
       setIsEditing(false);
       loadData();
@@ -764,6 +773,12 @@ export default function ProjectDetails() {
   }
 
 
+
+  const isFcraSelected = 
+    (fundingSelect && fundingSources.find(f => f.funding_source_id === Number(fundingSelect))?.source_name === 'FCRA') || 
+    (fundingSelect2 && fundingSources.find(f => f.funding_source_id === Number(fundingSelect2))?.source_name === 'FCRA') ||
+    (fundingSelect === 'custom' && customFunding?.toUpperCase() === 'FCRA') ||
+    (fundingSelect2 === 'custom' && customFunding2?.toUpperCase() === 'FCRA');
 
   return (
     <Box sx={{ flexGrow: 1, p: 1, maxWidth: "1000px", mx: "auto" }}>
@@ -894,6 +909,20 @@ export default function ProjectDetails() {
                   <TextField fullWidth label="Custom Funding Source 2" required size="small" sx={{ mt: 2 }} value={customFunding2} onChange={(e) => setCustomFunding2(e.target.value)} />
                 )}
               </Grid>
+
+              {isFcraSelected && (
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormControl fullWidth required>
+                    <InputLabel>FCRA Nature</InputLabel>
+                    <Select value={fcraNature} label="FCRA Nature" onChange={(e) => setFcraNature(e.target.value)}>
+                      <MenuItem value="">Select Nature</MenuItem>
+                      {["Education", "Culture", "Social", "Economic"].map(nat => (
+                        <MenuItem key={nat} value={nat}>{nat}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              )}
 
               <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
@@ -1049,6 +1078,12 @@ export default function ProjectDetails() {
                 <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Funding Source 2</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.funding_source2 || "-"}</Typography>
               </Grid>
+              {project.fcra_nature && (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>FCRA Nature</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.fcra_nature}</Typography>
+                </Grid>
+              )}
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Approval Date</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>
