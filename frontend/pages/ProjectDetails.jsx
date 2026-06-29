@@ -21,6 +21,7 @@ import {
   Alert,
   Autocomplete
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import {
   ArrowBack as BackIcon,
   Edit as EditIcon,
@@ -33,6 +34,8 @@ import {
 } from "@mui/icons-material";
 
 export default function ProjectDetails() {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -1278,7 +1281,9 @@ export default function ProjectDetails() {
                   sx={{
                     p: 3, mb: 3, border: "1px solid", borderColor: "divider", borderRadius: "12px",
                     position: "relative",
-                    background: "linear-gradient(135deg, #f8fafc 0%, #f0fdf4 100%)",
+                    background: isDark
+                      ? "linear-gradient(135deg, #111827 0%, #0f172a 100%)"
+                      : "linear-gradient(135deg, #f8fafc 0%, #f0fdf4 100%)",
                     boxShadow: "0 1px 4px rgba(15,23,42,0.06)"
                   }}
                 >
@@ -1294,8 +1299,8 @@ export default function ProjectDetails() {
                   )}
 
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5 }}>
-                    <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#0f766e" }} />
-                    <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: "#0f766e" }}>
+                    <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: isDark ? "#2dd4bf" : "#0f766e" }} />
+                    <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: isDark ? "#2dd4bf" : "#0f766e" }}>
                       Theme Block #{index + 1}
                     </Typography>
                   </Box>
@@ -1317,7 +1322,7 @@ export default function ProjectDetails() {
                             placeholder="Search and select a primary theme..."
                             size="small"
                             required
-                            sx={{ "& .MuiOutlinedInput-root": { backgroundColor: "#fff" } }}
+                            sx={{ "& .MuiOutlinedInput-root": { backgroundColor: isDark ? "background.paper" : "#fff" } }}
                           />
                         )}
                       />
@@ -1346,7 +1351,7 @@ export default function ProjectDetails() {
                                   p: 2,
                                   borderRadius: "8px",
                                   backgroundColor: "background.paper",
-                                  borderColor: "#cbd5e1",
+                                  borderColor: isDark ? "divider" : "#cbd5e1",
                                   position: "relative"
                                 }}
                               >
@@ -1361,7 +1366,7 @@ export default function ProjectDetails() {
                                   </Button>
                                 )}
 
-                                <Typography variant="caption" sx={{ color: "#0f766e", fontWeight: "bold", display: "block", mb: 2 }}>
+                                <Typography variant="caption" sx={{ color: isDark ? "#2dd4bf" : "#0f766e", fontWeight: "bold", display: "block", mb: 2 }}>
                                   Subtheme Path #{subIndex + 1}
                                 </Typography>
 
@@ -1387,7 +1392,7 @@ export default function ProjectDetails() {
 
                                   {/* Level 3: Sub-category */}
                                   <Grid size={{ xs: 12, md: 6 }}>
-                                    <Typography variant="caption" sx={{ color: st.category ? "#64748b" : "#cbd5e1", fontWeight: "600", display: "block", mb: 0.5 }}>
+                                    <Typography variant="caption" sx={{ color: st.category ? (isDark ? "text.secondary" : "#64748b") : (isDark ? "divider" : "#cbd5e1"), fontWeight: "600", display: "block", mb: 0.5 }}>
                                       Sub-category (Subtheme 2)
                                     </Typography>
                                     <Autocomplete
@@ -1407,7 +1412,7 @@ export default function ProjectDetails() {
 
                                   {/* Level 4: Activity / Intervention */}
                                   <Grid size={12}>
-                                    <Typography variant="caption" sx={{ color: st.subCategory ? "#64748b" : "#cbd5e1", fontWeight: "600", display: "block", mb: 0.5 }}>
+                                    <Typography variant="caption" sx={{ color: st.subCategory ? (isDark ? "text.secondary" : "#64748b") : (isDark ? "divider" : "#cbd5e1"), fontWeight: "600", display: "block", mb: 0.5 }}>
                                       Activity / Intervention (Subtheme 3)
                                     </Typography>
                                     <Autocomplete
@@ -1428,7 +1433,7 @@ export default function ProjectDetails() {
                                   {/* Path Breadcrumb summary */}
                                   {(st.category || st.subCategory || st.activity) && (
                                     <Grid size={12}>
-                                      <Typography variant="caption" sx={{ color: "#166534", fontWeight: "600" }}>
+                                      <Typography variant="caption" sx={{ color: isDark ? "#4ade80" : "#166534", fontWeight: "600" }}>
                                         📍 Selected Path: {[
                                           themes.find(th => th.theme_id === Number(t.themeId))?.theme_name,
                                           st.category,
