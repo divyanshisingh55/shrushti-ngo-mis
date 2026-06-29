@@ -96,7 +96,9 @@ function buildQuery(req) {
         JOIN activity_types at ON pat.activity_type_id = at.activity_type_id 
         WHERE pat.project_id = p.project_id
       ) as activity_types,
-      p.classification_status
+      p.classification_status,
+      p.beneficiary_groups,
+      p.beneficiary_cat1
     FROM projects p
     LEFT JOIN agencies a ON p.agency_id = a.agency_id
     LEFT JOIN funding_sources fs ON p.funding_source_id = fs.funding_source_id
@@ -550,16 +552,15 @@ router.get("/export/pdf", async (req, res) => {
 
       const p = result.rows[i];
 
-      // Fetch all themes associated with the project in order
+      // Fetch all themes associated with the project in order, including cascading taxonomy details
       const themesRes = await pool.query(
-        `SELECT t.theme_name 
+        `SELECT t.theme_name, pt.taxonomy_category, pt.taxonomy_sub_category, pt.taxonomy_activity
          FROM project_themes pt 
          JOIN themes t ON pt.theme_id = t.theme_id 
          WHERE pt.project_id = $1 
          ORDER BY pt.primary_flag DESC, t.theme_id ASC`,
         [p.project_id]
       );
-      const themeNames = themesRes.rows.map(r => r.theme_name);
 
       // Fetch all target groups associated with the project in order
       const targetGroupsRes = await pool.query(
@@ -593,6 +594,28 @@ router.get("/export/pdf", async (req, res) => {
       );
       const sdgNames = sdgsRes.rows.map(r => r.name);
 
+      // Format beneficiary counts JSON data
+      let formattedCounts = "";
+      if (p.beneficiary_counts) {
+        try {
+          const parsed = JSON.parse(p.beneficiary_counts);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            formattedCounts = parsed.map(item => {
+              const parts = [
+                item.type,
+                item.gender,
+                item.ageGroup,
+                item.educationStage,
+                Array.isArray(item.vulnerabilities) && item.vulnerabilities.length > 0 ? `Vulnerabilities: ${item.vulnerabilities.join(", ")}` : ""
+              ].filter(Boolean);
+              return parts.join(" | ");
+            }).join("\n");
+          }
+        } catch (e) {
+          formattedCounts = String(p.beneficiary_counts);
+        }
+      }
+
       // Title
       doc.fillColor("#000000").font("Helvetica-Bold").fontSize(22).text("Project Details", 50, 40, { align: "center" });
 
@@ -609,16 +632,41 @@ router.get("/export/pdf", async (req, res) => {
         { field: "Source", value: p.funding_source },
         { field: "Source 2", value: p.funding_source2 },
         { field: "Status", value: p.project_status },
-        { field: "State", value: p.state },
-        { field: "Primary Theme", value: themeNames[0] || "" },
-        { field: "Theme 2", value: themeNames[1] || "" },
-        { field: "Theme 3", value: themeNames[2] || "" },
-        { field: "Theme 4", value: themeNames[3] || "" },
-        { field: "Target Group 1", value: targetGroupNames[0] || "" },
-        { field: "Target Group 2", value: targetGroupNames[1] || "" },
-        { field: "Target Group 3", value: targetGroupNames[2] || "" },
+        { field: "State", value: p.state }
+      ];
+
+      // Add Theme blocks dynamically with categories/subcategories/activities details nested
+      themesRes.rows.forEach((row, idx) => {
+        const prefix = idx === 0 ? "Primary Theme" : `Theme ${idx + 1}`;
+        tableRows.push({ field: prefix, value: row.theme_name });
+        if (row.taxonomy_category) {
+          tableRows.push({ field: "  └─ Category (Subtheme 1)", value: row.taxonomy_category });
+        }
+        if (row.taxonomy_sub_category) {
+          tableRows.push({ field: "  └─ Sub-category (Subtheme 2)", value: row.taxonomy_sub_category });
+        }
+        if (row.taxonomy_activity) {
+          tableRows.push({ field: "  └─ Activity (Subtheme 3)", value: row.taxonomy_activity });
+        }
+      });
+
+      // Add Target groups dynamically
+      targetGroupNames.forEach((name, idx) => {
+        tableRows.push({ field: `Target Group ${idx + 1}`, value: name });
+      });
+
+      // Add other detailed classification fields
+      tableRows.push(
         { field: "Activity Types", value: activityTypeNames.join(", ") },
         { field: "SDGs", value: sdgNames.join(", ") },
+        { field: "Beneficiary Groups", value: p.beneficiary_groups },
+        { field: "Beneficiary Sub-groups", value: p.beneficiary_cat1 },
+        { field: "Area Type", value: p.area_type },
+        { field: "Rural Sub-type", value: p.rural_subtype },
+        { field: "Urban Sub-type", value: p.urban_subtype },
+        { field: "Settlement Detail", value: p.settlement_detail },
+        { field: "Geography Notes", value: p.geography_notes },
+        { field: "Beneficiary Counting Details", value: formattedCounts },
         { field: "Total Beneficiaries", value: p.total_beneficiaries ? String(p.total_beneficiaries) : "" },
         { field: "Direct Beneficiaries", value: p.direct_beneficiaries ? String(p.direct_beneficiaries) : "" },
         { field: "Indirect Beneficiaries", value: p.indirect_beneficiaries ? String(p.indirect_beneficiaries) : "" },
@@ -628,7 +676,9 @@ router.get("/export/pdf", async (req, res) => {
         { field: "Girls Beneficiaries", value: p.beneficiaries_girls ? String(p.beneficiaries_girls) : "" },
         { field: "Project Summary", value: p.project_summary || "" },
         { field: "Outcome & Impact Notes", value: p.outcome_impact_notes || "" }
-      ].filter(row => row.value !== null && row.value !== undefined && row.value !== "");
+      ]);
+
+      const filteredRows = tableRows.filter(row => row.value !== null && row.value !== undefined && String(row.value).trim() !== "");
 
       let y = 80;
       const leftX = 50;
@@ -648,7 +698,7 @@ router.get("/export/pdf", async (req, res) => {
       y += 24;
 
       // Body Rows
-      for (const row of tableRows) {
+      for (const row of filteredRows) {
         const valText = String(row.value || "");
         const valueHeight = doc.heightOfString(valText, { width: col2Width - 16 });
         const rowHeight = Math.max(22, valueHeight + 10);
