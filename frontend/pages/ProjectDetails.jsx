@@ -30,7 +30,8 @@ import {
   FolderOpen as FolderIcon,
   AssignmentTurnedIn as CompleteIcon,
   PendingActions as PendingIcon,
-  SmartToy as AiIcon
+  SmartToy as AiIcon,
+  PictureAsPdf as PdfIcon
 } from "@mui/icons-material";
 
 export default function ProjectDetails() {
@@ -741,6 +742,11 @@ export default function ProjectDetails() {
     }
   };
 
+  const handleExportPdf = () => {
+    const url = `http://localhost:5000/reports/export/pdf?project_ids=${id}`;
+    window.open(url, "_blank");
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
@@ -772,15 +778,26 @@ export default function ProjectDetails() {
         >
           Back to Projects
         </Button>
-        <Button
-          variant="contained"
-          startIcon={isEditing ? <CloseIcon /> : <EditIcon />}
-          color={isEditing ? "inherit" : "primary"}
-          onClick={() => setIsEditing(!isEditing)}
-          sx={{ textTransform: "none", fontWeight: "bold" }}
-        >
-          {isEditing ? "Cancel Edit" : "Edit Core Details"}
-        </Button>
+        <Stack direction="row" spacing={1.5}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<PdfIcon />}
+            onClick={handleExportPdf}
+            sx={{ textTransform: "none", fontWeight: "bold" }}
+          >
+            Export PDF
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={isEditing ? <CloseIcon /> : <EditIcon />}
+            color={isEditing ? "inherit" : "primary"}
+            onClick={() => setIsEditing(!isEditing)}
+            sx={{ textTransform: "none", fontWeight: "bold" }}
+          >
+            {isEditing ? "Cancel Edit" : "Edit Core Details"}
+          </Button>
+        </Stack>
       </Stack>
 
       {isEditing ? (

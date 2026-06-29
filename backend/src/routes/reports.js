@@ -108,7 +108,9 @@ function buildQuery(req) {
   const values = [];
   let paramCount = 1;
 
-  if (String(is_archived) === 'true') {
+  if (project_ids) {
+    // Skip is_archived filter if specific project IDs are provided
+  } else if (String(is_archived) === 'true') {
     query += ` AND p.is_archived = true`;
   } else {
     query += ` AND p.is_archived = false`;
@@ -570,6 +572,27 @@ router.get("/export/pdf", async (req, res) => {
       );
       const targetGroupNames = targetGroupsRes.rows.map(r => `${r.main_group} - ${r.sub_group}`);
 
+      // Fetch all activity types associated with the project
+      const activityTypesRes = await pool.query(
+        `SELECT at.activity_type_name 
+         FROM project_activity_types pat 
+         JOIN activity_types at ON pat.activity_type_id = at.activity_type_id 
+         WHERE pat.project_id = $1`,
+        [p.project_id]
+      );
+      const activityTypeNames = activityTypesRes.rows.map(r => r.activity_type_name);
+
+      // Fetch all SDGs associated with the project
+      const sdgsRes = await pool.query(
+        `SELECT s.sdg_code || ' - ' || s.sdg_name as name 
+         FROM project_sdgs psdg 
+         JOIN sdgs s ON psdg.sdg_id = s.sdg_id 
+         WHERE psdg.project_id = $1 
+         ORDER BY s.sdg_code ASC`,
+        [p.project_id]
+      );
+      const sdgNames = sdgsRes.rows.map(r => r.name);
+
       // Title
       doc.fillColor("#000000").font("Helvetica-Bold").fontSize(22).text("Project Details", 50, 40, { align: "center" });
 
@@ -587,13 +610,25 @@ router.get("/export/pdf", async (req, res) => {
         { field: "Source 2", value: p.funding_source2 },
         { field: "Status", value: p.project_status },
         { field: "State", value: p.state },
-        { field: "Theme 1", value: themeNames[0] || "" },
+        { field: "Primary Theme", value: themeNames[0] || "" },
         { field: "Theme 2", value: themeNames[1] || "" },
         { field: "Theme 3", value: themeNames[2] || "" },
         { field: "Theme 4", value: themeNames[3] || "" },
         { field: "Target Group 1", value: targetGroupNames[0] || "" },
-        { field: "Target Group 2", value: targetGroupNames[1] || "" }
-      ];
+        { field: "Target Group 2", value: targetGroupNames[1] || "" },
+        { field: "Target Group 3", value: targetGroupNames[2] || "" },
+        { field: "Activity Types", value: activityTypeNames.join(", ") },
+        { field: "SDGs", value: sdgNames.join(", ") },
+        { field: "Total Beneficiaries", value: p.total_beneficiaries ? String(p.total_beneficiaries) : "" },
+        { field: "Direct Beneficiaries", value: p.direct_beneficiaries ? String(p.direct_beneficiaries) : "" },
+        { field: "Indirect Beneficiaries", value: p.indirect_beneficiaries ? String(p.indirect_beneficiaries) : "" },
+        { field: "Male Beneficiaries", value: p.beneficiaries_male ? String(p.beneficiaries_male) : "" },
+        { field: "Female Beneficiaries", value: p.beneficiaries_female ? String(p.beneficiaries_female) : "" },
+        { field: "Boys Beneficiaries", value: p.beneficiaries_boys ? String(p.beneficiaries_boys) : "" },
+        { field: "Girls Beneficiaries", value: p.beneficiaries_girls ? String(p.beneficiaries_girls) : "" },
+        { field: "Project Summary", value: p.project_summary || "" },
+        { field: "Outcome & Impact Notes", value: p.outcome_impact_notes || "" }
+      ].filter(row => row.value !== null && row.value !== undefined && row.value !== "");
 
       let y = 80;
       const leftX = 50;
@@ -617,6 +652,22 @@ router.get("/export/pdf", async (req, res) => {
         const valText = String(row.value || "");
         const valueHeight = doc.heightOfString(valText, { width: col2Width - 16 });
         const rowHeight = Math.max(22, valueHeight + 10);
+
+        // Check page overflow
+        if (y + rowHeight > 750) {
+          doc.addPage();
+          y = 50; // top margin
+          
+          // Re-draw table header row on new page
+          doc.fillColor("#dbeafe").rect(leftX, y, totalWidth, 24).fill();
+          doc.strokeColor("#cbd5e1").lineWidth(1)
+             .rect(leftX, y, col1Width, 24).stroke()
+             .rect(leftX + col1Width, y, col2Width, 24).stroke();
+          doc.fillColor("#1e3a8a").font("Helvetica-Bold").fontSize(10);
+          doc.text("Field", leftX + 8, y + 7);
+          doc.text("Value", leftX + col1Width + 8, y + 7);
+          y += 24;
+        }
 
         // Draw background for field column
         doc.fillColor("#f8fafc").rect(leftX, y, col1Width, rowHeight).fill();
