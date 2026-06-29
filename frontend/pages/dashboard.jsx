@@ -109,7 +109,9 @@ export default function Dashboard() {
     projectsByStatus: [],
     fundingSourceDistribution: [],
     turnoverByYear: [],
-    themesFrequency: []
+    themesFrequency: [],
+    fundingAmountDistribution: [],
+    agencyAmountDistribution: []
   });
 
   const [recentProjects, setRecentProjects] = useState([]);
@@ -284,6 +286,20 @@ export default function Dashboard() {
     count: d.count
   }));
 
+  const formattedFundingAmountData = (charts.fundingAmountDistribution || []).map(d => ({
+    name: d.source_name ? (d.source_name.length > 20 ? d.source_name.substring(0, 20) + "..." : d.source_name) : "Other",
+    fullName: d.source_name || "Other",
+    amount: d.amount ? Number(d.amount) : 0,
+    amountInLakhs: d.amount ? Number(d.amount) / 100000 : 0
+  }));
+
+  const formattedAgencyAmountData = (charts.agencyAmountDistribution || []).map(d => ({
+    name: d.agency_name ? (d.agency_name.length > 20 ? d.agency_name.substring(0, 20) + "..." : d.agency_name) : "Unknown",
+    fullName: d.agency_name || "Unknown",
+    amount: d.amount ? Number(d.amount) : 0,
+    amountInLakhs: d.amount ? Number(d.amount) / 100000 : 0
+  }));
+
   const renderFullscreenChart = () => {
     switch (fullscreenChart) {
       case 'theme':
@@ -443,6 +459,42 @@ export default function Dashboard() {
               <YAxis />
               <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
               <Bar dataKey="count" fill="url(#frequencyGradFS)" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+      case 'fundingAmount':
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={formattedFundingAmountData} margin={{ top: 20, right: 20, left: 10, bottom: 85 }}>
+              <defs>
+                <linearGradient id="fundingAmountGradFS" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#ec4899" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#db2777" stopOpacity={0.4} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11, fontWeight: "500" }} interval={0} />
+              <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: 0 }} />
+              <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, props.payload.fullName]} />
+              <Bar dataKey="amountInLakhs" fill="url(#fundingAmountGradFS)" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+      case 'agencyAmount':
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={formattedAgencyAmountData} margin={{ top: 20, right: 20, left: 10, bottom: 85 }}>
+              <defs>
+                <linearGradient id="agencyAmountGradFS" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#14b8a6" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#0d9488" stopOpacity={0.4} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11, fontWeight: "500" }} interval={0} />
+              <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: 0 }} />
+              <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, props.payload.fullName]} />
+              <Bar dataKey="amountInLakhs" fill="url(#agencyAmountGradFS)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -1092,6 +1144,80 @@ export default function Dashboard() {
                   {charts.projectsByState ? charts.projectsByState.length : 0} States
                 </Typography>
               </Box>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* ROW 5: Top Funding Agencies by Amount & Amount of Funding Source Distribution */}
+
+        {/* Column 1: Top 10 Funding Agencies by Amount */}
+        <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", width: "100%", display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+                Top 10 Funding Agencies (by Sanctioned Amount)
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('agencyAmount')} sx={{ color: "#0d9488" }}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ width: "100%", height: 320, flexGrow: 1 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={formattedAgencyAmountData}
+                  margin={{ top: 10, right: 10, left: 10, bottom: 65 }}
+                  barSize={20}
+                >
+                  <defs>
+                    <linearGradient id="agencyAmountGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#14b8a6" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#0d9488" stopOpacity={0.4} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 9, fontWeight: "500", fill: "#64748b" }} interval={0} />
+                  <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
+                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, props.payload.fullName]} />
+                  <Bar dataKey="amountInLakhs" fill="url(#agencyAmountGrad)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Column 2: Amount of Funding Source Distribution */}
+        <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid #e2e8f0", backgroundColor: "#ffffff", width: "100%", display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: "700", color: "#0f172a", fontSize: "15px" }}>
+                Amount of Funding Source Distribution
+              </Typography>
+              <IconButton size="small" onClick={() => setFullscreenChart('fundingAmount')} sx={{ color: "#0d9488" }}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ width: "100%", height: 320, flexGrow: 1 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={formattedFundingAmountData}
+                  margin={{ top: 10, right: 10, left: 10, bottom: 65 }}
+                  barSize={20}
+                >
+                  <defs>
+                    <linearGradient id="fundingAmountGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#ec4899" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#db2777" stopOpacity={0.4} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 9, fontWeight: "500", fill: "#64748b" }} interval={0} />
+                  <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
+                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, props.payload.fullName]} />
+                  <Bar dataKey="amountInLakhs" fill="url(#fundingAmountGrad)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </Box>
           </Paper>
         </Grid>

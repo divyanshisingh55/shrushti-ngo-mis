@@ -155,6 +155,28 @@ router.get("/charts", async (req, res) => {
       ORDER BY count DESC
     `, values);
 
+    // 9. Funding Amount Distribution (Top 10)
+    const fundingAmountRes = await pool.query(`
+      SELECT fs.source_name, COALESCE(SUM(p.sanctioned_amount), 0)::numeric as amount
+      FROM projects p
+      JOIN funding_sources fs ON p.funding_source_id = fs.funding_source_id
+      WHERE p.is_archived = false ${filter}
+      GROUP BY fs.source_name
+      ORDER BY amount DESC
+      LIMIT 10
+    `, values);
+
+    // 10. Agency Amount Distribution (Top 10)
+    const agencyAmountRes = await pool.query(`
+      SELECT a.agency_name, COALESCE(SUM(p.sanctioned_amount), 0)::numeric as amount
+      FROM projects p
+      JOIN agencies a ON p.agency_id = a.agency_id
+      WHERE p.is_archived = false ${filter}
+      GROUP BY a.agency_name
+      ORDER BY amount DESC
+      LIMIT 10
+    `, values);
+
     res.json({
       projectsByTheme: themeRes.rows,
       projectsByYear: yearRes.rows,
@@ -163,7 +185,9 @@ router.get("/charts", async (req, res) => {
       projectsByStatus: statusRes.rows,
       fundingSourceDistribution: fundingRes.rows,
       turnoverByYear: turnoverRes.rows,
-      themesFrequency: frequencyRes.rows
+      themesFrequency: frequencyRes.rows,
+      fundingAmountDistribution: fundingAmountRes.rows,
+      agencyAmountDistribution: agencyAmountRes.rows
     });
   } catch (error) {
     console.error("Dashboard Charts Error:", error);
