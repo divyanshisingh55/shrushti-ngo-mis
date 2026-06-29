@@ -676,7 +676,7 @@ router.get("/export/pdf", async (req, res) => {
         { field: "Girls Beneficiaries", value: p.beneficiaries_girls ? String(p.beneficiaries_girls) : "" },
         { field: "Project Summary", value: p.project_summary || "" },
         { field: "Outcome & Impact Notes", value: p.outcome_impact_notes || "" }
-      ]);
+      );
 
       const filteredRows = tableRows.filter(row => row.value !== null && row.value !== undefined && String(row.value).trim() !== "");
 
