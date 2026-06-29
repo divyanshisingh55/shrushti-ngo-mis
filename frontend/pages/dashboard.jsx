@@ -556,7 +556,7 @@ export default function Dashboard() {
               borderLeft: "5px solid #2563eb",
               cursor: "pointer",
               transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-              background: "linear-gradient(135deg, #ffffff 0%, rgba(37, 99, 235, 0.01) 100%)",
+              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(37, 99, 235, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(37, 99, 235, 0.03) 100%)',
               "&:hover": {
                 transform: "translateY(-4px)",
                 boxShadow: "0 12px 20px -5px rgba(37, 99, 235, 0.12)",
@@ -570,7 +570,7 @@ export default function Dashboard() {
                   <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Total Projects
                   </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: "850", color: "#1d4ed8", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "850", color: (theme) => theme.palette.mode === 'light' ? '#1d4ed8' : '#60a5fa', mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
                     {summary.totalProjects}
                   </Typography>
                 </Box>
@@ -600,7 +600,7 @@ export default function Dashboard() {
               borderLeft: "5px solid #10b981",
               cursor: "pointer",
               transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-              background: "linear-gradient(135deg, #ffffff 0%, rgba(16, 185, 129, 0.01) 100%)",
+              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(16, 185, 129, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(16, 185, 129, 0.03) 100%)',
               "&:hover": {
                 transform: "translateY(-4px)",
                 boxShadow: "0 12px 20px -5px rgba(16, 185, 129, 0.12)",
@@ -614,7 +614,7 @@ export default function Dashboard() {
                   <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Completed
                   </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: "850", color: "#047857", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "850", color: (theme) => theme.palette.mode === 'light' ? '#047857' : '#34d399', mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
                     {summary.completedProjects}
                   </Typography>
                 </Box>
@@ -644,7 +644,7 @@ export default function Dashboard() {
               borderLeft: "5px solid #14b8a6",
               cursor: "pointer",
               transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-              background: "linear-gradient(135deg, #ffffff 0%, rgba(20, 180, 166, 0.01) 100%)",
+              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(20, 180, 166, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(20, 180, 166, 0.03) 100%)',
               "&:hover": {
                 transform: "translateY(-4px)",
                 boxShadow: "0 12px 20px -5px rgba(20, 180, 166, 0.12)",
@@ -658,7 +658,7 @@ export default function Dashboard() {
                   <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Total Themes
                   </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: "850", color: "#0f766e", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "850", color: (theme) => theme.palette.mode === 'light' ? '#0f766e' : '#2dd4bf', mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
                     {summary.totalThemes}
                   </Typography>
                 </Box>
@@ -688,7 +688,7 @@ export default function Dashboard() {
               borderLeft: "5px solid #8b5cf6",
               cursor: "pointer",
               transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-              background: "linear-gradient(135deg, #ffffff 0%, rgba(139, 92, 246, 0.01) 100%)",
+              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(139, 92, 246, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(139, 92, 246, 0.03) 100%)',
               "&:hover": {
                 transform: "translateY(-4px)",
                 boxShadow: "0 12px 20px -5px rgba(139, 92, 246, 0.12)",
@@ -702,7 +702,7 @@ export default function Dashboard() {
                   <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Total Agencies
                   </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: "850", color: "#6d28d9", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "850", color: (theme) => theme.palette.mode === 'light' ? '#6d28d9' : '#a78bfa', mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
                     {summary.totalAgencies}
                   </Typography>
                 </Box>
@@ -732,7 +732,7 @@ export default function Dashboard() {
               borderLeft: "5px solid #6366f1",
               cursor: "pointer",
               transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-              background: "linear-gradient(135deg, #ffffff 0%, rgba(99, 102, 241, 0.01) 100%)",
+              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(99, 102, 241, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(99, 102, 241, 0.03) 100%)',
               "&:hover": {
                 transform: "translateY(-4px)",
                 boxShadow: "0 12px 20px -5px rgba(99, 102, 241, 0.12)",
@@ -746,7 +746,7 @@ export default function Dashboard() {
                   <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Manual Classified
                   </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: "850", color: "#4f46e5", mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "850", color: (theme) => theme.palette.mode === 'light' ? '#4f46e5' : '#818cf8', mt: 1, fontSize: "28px", letterSpacing: "-0.5px" }}>
                     {summary.manualClassifiedProjects || 0}
                   </Typography>
                 </Box>
@@ -776,7 +776,7 @@ export default function Dashboard() {
               borderLeft: "5px solid #f59e0b",
               cursor: "pointer",
               transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-              background: "linear-gradient(135deg, #ffffff 0%, rgba(245, 158, 11, 0.01) 100%)",
+              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(245, 158, 11, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(245, 158, 11, 0.03) 100%)',
               "&:hover": {
                 transform: "translateY(-4px)",
                 boxShadow: "0 12px 20px -5px rgba(245, 158, 11, 0.12)",
@@ -790,7 +790,7 @@ export default function Dashboard() {
                   <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", fontSize: "10px" }}>
                     Total Budget
                   </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: "850", color: "#b45309", mt: 1, fontSize: "24px", letterSpacing: "-0.5px" }}>
+                  <Typography variant="h4" sx={{ fontWeight: "850", color: (theme) => theme.palette.mode === 'light' ? '#b45309' : '#fbbf24', mt: 1, fontSize: "24px", letterSpacing: "-0.5px" }}>
                     {formatCurrency(summary.totalSanctionedAmount)}
                   </Typography>
                 </Box>
@@ -1284,7 +1284,7 @@ export default function Dashboard() {
                       {dialogData.map((theme) => (
                         <TableRow key={theme.id} hover sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                           <TableCell sx={{ fontWeight: "600", color: "text.secondary", verticalAlign: "top", pt: 2 }}>{theme.id}</TableCell>
-                          <TableCell sx={{ fontWeight: "700", color: "#0f766e", verticalAlign: "top", pt: 2 }}>{theme.name}</TableCell>
+                          <TableCell sx={{ fontWeight: "700", color: (theme) => theme.palette.mode === 'light' ? '#0f766e' : '#2dd4bf', verticalAlign: "top", pt: 2 }}>{theme.name}</TableCell>
                           <TableCell sx={{ p: 2 }}>
                             {theme.categories && theme.categories.map((cat, cIdx) => (
                               <Box key={cIdx} sx={{ mb: cat.subCategories && cat.subCategories.length > 0 ? 2 : 0, pb: cIdx < theme.categories.length - 1 ? 2 : 0, borderBottom: cIdx < theme.categories.length - 1 ? "1px dashed #e2e8f0" : "none" }}>

@@ -630,7 +630,7 @@ export default function Projects() {
 
       {/* Advanced Filters Accordion */}
       <Accordion sx={{ mb: 3, borderRadius: "8px", border: "1px solid", borderColor: "divider", boxShadow: "none", "&:before": { display: "none" } }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: "#f8fafc", borderTopLeftRadius: "8px", borderTopRightRadius: "8px" }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: (theme) => theme.palette.mode === 'light' ? '#f8fafc' : '#1e293b', borderTopLeftRadius: "8px", borderTopRightRadius: "8px" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <FilterIcon color="primary" fontSize="small" />
             <Typography sx={{ fontWeight: "bold", color: "text.primary" }}>Advanced Filter System</Typography>
@@ -1222,7 +1222,7 @@ export default function Projects() {
                         sx={{
                           position: "sticky",
                           right: 0,
-                          backgroundColor: "#fff",
+                          backgroundColor: "background.paper",
                           boxShadow: "-2px 0 5px rgba(0,0,0,0.05)",
                           zIndex: 1
                         }}
