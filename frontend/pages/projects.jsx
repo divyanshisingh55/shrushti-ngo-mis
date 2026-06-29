@@ -633,7 +633,7 @@ export default function Projects() {
         <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: "#f8fafc", borderTopLeftRadius: "8px", borderTopRightRadius: "8px" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <FilterIcon color="primary" fontSize="small" />
-            <Typography sx={{ fontWeight: "bold", color: "#334155" }}>Advanced Filter System</Typography>
+            <Typography sx={{ fontWeight: "bold", color: "text.primary" }}>Advanced Filter System</Typography>
           </Box>
         </AccordionSummary>
         <AccordionDetails sx={{ p: 3 }}>
@@ -749,8 +749,8 @@ export default function Projects() {
 
             {/* Dynamic Target Group Filters Section (Full Width) */}
             <Grid size={12}>
-              <Box sx={{ p: 2, bgcolor: "#f8fafc", borderRadius: "8px", border: "1px dashed #cbd5e1", mt: 1, mb: 1 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#475569", mb: 2 }}>
+              <Box sx={{ p: 2, bgcolor: "background.default", borderRadius: "8px", border: "1px dashed", borderColor: "divider", mt: 1, mb: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.secondary", mb: 2 }}>
                   Target Group Filters
                 </Typography>
                 <Stack spacing={2}>
@@ -963,7 +963,7 @@ export default function Projects() {
         </Box>
 
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, px: 1 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: "600", color: "#334155", display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: "600", color: "text.primary", display: "flex", alignItems: "center", gap: 1 }}>
             <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#3b82f6" }}></span>
             Showing {projects.length} {projects.length === 1 ? "project" : "projects"} matching your filters
           </Typography>
@@ -1002,9 +1002,9 @@ export default function Projects() {
               minWidth: "5800px"
             }}
           >
-            <TableHead sx={{ backgroundColor: "#f1f5f9" }}>
-              <TableRow sx={{ "& th": { borderBottom: "2px solid #cbd5e1", fontWeight: "bold", color: "#334155", backgroundColor: "#f1f5f9" } }}>
-                <TableCell padding="checkbox" sx={{ width: "50px", backgroundColor: "#f1f5f9" }}>
+            <TableHead sx={{ backgroundColor: "background.paper" }}>
+              <TableRow sx={{ "& th": { borderBottom: "2px solid", borderColor: "divider", fontWeight: "bold", color: "text.primary", backgroundColor: "background.paper" } }}>
+                <TableCell padding="checkbox" sx={{ width: "50px", backgroundColor: "background.paper" }}>
                   <Checkbox
                     indeterminate={
                       selectedIds.length > 0 &&
@@ -1018,58 +1018,58 @@ export default function Projects() {
                   />
                 </TableCell>
 
-                <TableCell sx={{ width: "80px", backgroundColor: "#f1f5f9" }}>Year</TableCell>
-                <TableCell sx={{ width: "100px", backgroundColor: "#f1f5f9" }}>Doc. #</TableCell>
-                <TableCell sx={{ width: "180px", backgroundColor: "#f1f5f9" }}>Donor Agency</TableCell>
-                <TableCell sx={{ width: "300px", backgroundColor: "#f1f5f9" }}>Name of Project</TableCell>
-                <TableCell sx={{ width: "130px", backgroundColor: "#f1f5f9" }}>Date of Approval</TableCell>
-                <TableCell sx={{ width: "150px", backgroundColor: "#f1f5f9" }}>Sanctioned Amount (Rs.)</TableCell>
-                <TableCell sx={{ width: "140px", backgroundColor: "#f1f5f9" }}>Status (Implementation)</TableCell>
+                <TableCell sx={{ width: "80px", backgroundColor: "background.paper" }}>Year</TableCell>
+                <TableCell sx={{ width: "100px", backgroundColor: "background.paper" }}>Doc. #</TableCell>
+                <TableCell sx={{ width: "180px", backgroundColor: "background.paper" }}>Donor Agency</TableCell>
+                <TableCell sx={{ width: "300px", backgroundColor: "background.paper" }}>Name of Project</TableCell>
+                <TableCell sx={{ width: "130px", backgroundColor: "background.paper" }}>Date of Approval</TableCell>
+                <TableCell sx={{ width: "150px", backgroundColor: "background.paper" }}>Sanctioned Amount (Rs.)</TableCell>
+                <TableCell sx={{ width: "140px", backgroundColor: "background.paper" }}>Status (Implementation)</TableCell>
 
-                <TableCell sx={{ width: "150px", backgroundColor: "#f1f5f9" }}>Source of Funding</TableCell>
-                <TableCell sx={{ width: "150px", backgroundColor: "#f1f5f9" }}>Funding Source 2</TableCell>
-                <TableCell sx={{ width: "120px", backgroundColor: "#f1f5f9" }}>Funding Type</TableCell>
-                <TableCell sx={{ width: "180px", backgroundColor: "#f1f5f9" }}>Donor Agency Name</TableCell>
-                <TableCell sx={{ width: "150px", backgroundColor: "#f1f5f9" }}>Donor Category</TableCell>
+                <TableCell sx={{ width: "150px", backgroundColor: "background.paper" }}>Source of Funding</TableCell>
+                <TableCell sx={{ width: "150px", backgroundColor: "background.paper" }}>Funding Source 2</TableCell>
+                <TableCell sx={{ width: "120px", backgroundColor: "background.paper" }}>Funding Type</TableCell>
+                <TableCell sx={{ width: "180px", backgroundColor: "background.paper" }}>Donor Agency Name</TableCell>
+                <TableCell sx={{ width: "150px", backgroundColor: "background.paper" }}>Donor Category</TableCell>
 
-                <TableCell sx={{ width: "120px", backgroundColor: "#f1f5f9" }}>State</TableCell>
-                <TableCell sx={{ width: "120px", backgroundColor: "#f1f5f9" }}>District</TableCell>
-                <TableCell sx={{ width: "150px", backgroundColor: "#f1f5f9" }}>Block/Village/ULB</TableCell>
-                <TableCell sx={{ width: "100px", backgroundColor: "#f1f5f9" }}>Area Type</TableCell>
-                <TableCell sx={{ width: "120px", backgroundColor: "#f1f5f9" }}>Rural Subtype</TableCell>
-                <TableCell sx={{ width: "120px", backgroundColor: "#f1f5f9" }}>Urban Subtype</TableCell>
-                <TableCell sx={{ width: "130px", backgroundColor: "#f1f5f9" }}>Settlement Detail</TableCell>
-                <TableCell sx={{ width: "250px", backgroundColor: "#f1f5f9" }}>Geography Notes</TableCell>
+                <TableCell sx={{ width: "120px", backgroundColor: "background.paper" }}>State</TableCell>
+                <TableCell sx={{ width: "120px", backgroundColor: "background.paper" }}>District</TableCell>
+                <TableCell sx={{ width: "150px", backgroundColor: "background.paper" }}>Block/Village/ULB</TableCell>
+                <TableCell sx={{ width: "100px", backgroundColor: "background.paper" }}>Area Type</TableCell>
+                <TableCell sx={{ width: "120px", backgroundColor: "background.paper" }}>Rural Subtype</TableCell>
+                <TableCell sx={{ width: "120px", backgroundColor: "background.paper" }}>Urban Subtype</TableCell>
+                <TableCell sx={{ width: "130px", backgroundColor: "background.paper" }}>Settlement Detail</TableCell>
+                <TableCell sx={{ width: "250px", backgroundColor: "background.paper" }}>Geography Notes</TableCell>
 
-                <TableCell sx={{ width: "180px", backgroundColor: "#f1f5f9" }}>Major Theme</TableCell>
-                <TableCell sx={{ width: "250px", backgroundColor: "#f1f5f9" }}>Sub Theme</TableCell>
-                <TableCell sx={{ width: "250px", backgroundColor: "#f1f5f9" }}>Activity Type</TableCell>
+                <TableCell sx={{ width: "180px", backgroundColor: "background.paper" }}>Major Theme</TableCell>
+                <TableCell sx={{ width: "250px", backgroundColor: "background.paper" }}>Sub Theme</TableCell>
+                <TableCell sx={{ width: "250px", backgroundColor: "background.paper" }}>Activity Type</TableCell>
 
-                <TableCell sx={{ width: "250px", backgroundColor: "#f1f5f9" }}>Target Group</TableCell>
-                <TableCell sx={{ width: "150px", backgroundColor: "#f1f5f9" }}>Age Group</TableCell>
-                <TableCell sx={{ width: "180px", backgroundColor: "#f1f5f9" }}>Gender Profile</TableCell>
-                <TableCell sx={{ width: "180px", backgroundColor: "#f1f5f9" }}>Education Stage</TableCell>
-                <TableCell sx={{ width: "200px", backgroundColor: "#f1f5f9" }}>Social Groups / Vulnerabilities</TableCell>
+                <TableCell sx={{ width: "250px", backgroundColor: "background.paper" }}>Target Group</TableCell>
+                <TableCell sx={{ width: "150px", backgroundColor: "background.paper" }}>Age Group</TableCell>
+                <TableCell sx={{ width: "180px", backgroundColor: "background.paper" }}>Gender Profile</TableCell>
+                <TableCell sx={{ width: "180px", backgroundColor: "background.paper" }}>Education Stage</TableCell>
+                <TableCell sx={{ width: "200px", backgroundColor: "background.paper" }}>Social Groups / Vulnerabilities</TableCell>
 
-                <TableCell sx={{ width: "130px", backgroundColor: "#f1f5f9" }}>No. of Beneficiaries</TableCell>
-                <TableCell sx={{ width: "130px", backgroundColor: "#f1f5f9" }}>Direct Beneficiaries</TableCell>
-                <TableCell sx={{ width: "130px", backgroundColor: "#f1f5f9" }}>Indirect Beneficiaries</TableCell>
-                <TableCell sx={{ width: "80px", backgroundColor: "#f1f5f9" }}>Male</TableCell>
-                <TableCell sx={{ width: "80px", backgroundColor: "#f1f5f9" }}>Female</TableCell>
-                <TableCell sx={{ width: "80px", backgroundColor: "#f1f5f9" }}>Boys</TableCell>
-                <TableCell sx={{ width: "80px", backgroundColor: "#f1f5f9" }}>Girls</TableCell>
+                <TableCell sx={{ width: "130px", backgroundColor: "background.paper" }}>No. of Beneficiaries</TableCell>
+                <TableCell sx={{ width: "130px", backgroundColor: "background.paper" }}>Direct Beneficiaries</TableCell>
+                <TableCell sx={{ width: "130px", backgroundColor: "background.paper" }}>Indirect Beneficiaries</TableCell>
+                <TableCell sx={{ width: "80px", backgroundColor: "background.paper" }}>Male</TableCell>
+                <TableCell sx={{ width: "80px", backgroundColor: "background.paper" }}>Female</TableCell>
+                <TableCell sx={{ width: "80px", backgroundColor: "background.paper" }}>Boys</TableCell>
+                <TableCell sx={{ width: "80px", backgroundColor: "background.paper" }}>Girls</TableCell>
 
-                <TableCell sx={{ width: "150px", backgroundColor: "#f1f5f9" }}>Classification Status</TableCell>
-                <TableCell sx={{ width: "100px", backgroundColor: "#f1f5f9" }}>Duration (Months)</TableCell>
-                <TableCell sx={{ width: "300px", backgroundColor: "#f1f5f9" }}>Outcome/Impact Notes</TableCell>
-                <TableCell sx={{ width: "200px", backgroundColor: "#f1f5f9" }}>Remarks</TableCell>
+                <TableCell sx={{ width: "150px", backgroundColor: "background.paper" }}>Classification Status</TableCell>
+                <TableCell sx={{ width: "100px", backgroundColor: "background.paper" }}>Duration (Months)</TableCell>
+                <TableCell sx={{ width: "300px", backgroundColor: "background.paper" }}>Outcome/Impact Notes</TableCell>
+                <TableCell sx={{ width: "200px", backgroundColor: "background.paper" }}>Remarks</TableCell>
 
                 <TableCell
                   sx={{
                     width: "200px",
                     minWidth: "200px",
                     textAlign: "center",
-                    backgroundColor: "#f1f5f9",
+                    backgroundColor: "background.paper",
                     position: "sticky",
                     right: 0,
                     zIndex: 10
@@ -1110,8 +1110,8 @@ export default function Projects() {
                       hover
                       checked={isChecked}
                       sx={{
-                        "&:nth-of-type(even)": { backgroundColor: "#f8fafc" },
-                        "&:hover": { backgroundColor: "#f1f5f9 !important" },
+                        "&:nth-of-type(even)": { backgroundColor: (theme) => theme.palette.mode === 'light' ? '#f8fafc' : 'rgba(255, 255, 255, 0.03)' },
+                        "&:hover": { backgroundColor: (theme) => theme.palette.mode === 'light' ? '#f1f5f9 !important' : 'rgba(255, 255, 255, 0.08) !important' },
                         transition: "background-color 0.2s"
                       }}
                     >

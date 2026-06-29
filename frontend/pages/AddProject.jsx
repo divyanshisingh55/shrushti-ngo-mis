@@ -192,7 +192,7 @@ export default function AddProject() {
           <Grid container spacing={3}>
             {/* Project Basic Details Section */}
             <Grid size={12}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b", mb: 1, borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "text.primary", mb: 1, borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
                 1. Basic Project Details
               </Typography>
             </Grid>
@@ -327,7 +327,7 @@ export default function AddProject() {
 
             {/* Funding details section */}
             <Grid size={12}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b", mt: 2, mb: 1, borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "text.primary", mt: 2, mb: 1, borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
                 2. Funding & Donor Details
               </Typography>
             </Grid>
@@ -442,7 +442,7 @@ export default function AddProject() {
 
             {/* Geography section */}
             <Grid size={12}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b", mt: 2, mb: 1, borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", color: "text.primary", mt: 2, mb: 1, borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
                 3. Geography
               </Typography>
             </Grid>

@@ -774,7 +774,7 @@ export default function ProjectDetails() {
       {isEditing ? (
         // ------------------ EDIT FORM MODE ------------------
         <Paper sx={{ p: 4, mb: 4, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)" }}>
-          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 3, color: "#1e293b" }}>
+          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 3, color: "text.primary" }}>
             Edit Project Core Details
           </Typography>
           <Box component="form" onSubmit={handleUpdateDetails}>
@@ -980,7 +980,7 @@ export default function ProjectDetails() {
           <CardContent>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
               <Box>
-                <Typography variant="h5" sx={{ fontWeight: "bold", color: "#1e293b", mb: 0.5 }}>
+                <Typography variant="h5" sx={{ fontWeight: "bold", color: "text.primary", mb: 0.5 }}>
                   {project.project_name}
                 </Typography>
                 <Typography variant="body2" sx={{ color: "text.secondary" }}>
@@ -1129,7 +1129,7 @@ export default function ProjectDetails() {
       <Paper sx={{ p: 4, borderRadius: "12px", boxShadow: "0 4px 6px rgba(15, 23, 42, 0.05)", mb: 4 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4, flexWrap: "wrap", gap: 2 }}>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1e293b" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", color: "text.primary" }}>
               Assign Project Classification
             </Typography>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
@@ -1252,7 +1252,7 @@ export default function ProjectDetails() {
         <Grid container spacing={4}>
           {/* Multiple Themes & Subthemes */}
           <Grid size={12}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
               1. Thematic Areas & Sub-Themes
             </Typography>
             {selectedThemes.map((t, index) => {
@@ -1459,7 +1459,7 @@ export default function ProjectDetails() {
 
           {/* Beneficiary Groups & Categories */}
           <Grid size={12}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
               2. Target Beneficiary Details
             </Typography>
             {selectedBeneficiaries.map((bg, index) => (
@@ -1528,7 +1528,7 @@ export default function ProjectDetails() {
 
           {/* Beneficiary Counting Details */}
           <Grid size={12}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
               3. Beneficiary Counting Format
             </Typography>
             {beneficiaryCounts.map((bc, index) => (
@@ -1658,7 +1658,7 @@ export default function ProjectDetails() {
 
           {/* Geography Tagging */}
           <Grid size={12}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
               4. Geography Tagging
             </Typography>
             <Paper sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: "8px" }}>
@@ -1757,7 +1757,7 @@ export default function ProjectDetails() {
 
           {/* Output Scale */}
           <Grid size={12}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
               5. Output Scale
             </Typography>
             <Paper sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: "8px" }}>
@@ -1838,7 +1838,7 @@ export default function ProjectDetails() {
 
           {/* Outcomes & Impact Notes */}
           <Grid size={12}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
               6. Outcomes & Impact Notes
             </Typography>
             <TextField
@@ -1854,7 +1854,7 @@ export default function ProjectDetails() {
 
           {/* SDGs */}
           <Grid size={12}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
               7. Sustainable Development Goals (SDGs)
             </Typography>
             <Autocomplete
@@ -1878,7 +1878,7 @@ export default function ProjectDetails() {
 
           {/* Activity Types */}
           <Grid size={12}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
               8. Activity Types
             </Typography>
             <Autocomplete
@@ -1917,7 +1917,7 @@ export default function ProjectDetails() {
 
           {/* Project Summary */}
           <Grid size={12}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
               9. Project Summary
             </Typography>
             <TextField
@@ -1933,7 +1933,7 @@ export default function ProjectDetails() {
 
           {/* Project Images */}
           <Grid size={12}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
               10. Project Images
             </Typography>
             <Paper sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: "8px", mb: 2 }}>
@@ -2027,7 +2027,7 @@ export default function ProjectDetails() {
 
           {/* Documents Upload Section */}
           <Grid size={12}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "#1e293b", borderBottom: "2px solid #f1f5f9", pb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
               11. Project Documents (MOU, Agreements &amp; Other)
             </Typography>
             <Paper sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: "8px", mb: 2 }}>
@@ -2133,7 +2133,7 @@ export default function ProjectDetails() {
                       </Box>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5, flexWrap: "wrap" }}>
-                          <Typography variant="body2" sx={{ fontWeight: "600", color: "#1e293b", wordBreak: "break-word" }}>
+                          <Typography variant="body2" sx={{ fontWeight: "600", color: "text.primary", wordBreak: "break-word" }}>
                             {doc.name}
                           </Typography>
                           <Chip label={doc.type || "Other"} size="small" color="primary" variant="outlined" sx={{ fontSize: "11px" }} />
