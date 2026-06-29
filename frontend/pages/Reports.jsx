@@ -18,7 +18,8 @@ import {
   Paper,
   Chip,
   CircularProgress,
-  Stack
+  Stack,
+  Checkbox
 } from "@mui/material";
 import {
   Download as DownloadIcon,
@@ -35,6 +36,7 @@ export default function Reports() {
   const [districts, setDistricts] = useState([]);
   const [agencies, setAgencies] = useState([]);
   const [years, setYears] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   // Filter selections
   const [selectedYear, setSelectedYear] = useState("");
@@ -105,6 +107,7 @@ export default function Reports() {
 
   const fetchReportData = async () => {
     setLoading(true);
+    setSelectedIds([]);
     try {
       const res = await axios.get("http://localhost:5000/reports", {
         params: {
@@ -128,30 +131,45 @@ export default function Reports() {
 
   const getExportUrl = (format) => {
     const params = new URLSearchParams();
-    if (selectedYear) params.append("year", selectedYear);
-    if (selectedTheme) params.append("theme_id", selectedTheme);
-    if (selectedSubTheme) params.append("sub_theme_id", selectedSubTheme);
-    if (selectedTargetGroup) params.append("target_group_id", selectedTargetGroup);
-    if (selectedState) params.append("state_id", selectedState);
-    if (selectedDistrict) params.append("district_id", selectedDistrict);
-    if (selectedAgency) params.append("agency_id", selectedAgency);
-    if (selectedStatus) params.append("status", selectedStatus);
-
+    if (selectedIds.length > 0) {
+      params.append("project_ids", selectedIds.join(","));
+    } else {
+      if (selectedYear) params.append("year", selectedYear);
+      if (selectedTheme) params.append("theme_id", selectedTheme);
+      if (selectedSubTheme) params.append("sub_theme_id", selectedSubTheme);
+      if (selectedTargetGroup) params.append("target_group_id", selectedTargetGroup);
+      if (selectedState) params.append("state_id", selectedState);
+      if (selectedDistrict) params.append("district_id", selectedDistrict);
+      if (selectedAgency) params.append("agency_id", selectedAgency);
+      if (selectedStatus) params.append("status", selectedStatus);
+    }
     return `http://localhost:5000/reports/export/${format}?${params.toString()}`;
   };
 
   const handleExport = (format) => {
     const url = getExportUrl(format);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `projects_report.${format === 'excel' ? 'xlsx' : 'csv'}`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.open(url, "_blank");
   };
 
   const handlePrintPdf = () => {
-    window.print();
+    const url = getExportUrl("pdf");
+    window.open(url, "_blank");
+  };
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(projects.map(p => p.project_id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (id) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter(x => x !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
   };
 
   return (
@@ -379,6 +397,13 @@ export default function Reports() {
           <Table>
             <TableHead sx={{ backgroundColor: "#f8fafc" }}>
               <TableRow>
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    checked={projects.length > 0 && selectedIds.length === projects.length}
+                    indeterminate={selectedIds.length > 0 && selectedIds.length < projects.length}
+                    onChange={handleSelectAll}
+                  />
+                </TableCell>
                 <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>ID</TableCell>
                 <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>Project Name</TableCell>
                 <TableCell sx={{ fontWeight: "bold", color: "#475569" }}>Year</TableCell>
@@ -391,13 +416,19 @@ export default function Reports() {
             <TableBody>
               {projects.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} sx={{ textAlign: "center", py: 4, color: "#94a3b8" }}>
+                  <TableCell colSpan={8} sx={{ textAlign: "center", py: 4, color: "#94a3b8" }}>
                     No project records match the current filters.
                   </TableCell>
                 </TableRow>
               ) : (
                 projects.map((p) => (
-                  <TableRow key={p.project_id} hover>
+                  <TableRow key={p.project_id} hover selected={selectedIds.includes(p.project_id)}>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedIds.includes(p.project_id)}
+                        onChange={() => handleSelectOne(p.project_id)}
+                      />
+                    </TableCell>
                     <TableCell>{p.project_id}</TableCell>
                     <TableCell sx={{ fontWeight: "600", color: "#1e293b", maxWidth: "300px" }}>{p.project_name}</TableCell>
                     <TableCell>{p.year || "-"}</TableCell>
