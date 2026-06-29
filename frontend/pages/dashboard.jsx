@@ -1245,7 +1245,7 @@ export default function Dashboard() {
           sx: { borderRadius: "12px", p: 1 }
         }}
       >
-        <DialogTitle sx={{ fontWeight: "bold", color: "#1e293b", borderBottom: "1px solid #e2e8f0", pb: 2 }}>
+        <DialogTitle sx={{ fontWeight: "bold", color: "text.primary", borderBottom: "1px solid", borderColor: "divider", pb: 2 }}>
           {dialogTitle}
         </DialogTitle>
         <DialogContent sx={{ mt: 2, maxHeight: "60vh", overflowX: "hidden" }}>
@@ -1258,7 +1258,7 @@ export default function Dashboard() {
               {dialogType === 'agencies' && (
                 <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "8px", overflowX: "hidden" }}>
                   <Table size="small">
-                    <TableHead sx={{ backgroundColor: "#f8fafc" }}>
+                    <TableHead sx={{ backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#1f2937' : '#f8fafc' }}>
                       <TableRow>
                         <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
                         <TableCell sx={{ fontWeight: "bold" }}>Agency Name</TableCell>
@@ -1285,7 +1285,7 @@ export default function Dashboard() {
               {dialogType === 'themes' && (
                 <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "12px", border: "1px solid", borderColor: "divider", overflowX: "hidden" }}>
                   <Table size="medium">
-                    <TableHead sx={{ backgroundColor: "#f8fafc" }}>
+                    <TableHead sx={{ backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#1f2937' : '#f8fafc' }}>
                       <TableRow>
                         <TableCell sx={{ fontWeight: "700", width: "80px", color: "text.primary" }}>ID</TableCell>
                         <TableCell sx={{ fontWeight: "700", width: "250px", color: "text.primary" }}>Primary Theme</TableCell>
@@ -1299,15 +1299,15 @@ export default function Dashboard() {
                           <TableCell sx={{ fontWeight: "700", color: (theme) => theme.palette.mode === 'light' ? '#0f766e' : '#2dd4bf', verticalAlign: "top", pt: 2 }}>{theme.name}</TableCell>
                           <TableCell sx={{ p: 2 }}>
                             {theme.categories && theme.categories.map((cat, cIdx) => (
-                              <Box key={cIdx} sx={{ mb: cat.subCategories && cat.subCategories.length > 0 ? 2 : 0, pb: cIdx < theme.categories.length - 1 ? 2 : 0, borderBottom: cIdx < theme.categories.length - 1 ? "1px dashed #e2e8f0" : "none" }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: "700", color: "#1e293b", mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
+                              <Box key={cIdx} sx={{ mb: cat.subCategories && cat.subCategories.length > 0 ? 2 : 0, pb: cIdx < theme.categories.length - 1 ? 2 : 0, borderBottom: cIdx < theme.categories.length - 1 ? "1px dashed" : "none", borderBottomColor: "divider" }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: "700", color: "text.primary", mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
                                   <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#0d9488" }} />
                                   {cat.name}
                                 </Typography>
                                 <Box sx={{ pl: 2, display: "flex", flexDirection: "column", gap: 1 }}>
                                   {cat.subCategories && cat.subCategories.map((sub, sIdx) => (
                                     <Box key={sIdx} sx={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: 1 }}>
-                                      <Typography variant="caption" sx={{ fontWeight: "600", color: "#475569", minWidth: "120px" }}>
+                                      <Typography variant="caption" sx={{ fontWeight: "600", color: "text.secondary", minWidth: "120px" }}>
                                         {sub.name} &rarr;
                                       </Typography>
                                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
@@ -1318,8 +1318,8 @@ export default function Dashboard() {
                                             size="small" 
                                             sx={{ 
                                               fontSize: "10px", 
-                                              bgcolor: "#f1f5f9", 
-                                              color: "#475569", 
+                                              bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f5f9', 
+                                              color: "text.secondary", 
                                               border: "1px solid", borderColor: "divider",
                                               fontWeight: "500"
                                             }} 
@@ -1342,7 +1342,7 @@ export default function Dashboard() {
               {dialogType === 'projects-list' && (
                 <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "8px", overflowX: "hidden" }}>
                   <Table size="small">
-                    <TableHead sx={{ backgroundColor: "#f8fafc" }}>
+                    <TableHead sx={{ backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#1f2937' : '#f8fafc' }}>
                       <TableRow>
                         <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
                         <TableCell sx={{ fontWeight: "bold" }}>Project Name</TableCell>
@@ -1398,7 +1398,7 @@ export default function Dashboard() {
             </>
           )}
         </DialogContent>
-        <DialogActions sx={{ p: 2, borderTop: "1px solid #e2e8f0" }}>
+        <DialogActions sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}>
           <Button onClick={() => setDialogOpen(false)} variant="outlined">
             Close
           </Button>
@@ -1415,7 +1415,7 @@ export default function Dashboard() {
           sx: { borderRadius: "16px", p: 1 }
         }}
       >
-        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontWeight: "bold", borderBottom: "1px solid #e2e8f0", pb: 2 }}>
+        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontWeight: "bold", borderBottom: "1px solid", borderColor: "divider", pb: 2 }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "text.primary" }}>
             {getFullscreenChartTitle()}
           </Typography>
@@ -1426,7 +1426,7 @@ export default function Dashboard() {
         <DialogContent sx={{ height: "70vh", minHeight: "500px", mt: 3, display: "flex", justifyContent: "center", alignItems: "center" }}>
           {renderFullscreenChart()}
         </DialogContent>
-        <DialogActions sx={{ p: 2, borderTop: "1px solid #e2e8f0" }}>
+        <DialogActions sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}>
           <Button onClick={() => setFullscreenChart(null)} variant="outlined">
             Close Fullscreen
           </Button>
