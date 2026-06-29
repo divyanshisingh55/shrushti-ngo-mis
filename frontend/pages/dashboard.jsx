@@ -31,6 +31,7 @@ import {
   ListItemText,
   OutlinedInput
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import {
   ResponsiveContainer,
   BarChart,
@@ -75,18 +76,29 @@ const AVAILABLE_YEARS = [
   "2026-27"
 ];
 
-const glassTooltipStyle = {
-  backgroundColor: "rgba(255, 255, 255, 0.98)",
-  borderRadius: "10px",
-  border: "1px solid", borderColor: "divider",
-  boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02)",
-  padding: "8px 12px",
-  fontSize: "12px",
-  fontWeight: "600",
-  color: "text.primary"
-};
-
 export default function Dashboard() {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
+  const glassTooltipStyle = {
+    backgroundColor: isDark ? "rgba(17, 24, 39, 0.98)" : "rgba(255, 255, 255, 0.98)",
+    borderRadius: "10px",
+    border: "1px solid",
+    borderColor: isDark ? "#1f2937" : "#e2e8f0",
+    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02)",
+    padding: "8px 12px",
+    fontSize: "12px",
+    fontWeight: "600"
+  };
+
+  const tooltipItemStyle = {
+    color: isDark ? "#f9fafb" : "#0f172a"
+  };
+
+  const tooltipLabelStyle = {
+    color: isDark ? "#9ca3af" : "#64748b"
+  };
+
   const navigate = useNavigate();
   const [selectedYears, setSelectedYears] = useState([]);
 
@@ -315,7 +327,7 @@ export default function Dashboard() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11, fontWeight: "500" }} interval={0} />
               <YAxis />
-              <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+              <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
               <Bar dataKey="count" fill="url(#themeGradFS)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -333,7 +345,7 @@ export default function Dashboard() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="year" style={{ fontSize: "12px", fontWeight: "600", fill: "#475569" }} />
               <YAxis />
-              <Tooltip contentStyle={glassTooltipStyle} />
+              <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} />
               <Legend />
               <Area type="monotone" dataKey="count" name="Projects Count" stroke="#2563eb" strokeWidth={3} fill="url(#yearGradFS)" activeDot={{ r: 8 }} />
             </AreaChart>
@@ -352,7 +364,7 @@ export default function Dashboard() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11, fontWeight: "500" }} interval={0} />
               <YAxis />
-              <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+              <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
               <Bar dataKey="count" fill="url(#agencyGradFS)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -378,7 +390,7 @@ export default function Dashboard() {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={glassTooltipStyle} />
+              <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} />
             </PieChart>
           </ResponsiveContainer>
         );
@@ -403,7 +415,7 @@ export default function Dashboard() {
                   <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#10b981' : '#eab308'} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={glassTooltipStyle} />
+              <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} />
             </PieChart>
           </ResponsiveContainer>
         );
@@ -420,7 +432,7 @@ export default function Dashboard() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11, fontWeight: "500" }} interval={0} />
               <YAxis />
-              <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+              <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
               <Bar dataKey="count" fill="url(#fundingGradFS)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -438,7 +450,7 @@ export default function Dashboard() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="year" style={{ fontSize: "12px", fontWeight: "600", fill: "#475569" }} />
               <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: 0 }} />
-              <Tooltip contentStyle={glassTooltipStyle} formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
+              <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
               <Legend />
               <Area type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#06b6d4" strokeWidth={3} fill="url(#turnoverGradFS)" activeDot={{ r: 8 }} />
             </AreaChart>
@@ -457,7 +469,7 @@ export default function Dashboard() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11, fontWeight: "500" }} interval={0} />
               <YAxis />
-              <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+              <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
               <Bar dataKey="count" fill="url(#frequencyGradFS)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -475,7 +487,7 @@ export default function Dashboard() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11, fontWeight: "500" }} interval={0} />
               <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: 0 }} />
-              <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, props.payload.fullName]} />
+              <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value, name, props) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, props.payload.fullName]} />
               <Bar dataKey="amountInLakhs" fill="url(#fundingAmountGradFS)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -493,7 +505,7 @@ export default function Dashboard() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 11, fontWeight: "500" }} interval={0} />
               <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: 0 }} />
-              <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, props.payload.fullName]} />
+              <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value, name, props) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, props.payload.fullName]} />
               <Bar dataKey="amountInLakhs" fill="url(#agencyAmountGradFS)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -841,7 +853,7 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="year" style={{ fontSize: "11px", fontWeight: "600", fill: "#64748b" }} />
                   <YAxis label={{ value: 'Rs. Lakhs', angle: -90, position: 'insideLeft', offset: -5 }} style={{ fontSize: "11px", fill: "#64748b" }} />
-                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
+                  <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, "Turnover"]} />
                   <Legend />
                   <Area type="monotone" dataKey="turnoverInLakhs" name="Turnover (Lakhs)" stroke="#06b6d4" strokeWidth={3} fill="url(#turnoverGrad)" activeDot={{ r: 8 }} />
                 </AreaChart>
@@ -880,7 +892,7 @@ export default function Dashboard() {
                       <Cell key={`cell-${index}`} fill={entry.classification_status === 'Completed' ? '#10b981' : '#eab308'} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={glassTooltipStyle} />
+                  <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} />
                 </PieChart>
               </ResponsiveContainer>
             </Box>
@@ -917,7 +929,7 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 9, fontWeight: "500", fill: "#64748b" }} interval={0} />
                   <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
-                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+                  <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
                   <Bar dataKey="count" fill="url(#themeGrad)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -955,7 +967,7 @@ export default function Dashboard() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={glassTooltipStyle} />
+                  <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} />
                 </PieChart>
               </ResponsiveContainer>
             </Box>
@@ -1029,7 +1041,7 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="year" style={{ fontSize: "11px", fontWeight: "600", fill: "#64748b" }} />
                   <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
-                  <Tooltip contentStyle={glassTooltipStyle} />
+                  <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} />
                   <Legend />
                   <Area type="monotone" dataKey="count" name="Projects Count" stroke="#2563eb" strokeWidth={3} fill="url(#yearGrad)" activeDot={{ r: 8 }} />
                 </AreaChart>
@@ -1066,7 +1078,7 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 9, fontWeight: "500", fill: "#64748b" }} interval={0} />
                   <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
-                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+                  <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
                   <Bar dataKey="count" fill="url(#fundingGrad)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -1104,7 +1116,7 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 9, fontWeight: "500", fill: "#64748b" }} interval={0} />
                   <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
-                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
+                  <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value, name, props) => [value, props.payload.fullName]} />
                   <Bar dataKey="count" fill="url(#agencyGrad)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -1178,7 +1190,7 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 9, fontWeight: "500", fill: "#64748b" }} interval={0} />
                   <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
-                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, props.payload.fullName]} />
+                  <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value, name, props) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, props.payload.fullName]} />
                   <Bar dataKey="amountInLakhs" fill="url(#agencyAmountGrad)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -1214,7 +1226,7 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="name" tick={{ angle: -45, textAnchor: 'end', fontSize: 9, fontWeight: "500", fill: "#64748b" }} interval={0} />
                   <YAxis style={{ fontSize: "11px", fill: "#64748b" }} />
-                  <Tooltip contentStyle={glassTooltipStyle} formatter={(value, name, props) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, props.payload.fullName]} />
+                  <Tooltip contentStyle={glassTooltipStyle} itemStyle={tooltipItemStyle} labelStyle={tooltipLabelStyle} formatter={(value, name, props) => [`Rs. ${Number((value * 100000).toFixed(0)).toLocaleString("en-IN")}`, props.payload.fullName]} />
                   <Bar dataKey="amountInLakhs" fill="url(#fundingAmountGrad)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
