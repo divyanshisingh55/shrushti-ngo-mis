@@ -33,7 +33,9 @@ router.post("/:id", async (req, res) => {
     beneficiariesGirls = null,
     outcomeImpactNotes = null,
     images = null,
-    documents = null
+    documents = null,
+    duration_months = null,
+    staff_count = null
   } = req.body;
 
   let finalThemes = themes;
@@ -156,8 +158,10 @@ router.post("/:id", async (req, res) => {
            outcome_impact_notes = $22,
            images = $23,
            documents = $24,
+           duration_months = $25,
+           staff_count = $26,
            updated_at = NOW()
-       WHERE project_id = $25`,
+       WHERE project_id = $27`,
       [
         status,
         projectSummary || null,
@@ -183,6 +187,8 @@ router.post("/:id", async (req, res) => {
         outcomeImpactNotes || null,
         images ? (typeof images === 'string' ? images : JSON.stringify(images)) : null,
         documents ? (typeof documents === 'string' ? documents : JSON.stringify(documents)) : null,
+        duration_months !== "" && duration_months !== null ? Number(duration_months) : null,
+        staff_count !== "" && staff_count !== null ? Number(staff_count) : null,
         projectId
       ]
     );

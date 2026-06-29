@@ -162,6 +162,7 @@ export default function ProjectDetails() {
   const [editDonorAgencyName, setEditDonorAgencyName] = useState("");
   const [editDonorCategory, setEditDonorCategory] = useState("");
   const [editDurationMonths, setEditDurationMonths] = useState("");
+  const [editStaffCount, setEditStaffCount] = useState("");
   const [editDistrict, setEditDistrict] = useState("");
   const [editBlockVillageUlb, setEditBlockVillageUlb] = useState("");
   const [agencySelect, setAgencySelect] = useState("");
@@ -201,6 +202,8 @@ export default function ProjectDetails() {
   const [beneficiariesBoys, setBeneficiariesBoys] = useState("");
   const [beneficiariesGirls, setBeneficiariesGirls] = useState("");
   const [outcomeImpactNotes, setOutcomeImpactNotes] = useState("");
+  const [durationMonths, setDurationMonths] = useState("");
+  const [staffCount, setStaffCount] = useState("");
   const [projectImages, setProjectImages] = useState([]);
   const [inputUrl, setInputUrl] = useState("");
 
@@ -421,6 +424,7 @@ export default function ProjectDetails() {
       setEditDonorAgencyName(proj.donor_agency_name || "");
       setEditDonorCategory(proj.donor_category || "");
       setEditDurationMonths(proj.duration_months || "");
+      setEditStaffCount(proj.staff_count !== null && proj.staff_count !== undefined ? proj.staff_count : "");
       setEditDistrict(proj.district || "");
       setEditBlockVillageUlb(proj.block_village_ulb || "");
 
@@ -538,6 +542,8 @@ export default function ProjectDetails() {
       setBeneficiariesBoys(proj.beneficiaries_boys !== null && proj.beneficiaries_boys !== undefined ? proj.beneficiaries_boys : "");
       setBeneficiariesGirls(proj.beneficiaries_girls !== null && proj.beneficiaries_girls !== undefined ? proj.beneficiaries_girls : "");
       setOutcomeImpactNotes(proj.outcome_impact_notes || "");
+      setDurationMonths(proj.duration_months !== null && proj.duration_months !== undefined ? proj.duration_months : "");
+      setStaffCount(proj.staff_count !== null && proj.staff_count !== undefined ? proj.staff_count : "");
 
       if (proj.images) {
         try {
@@ -631,6 +637,7 @@ export default function ProjectDetails() {
         donor_agency_name: editDonorAgencyName || null,
         donor_category: editDonorCategory || null,
         duration_months: editDurationMonths ? Number(editDurationMonths) : null,
+        staff_count: editStaffCount ? Number(editStaffCount) : null,
         district: editDistrict || null,
         block_village_ulb: editBlockVillageUlb || null,
         doc_no: editDocNo || null
@@ -718,7 +725,9 @@ export default function ProjectDetails() {
         beneficiariesGirls: beneficiariesGirls,
         outcomeImpactNotes: outcomeImpactNotes,
         images: projectImages,
-        documents: projectDocuments
+        documents: projectDocuments,
+        duration_months: durationMonths ? Number(durationMonths) : null,
+        staff_count: staffCount ? Number(staffCount) : null
       });
 
       alert(response.data.message);
@@ -829,6 +838,9 @@ export default function ProjectDetails() {
 
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField fullWidth label="Duration (in Months)" type="number" value={editDurationMonths} onChange={(e) => setEditDurationMonths(e.target.value)} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField fullWidth label="Number of Staff" type="number" value={editStaffCount} onChange={(e) => setEditStaffCount(e.target.value)} />
               </Grid>
 
               <Grid size={12}>
@@ -1043,7 +1055,11 @@ export default function ProjectDetails() {
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Duration (Months)</Typography>
-                <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.duration_months ? `${project.duration_months} Months` : "-"}</Typography>
+                <Typography variant="body1" sx={{ fontWeight: "600", color: "text.primary" }}>{project.duration_months ? `${project.duration_months} Months` : "-"}</Typography>
+              </Grid>
+              <Grid size={{ xs: 6, sm: 6, md: 4 }}>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Number of Staff</Typography>
+                <Typography variant="body1" sx={{ fontWeight: "600", color: "text.primary" }}>{project.staff_count ?? "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>District</Typography>
@@ -1830,6 +1846,39 @@ export default function ProjectDetails() {
                     label="Girls"
                     value={beneficiariesGirls}
                     onChange={(e) => setBeneficiariesGirls(e.target.value)}
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+          </Grid>
+
+          {/* Project Duration & Staffing */}
+          <Grid size={12}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
+              5.5 Project Duration & Staffing
+            </Typography>
+            <Paper variant="outlined" sx={{ p: 3, borderRadius: "12px", border: "1px solid", borderColor: "divider" }}>
+              <Grid container spacing={3}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    size="small"
+                    label="Project Duration (in Months)"
+                    value={durationMonths}
+                    onChange={(e) => setDurationMonths(e.target.value)}
+                    placeholder="Enter project duration in months..."
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    size="small"
+                    label="Number of Staff"
+                    value={staffCount}
+                    onChange={(e) => setStaffCount(e.target.value)}
+                    placeholder="Enter total number of staff..."
                   />
                 </Grid>
               </Grid>

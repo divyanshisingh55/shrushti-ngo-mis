@@ -627,6 +627,7 @@ router.put("/:id", async (req, res) => {
     donor_agency_name,
     donor_category,
     duration_months,
+    staff_count,
     district,
     block_village_ulb,
     doc_no
@@ -653,15 +654,16 @@ router.put("/:id", async (req, res) => {
     const theme1Id = await getOrCreateTheme(theme1);
     const theme2Id = await getOrCreateTheme(theme2);
 
-    const result = await pool.query(
+     const result = await pool.query(
       `UPDATE projects 
        SET project_name = $1, agency_id = $2, year = $3, funding_source_id = $4,
            funding_source2_id = $5, theme1_id = $6, theme2_id = $7, approval_date = $8, 
            sanctioned_amount = $9, status_id = $10, state_id = $11, remarks = $12, 
            funding_type = $13, donor_agency_name = $14, donor_category = $15,
            duration_months = $16, district = $17, block_village_ulb = $18, doc_no = $19,
+           staff_count = $20,
            updated_at = NOW()
-       WHERE project_id = $20
+       WHERE project_id = $21
        RETURNING *`,
       [
         project_name,
@@ -683,6 +685,7 @@ router.put("/:id", async (req, res) => {
         district || null,
         block_village_ulb || null,
         doc_no || null,
+        staff_count ? Number(staff_count) : null,
         id
       ]
     );

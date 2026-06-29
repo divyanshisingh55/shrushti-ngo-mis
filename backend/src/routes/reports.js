@@ -65,6 +65,7 @@ function buildQuery(req) {
       p.beneficiary_counts,
       p.age_groups,
       p.remarks,
+      p.staff_count,
       fs.source_name as funding_source,
       ps.status_name as project_status,
       COALESCE(
@@ -580,6 +581,8 @@ router.get("/export/pdf", async (req, res) => {
         { field: "Name of Project", value: p.project_name },
         { field: "Date of Approval", value: formatDate(p.approval_date) },
         { field: "Sanctioned Amount (Rs.)", value: formatAmount(p.sanctioned_amount) },
+        { field: "Project Duration", value: p.duration_months ? `${p.duration_months} Months` : "" },
+        { field: "Number of Staff", value: p.staff_count ? String(p.staff_count) : "" },
         { field: "Source", value: p.funding_source },
         { field: "Source 2", value: p.funding_source2 },
         { field: "Status", value: p.project_status },
