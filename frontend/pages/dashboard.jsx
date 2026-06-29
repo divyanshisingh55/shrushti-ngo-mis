@@ -174,13 +174,124 @@ export default function Dashboard() {
     return `Rs. ${(amount / 100000).toFixed(2)} Lakhs`;
   };
 
+  const handleThemeSelect = async (themeId, themeName) => {
+    setDialogType('projects-list');
+    setDialogTitle(`Projects under Theme: ${themeName}`);
+    setDialogLoading(true);
+    try {
+      const params = { theme_id: themeId };
+      if (selectedYears.length > 0) {
+        params.year = selectedYears.join(",");
+      }
+      const res = await axios.get("http://localhost:5000/projects", { params });
+      const list = res.data.data || res.data;
+      setDialogData(list);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDialogLoading(false);
+    }
+  };
+
+  const handleCategorySelect = async (catName) => {
+    setDialogType('projects-list');
+    setDialogTitle(`Projects under Category: ${catName}`);
+    setDialogLoading(true);
+    try {
+      const params = { taxonomy_category: catName };
+      if (selectedYears.length > 0) {
+        params.year = selectedYears.join(",");
+      }
+      const res = await axios.get("http://localhost:5000/projects", { params });
+      const list = res.data.data || res.data;
+      setDialogData(list);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDialogLoading(false);
+    }
+  };
+
+  const handleSubCategorySelect = async (subName) => {
+    setDialogType('projects-list');
+    setDialogTitle(`Projects under Sub-category: ${subName}`);
+    setDialogLoading(true);
+    try {
+      const params = { taxonomy_sub_category: subName };
+      if (selectedYears.length > 0) {
+        params.year = selectedYears.join(",");
+      }
+      const res = await axios.get("http://localhost:5000/projects", { params });
+      const list = res.data.data || res.data;
+      setDialogData(list);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDialogLoading(false);
+    }
+  };
+
+  const handleActivitySelect = async (actName) => {
+    setDialogType('projects-list');
+    setDialogTitle(`Projects under Activity: ${actName}`);
+    setDialogLoading(true);
+    try {
+      const params = { taxonomy_activity: actName };
+      if (selectedYears.length > 0) {
+        params.year = selectedYears.join(",");
+      }
+      const res = await axios.get("http://localhost:5000/projects", { params });
+      const list = res.data.data || res.data;
+      setDialogData(list);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDialogLoading(false);
+    }
+  };
+
   const handleKpiClick = async (type) => {
-    if (type === 'projects') {
-      navigate('/projects');
-    } else if (type === 'pending') {
-      navigate('/classify-projects');
-    } else if (type === 'completed') {
-      navigate('/projects');
+    if (type === 'projects' || type === 'completed' || type === 'pending' || type === 'manual' || type === 'sanctioned') {
+      setDialogType('projects-list');
+      
+      let title = 'Projects';
+      const params = { include_archived: false };
+      
+      if (type === 'projects') {
+        title = 'Total Registered Projects';
+      } else if (type === 'completed') {
+        title = 'Completed Classification Projects';
+        params.status = 'Completed';
+      } else if (type === 'pending') {
+        title = 'Pending Classification Projects';
+        params.status = 'Pending';
+      } else if (type === 'manual') {
+        title = 'Manually Classified Projects';
+        params.status = 'Completed';
+      } else if (type === 'sanctioned') {
+        title = 'All Projects (Budget Overview)';
+      }
+      
+      if (selectedYears.length > 0) {
+        params.year = selectedYears.join(",");
+      }
+      
+      setDialogTitle(title);
+      setDialogOpen(true);
+      setDialogLoading(true);
+      
+      try {
+        const res = await axios.get("http://localhost:5000/projects", { params });
+        let list = res.data.data || res.data;
+        if (type === 'manual') {
+          list = list.filter(p => p.classification_method === 'Manual');
+        }
+        setDialogData(list);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setDialogLoading(false);
+      }
     } else if (type === 'agencies') {
       setDialogType('agencies');
       setDialogTitle('All Registered Agencies');
@@ -223,25 +334,6 @@ export default function Dashboard() {
       } finally {
         setDialogLoading(false);
       }
-    } else if (type === 'manual') {
-      setDialogType('projects-list');
-      setDialogTitle('Manually Classified Projects');
-      setDialogLoading(true);
-      setDialogOpen(true);
-      try {
-        const res = await axios.get("http://localhost:5000/projects?include_archived=false");
-        const list = res.data.data || res.data;
-        const filtered = list.filter(p => p.classification_status === 'Completed' && p.classification_method === 'Manual');
-        setDialogData(filtered);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setDialogLoading(false);
-      }
-    } else if (type === 'sanctioned') {
-      setDialogType('sanctioned');
-      setDialogTitle('Budget Information');
-      setDialogOpen(true);
     }
   };
 
@@ -1246,7 +1338,44 @@ export default function Dashboard() {
         }}
       >
         <DialogTitle sx={{ fontWeight: "bold", color: "text.primary", borderBottom: "1px solid", borderColor: "divider", pb: 2 }}>
-          {dialogTitle}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {dialogType === 'projects-list' && dialogTitle.startsWith("Projects under") && (
+              <Button
+                size="small"
+                onClick={async () => {
+                  setDialogType('themes');
+                  setDialogTitle('Registered Themes & Subthemes Taxonomy');
+                  setDialogLoading(true);
+                  try {
+                    const res = await axios.get("http://localhost:5000/taxonomy");
+                    const list = res.data.data?.themes || res.data.themes || res.data.data || [];
+                    setDialogData(list);
+                  } catch (err) {
+                    console.error(err);
+                  } finally {
+                    setDialogLoading(false);
+                  }
+                }}
+                sx={{ 
+                  textTransform: "none", 
+                  mr: 1.5, 
+                  fontWeight: "bold",
+                  color: "#0d9488",
+                  borderColor: "#0d9488",
+                  "&:hover": {
+                    backgroundColor: "rgba(13, 148, 136, 0.08)",
+                    borderColor: "#0d9488"
+                  }
+                }}
+                variant="outlined"
+              >
+                &larr; Back to Taxonomy
+              </Button>
+            )}
+            <Typography variant="h6" sx={{ fontWeight: "bold", color: "text.primary" }}>
+              {dialogTitle}
+            </Typography>
+          </Box>
         </DialogTitle>
         <DialogContent sx={{ mt: 2, maxHeight: "60vh", overflowX: "hidden" }}>
           {dialogLoading ? (
@@ -1296,18 +1425,53 @@ export default function Dashboard() {
                       {dialogData.map((theme) => (
                         <TableRow key={theme.id} hover sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                           <TableCell sx={{ fontWeight: "600", color: "text.secondary", verticalAlign: "top", pt: 2 }}>{theme.id}</TableCell>
-                          <TableCell sx={{ fontWeight: "700", color: (theme) => theme.palette.mode === 'light' ? '#0f766e' : '#2dd4bf', verticalAlign: "top", pt: 2 }}>{theme.name}</TableCell>
+                          <TableCell 
+                            onClick={() => handleThemeSelect(theme.id, theme.name)}
+                            sx={{ 
+                              fontWeight: "700", 
+                              color: (theme) => theme.palette.mode === 'light' ? '#0f766e' : '#2dd4bf', 
+                              verticalAlign: "top", 
+                              pt: 2,
+                              cursor: "pointer",
+                              "&:hover": { textDecoration: "underline" }
+                            }}
+                          >
+                            {theme.name}
+                          </TableCell>
                           <TableCell sx={{ p: 2 }}>
                             {theme.categories && theme.categories.map((cat, cIdx) => (
                               <Box key={cIdx} sx={{ mb: cat.subCategories && cat.subCategories.length > 0 ? 2 : 0, pb: cIdx < theme.categories.length - 1 ? 2 : 0, borderBottom: cIdx < theme.categories.length - 1 ? "1px dashed" : "none", borderBottomColor: "divider" }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: "700", color: "text.primary", mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
+                                <Typography 
+                                  variant="subtitle2" 
+                                  onClick={() => handleCategorySelect(cat.name)}
+                                  sx={{ 
+                                    fontWeight: "700", 
+                                    color: "text.primary", 
+                                    mb: 1, 
+                                    display: "flex", 
+                                    alignItems: "center", 
+                                    gap: 1,
+                                    cursor: "pointer",
+                                    "&:hover": { color: "#0d9488", textDecoration: "underline" }
+                                  }}
+                                >
                                   <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#0d9488" }} />
                                   {cat.name}
                                 </Typography>
                                 <Box sx={{ pl: 2, display: "flex", flexDirection: "column", gap: 1 }}>
                                   {cat.subCategories && cat.subCategories.map((sub, sIdx) => (
                                     <Box key={sIdx} sx={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: 1 }}>
-                                      <Typography variant="caption" sx={{ fontWeight: "600", color: "text.secondary", minWidth: "120px" }}>
+                                      <Typography 
+                                        variant="caption" 
+                                        onClick={() => handleSubCategorySelect(sub.name)}
+                                        sx={{ 
+                                          fontWeight: "600", 
+                                          color: "text.secondary", 
+                                          minWidth: "120px",
+                                          cursor: "pointer",
+                                          "&:hover": { color: "primary.main", textDecoration: "underline" }
+                                        }}
+                                      >
                                         {sub.name} &rarr;
                                       </Typography>
                                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
@@ -1316,12 +1480,19 @@ export default function Dashboard() {
                                             key={aIdx} 
                                             label={act} 
                                             size="small" 
+                                            onClick={() => handleActivitySelect(act)}
                                             sx={{ 
                                               fontSize: "10px", 
                                               bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f1f5f9', 
                                               color: "text.secondary", 
                                               border: "1px solid", borderColor: "divider",
-                                              fontWeight: "500"
+                                              fontWeight: "500",
+                                              cursor: "pointer",
+                                              "&:hover": {
+                                                bgcolor: "rgba(13, 148, 136, 0.1)",
+                                                color: "#0d9488",
+                                                borderColor: "#0d9488"
+                                              }
                                             }} 
                                           />
                                         ))}

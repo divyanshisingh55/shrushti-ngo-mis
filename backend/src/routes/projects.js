@@ -331,6 +331,33 @@ router.get("/", async (req, res) => {
       paramCount++;
     }
 
+    if (req.query.taxonomy_category) {
+      query += ` AND EXISTS (
+        SELECT 1 FROM project_themes pt 
+        WHERE pt.project_id = p.project_id AND pt.taxonomy_category = $${paramCount}
+      )`;
+      values.push(String(req.query.taxonomy_category));
+      paramCount++;
+    }
+
+    if (req.query.taxonomy_sub_category) {
+      query += ` AND EXISTS (
+        SELECT 1 FROM project_themes pt 
+        WHERE pt.project_id = p.project_id AND pt.taxonomy_sub_category = $${paramCount}
+      )`;
+      values.push(String(req.query.taxonomy_sub_category));
+      paramCount++;
+    }
+
+    if (req.query.taxonomy_activity) {
+      query += ` AND EXISTS (
+        SELECT 1 FROM project_themes pt 
+        WHERE pt.project_id = p.project_id AND pt.taxonomy_activity = $${paramCount}
+      )`;
+      values.push(String(req.query.taxonomy_activity));
+      paramCount++;
+    }
+
     // 6. Sub Theme filter
     if (sub_theme_id) {
       query += ` AND EXISTS (
