@@ -167,14 +167,16 @@ export default function FinanceDashboard() {
     const containerId = isFullscreen ? "fullscreen-chart-dialog-content" : `card-${chartKey}`;
     const containerEl = document.getElementById(containerId);
     if (!containerEl) return;
-    let svgEl = containerEl.querySelector(".recharts-surface");
-    if (!svgEl) {
-      const svgs = containerEl.querySelectorAll("svg");
-      for (let i = 0; i < svgs.length; i++) {
-        if (!svgs[i].classList.contains("MuiSvgIcon-root") && !svgs[i].getAttribute("data-testid")) {
-          svgEl = svgs[i];
-          break;
-        }
+    // Find the largest SVG in the container (guaranteed to be the chart SVG rather than legends/icons/dots)
+    const svgs = containerEl.querySelectorAll("svg");
+    let svgEl = null;
+    let maxArea = 0;
+    for (let i = 0; i < svgs.length; i++) {
+      const rect = svgs[i].getBoundingClientRect();
+      const area = rect.width * rect.height;
+      if (area > maxArea) {
+        maxArea = area;
+        svgEl = svgs[i];
       }
     }
     if (!svgEl) return;
