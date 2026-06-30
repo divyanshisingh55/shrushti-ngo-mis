@@ -71,6 +71,9 @@ const TARGET_GROUPS_MAPPING = {
     "adolescent boys",
     "youth boys"
   ],
+  "All gender": [
+    "all gender"
+  ],
   "Women": [
     "SHG members",
     "pregnant women",
@@ -100,6 +103,9 @@ const TARGET_GROUPS_MAPPING = {
     "women farmers",
     "tenant farmers",
     "tribal farmers"
+  ],
+  "Teachers": [
+    "teachers"
   ],
   "Elderly": [
     "Senior citizens",
@@ -591,7 +597,7 @@ export default function Projects() {
           >
             Export CSV
           </Button>
-          {projects.length > 0 && projects.length < 10 && (
+          {projects.length > 0 && (
             <Button
               variant="contained"
               color="error"

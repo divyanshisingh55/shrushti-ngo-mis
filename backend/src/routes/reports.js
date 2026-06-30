@@ -99,10 +99,13 @@ function buildQuery(req) {
       ) as activity_types,
       p.classification_status,
       p.beneficiary_groups,
-      p.beneficiary_cat1
+      p.beneficiary_cat1,
+      p.project_summary,
+      fs2.source_name as funding_source2
     FROM projects p
     LEFT JOIN agencies a ON p.agency_id = a.agency_id
     LEFT JOIN funding_sources fs ON p.funding_source_id = fs.funding_source_id
+    LEFT JOIN funding_sources fs2 ON p.funding_source2_id = fs2.funding_source_id
     LEFT JOIN project_status ps ON p.status_id = ps.status_id
     LEFT JOIN states s ON p.state_id = s.state_id
     WHERE 1 = 1
@@ -286,6 +289,8 @@ function buildQuery(req) {
       beneficiaryCondition = "tg.sub_group = 'SHG Members' OR tg.sub_group = 'SHGs'";
     } else if (beneficiary_group === "Teachers") {
       beneficiaryCondition = "tg.sub_group = 'Teachers'";
+    } else if (beneficiary_group === "All gender") {
+      beneficiaryCondition = "tg.main_group = 'All'";
     } else if (beneficiary_group === "Persons with Disabilities") {
       beneficiaryCondition = "tg.main_group = 'Persons with Disabilities' OR tg.sub_group = 'Children with Disabilities'";
     } else if (beneficiary_group === "Elderly") {
@@ -310,25 +315,54 @@ function buildQuery(req) {
         const filterConditions = [];
         for (const f of filters) {
           if (f.mainGroup) {
-            let condition = `tg.main_group = $${paramCount}`;
-            values.push(f.mainGroup);
+            const currentConditions = [];
+
+            // 1. Check projects columns directly
+            let colCondition = `p.beneficiary_groups ILIKE $${paramCount}`;
+            values.push(`%${f.mainGroup}%`);
             paramCount++;
 
             if (f.subGroups && f.subGroups.length > 0) {
-              condition += ` AND tg.sub_group = ANY($${paramCount})`;
-              values.push(f.subGroups);
-              paramCount++;
+              const subConds = [];
+              f.subGroups.forEach(sg => {
+                subConds.push(`p.beneficiary_cat1 ILIKE $${paramCount}`);
+                values.push(`%${sg}%`);
+                paramCount++;
+              });
+              colCondition += ` AND (${subConds.join(" OR ")})`;
             }
-            filterConditions.push(`(${condition})`);
+            currentConditions.push(`(${colCondition})`);
+
+            // 2. Check target_groups taxonomy table
+            let tgMainGroup = f.mainGroup;
+            if (tgMainGroup === "All gender") {
+              tgMainGroup = "All";
+            }
+            const dbMainGroups = ["All", "Children", "Men", "Women", "Youth"];
+            if (dbMainGroups.includes(tgMainGroup)) {
+              let taxCondition = `tg.main_group = $${paramCount}`;
+              values.push(tgMainGroup);
+              paramCount++;
+
+              if (f.subGroups && f.subGroups.length > 0) {
+                taxCondition += ` AND tg.sub_group = ANY($${paramCount})`;
+                values.push(f.subGroups);
+                paramCount++;
+              }
+
+              currentConditions.push(`EXISTS (
+                SELECT 1 FROM project_target_groups ptg
+                JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
+                WHERE ptg.project_id = p.project_id AND (${taxCondition})
+              )`);
+            }
+
+            filterConditions.push(`(${currentConditions.join(" OR ")})`);
           }
         }
 
         if (filterConditions.length > 0) {
-          query += ` AND EXISTS (
-            SELECT 1 FROM project_target_groups ptg
-            JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
-            WHERE ptg.project_id = p.project_id AND (${filterConditions.join(" OR ")})
-          )`;
+          query += ` AND (${filterConditions.join(" AND ")})`;
         }
       }
     } catch (err) {
@@ -519,10 +553,6 @@ router.get("/export/pdf", async (req, res) => {
       return res.status(404).json({ success: false, message: "No projects found to export." });
     }
 
-    if (result.rows.length >= 10) {
-      return res.status(400).json({ success: false, message: "PDF export is only available for below 10 projects." });
-    }
-
     // Helper functions for formatting
     function formatDate(dateStr) {
       if (!dateStr) return "";
@@ -642,13 +672,13 @@ router.get("/export/pdf", async (req, res) => {
         const prefix = idx === 0 ? "Primary Theme" : `Theme ${idx + 1}`;
         tableRows.push({ field: prefix, value: row.theme_name });
         if (row.taxonomy_category) {
-          tableRows.push({ field: "  └─ Category (Subtheme 1)", value: row.taxonomy_category });
+          tableRows.push({ field: "  - Category (Subtheme 1)", value: row.taxonomy_category });
         }
         if (row.taxonomy_sub_category) {
-          tableRows.push({ field: "  └─ Sub-category (Subtheme 2)", value: row.taxonomy_sub_category });
+          tableRows.push({ field: "  - Sub-category (Subtheme 2)", value: row.taxonomy_sub_category });
         }
         if (row.taxonomy_activity) {
-          tableRows.push({ field: "  └─ Activity (Subtheme 3)", value: row.taxonomy_activity });
+          tableRows.push({ field: "  - Activity (Subtheme 3)", value: row.taxonomy_activity });
         }
       });
 

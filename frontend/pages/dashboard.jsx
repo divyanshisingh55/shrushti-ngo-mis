@@ -337,6 +337,20 @@ export default function Dashboard() {
     }
   };
 
+  const handleUnclassifyProject = async (projectId) => {
+    if (!window.confirm("Are you sure you want to move this project back to the unclassified section? This will reset all theme classifications, target groups, and beneficiary counts.")) {
+      return;
+    }
+    try {
+      await axios.post(`http://localhost:5000/projects/${projectId}/unclassify`);
+      alert("Project moved to unclassified successfully.");
+      setDialogData(prev => prev.filter(p => p.project_id !== projectId));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to move project to unclassified.");
+    }
+  };
+
   const getFullscreenChartTitle = () => {
     switch (fullscreenChart) {
       case 'theme': return 'Projects by Primary Theme';
@@ -1519,12 +1533,13 @@ export default function Dashboard() {
                         <TableCell sx={{ fontWeight: "bold" }}>Project Name</TableCell>
                         <TableCell sx={{ fontWeight: "bold" }}>Financial Year</TableCell>
                         <TableCell sx={{ fontWeight: "bold" }}>Sanctioned Amount</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {dialogData.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={4} align="center">No projects found</TableCell>
+                          <TableCell colSpan={5} align="center">No projects found</TableCell>
                         </TableRow>
                       ) : (
                         dialogData.map((row) => (
@@ -1537,6 +1552,23 @@ export default function Dashboard() {
                             </TableCell>
                             <TableCell>{row.year}</TableCell>
                             <TableCell>{row.sanctioned_amount ? `Rs. ${Number(row.sanctioned_amount).toLocaleString("en-IN")}` : "-"}</TableCell>
+                            <TableCell>
+                              {row.classification_status === 'Completed' ? (
+                                <Button
+                                  variant="outlined"
+                                  color="warning"
+                                  size="small"
+                                  onClick={() => handleUnclassifyProject(row.project_id)}
+                                  sx={{ textTransform: "none", fontSize: "0.75rem", py: 0.25 }}
+                                >
+                                  Move to Unclassified
+                                </Button>
+                              ) : (
+                                <Typography variant="caption" sx={{ color: "text.secondary", fontStyle: "italic" }}>
+                                  Unclassified
+                                </Typography>
+                              )}
+                            </TableCell>
                           </TableRow>
                         ))
                       )}

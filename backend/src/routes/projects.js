@@ -437,6 +437,8 @@ router.get("/", async (req, res) => {
         beneficiaryCondition = "tg.sub_group = 'SHG Members' OR tg.sub_group = 'SHGs'";
       } else if (beneficiary_group === "Teachers") {
         beneficiaryCondition = "tg.sub_group = 'Teachers'";
+      } else if (beneficiary_group === "All gender") {
+        beneficiaryCondition = "tg.main_group = 'All'";
       } else if (beneficiary_group === "Persons with Disabilities") {
         beneficiaryCondition = "tg.main_group = 'Persons with Disabilities' OR tg.sub_group = 'Children with Disabilities'";
       } else if (beneficiary_group === "Elderly") {
@@ -461,25 +463,54 @@ router.get("/", async (req, res) => {
           const filterConditions = [];
           for (const f of filters) {
             if (f.mainGroup) {
-              let condition = `tg.main_group = $${paramCount}`;
-              values.push(f.mainGroup);
+              const currentConditions = [];
+
+              // 1. Check projects columns directly
+              let colCondition = `p.beneficiary_groups ILIKE $${paramCount}`;
+              values.push(`%${f.mainGroup}%`);
               paramCount++;
 
               if (f.subGroups && f.subGroups.length > 0) {
-                condition += ` AND tg.sub_group = ANY($${paramCount})`;
-                values.push(f.subGroups);
-                paramCount++;
+                const subConds = [];
+                f.subGroups.forEach(sg => {
+                  subConds.push(`p.beneficiary_cat1 ILIKE $${paramCount}`);
+                  values.push(`%${sg}%`);
+                  paramCount++;
+                });
+                colCondition += ` AND (${subConds.join(" OR ")})`;
               }
-              filterConditions.push(`(${condition})`);
+              currentConditions.push(`(${colCondition})`);
+
+              // 2. Check target_groups taxonomy table
+              let tgMainGroup = f.mainGroup;
+              if (tgMainGroup === "All gender") {
+                tgMainGroup = "All";
+              }
+              const dbMainGroups = ["All", "Children", "Men", "Women", "Youth"];
+              if (dbMainGroups.includes(tgMainGroup)) {
+                let taxCondition = `tg.main_group = $${paramCount}`;
+                values.push(tgMainGroup);
+                paramCount++;
+
+                if (f.subGroups && f.subGroups.length > 0) {
+                  taxCondition += ` AND tg.sub_group = ANY($${paramCount})`;
+                  values.push(f.subGroups);
+                  paramCount++;
+                }
+
+                currentConditions.push(`EXISTS (
+                  SELECT 1 FROM project_target_groups ptg
+                  JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
+                  WHERE ptg.project_id = p.project_id AND (${taxCondition})
+                )`);
+              }
+
+              filterConditions.push(`(${currentConditions.join(" OR ")})`);
             }
           }
 
           if (filterConditions.length > 0) {
-            query += ` AND EXISTS (
-              SELECT 1 FROM project_target_groups ptg
-              JOIN target_groups tg ON ptg.target_group_id = tg.target_group_id
-              WHERE ptg.project_id = p.project_id AND (${filterConditions.join(" OR ")})
-            )`;
+            query += ` AND (${filterConditions.join(" AND ")})`;
           }
         }
       } catch (err) {
@@ -894,4 +925,78 @@ router.post("/:id/unarchive", async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+/*
+=========================================
+UNCLASSIFY PROJECT
+=========================================
+*/
+router.post("/:id/unclassify", async (req, res) => {
+  const { id } = req.params;
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    
+    // Update project classification fields to Pending/null
+    const result = await client.query(
+      `UPDATE projects 
+       SET classification_status = 'Pending', 
+           classification_method = null,
+           theme1_id = null,
+           theme2_id = null,
+           age_groups = null,
+           beneficiary_groups = null,
+           beneficiary_cat1 = null,
+           beneficiary_cat2 = null,
+           beneficiary_cat3 = null,
+           beneficiary_cat4 = null,
+           area_type = null,
+           rural_subtype = null,
+           urban_subtype = null,
+           settlement_detail = null,
+           geography_notes = null,
+           beneficiary_counts = null,
+           total_beneficiaries = null,
+           direct_beneficiaries = null,
+           indirect_beneficiaries = null,
+           beneficiaries_male = null,
+           beneficiaries_female = null,
+           beneficiaries_boys = null,
+           beneficiaries_girls = null,
+           outcome_impact_notes = null,
+           images = null,
+           documents = null,
+           duration_months = null,
+           staff_count = null,
+           start_date = null,
+           end_date = null,
+           updated_at = NOW() 
+       WHERE project_id = $1 
+       RETURNING project_id`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ success: false, message: "Project not found" });
+    }
+
+    // Delete mapping records
+    await client.query("DELETE FROM project_themes WHERE project_id = $1", [id]);
+    await client.query("DELETE FROM project_sub_themes WHERE project_id = $1", [id]);
+    await client.query("DELETE FROM project_target_groups WHERE project_id = $1", [id]);
+    await client.query("DELETE FROM project_activity_types WHERE project_id = $1", [id]);
+    await client.query("DELETE FROM project_sdgs WHERE project_id = $1", [id]);
+
+    await client.query("COMMIT");
+    res.json({ success: true, message: "Project moved to unclassified successfully", projectId: id });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Unclassify Project Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  } finally {
+    client.release();
+  }
+});
+
 module.exports = router;

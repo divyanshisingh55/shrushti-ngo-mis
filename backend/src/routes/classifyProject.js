@@ -9,6 +9,8 @@ router.post("/:id", async (req, res) => {
     subThemeIds = [],
     targetGroupIds = [],
     activityTypeIds = [],
+    startDate = null,
+    endDate = null,
     themes = [], // [{ themeId, subThemeIds }]
     sdgIds = [],
     projectSummary = '',
@@ -160,8 +162,10 @@ router.post("/:id", async (req, res) => {
            documents = $24,
            duration_months = $25,
            staff_count = $26,
+           start_date = $27,
+           end_date = $28,
            updated_at = NOW()
-       WHERE project_id = $27`,
+       WHERE project_id = $29`,
       [
         status,
         projectSummary || null,
@@ -189,6 +193,8 @@ router.post("/:id", async (req, res) => {
         documents ? (typeof documents === 'string' ? documents : JSON.stringify(documents)) : null,
         duration_months !== "" && duration_months !== null ? Number(duration_months) : null,
         staff_count !== "" && staff_count !== null ? Number(staff_count) : null,
+        startDate || null,
+        endDate || null,
         projectId
       ]
     );

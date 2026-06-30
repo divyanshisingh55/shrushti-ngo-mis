@@ -7,14 +7,13 @@ import {
   Paper,
   TextField,
   FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Button,
   Grid,
   Alert,
   CircularProgress,
-  Stack
+  Stack,
+  Chip,
+  Autocomplete
 } from "@mui/material";
 import {
   Save as SaveIcon,
@@ -51,7 +50,7 @@ export default function AddProject() {
   const [fundingSelect2, setFundingSelect2] = useState("");
   const [customFunding2, setCustomFunding2] = useState("");
   const [fcraNature, setFcraNature] = useState("");
-  const [selectedStates, setSelectedStates] = useState([{ state_id: "", custom_name: "" }]);
+  const [selectedStates, setSelectedStates] = useState([]);
 
   // Database lists
   const [agencies, setAgencies] = useState([]);
@@ -66,19 +65,7 @@ export default function AddProject() {
     fetchMetadata();
   }, []);
 
-  const handleStateChange = (index, field, value) => {
-    const updated = [...selectedStates];
-    updated[index][field] = value;
-    setSelectedStates(updated);
-  };
 
-  const handleAddStateRow = () => {
-    setSelectedStates([...selectedStates, { state_id: "", custom_name: "" }]);
-  };
-
-  const handleRemoveStateRow = (index) => {
-    setSelectedStates(selectedStates.filter((_, idx) => idx !== index));
-  };
 
   const fetchMetadata = async () => {
     try {
@@ -124,13 +111,10 @@ export default function AddProject() {
     const fundingVal = fundingSelect === "custom" ? customFunding : fundingSelect;
     const fundingVal2 = fundingSelect2 === "custom" ? customFunding2 : fundingSelect2;
 
-    // Resolve states array
-    const resolvedStates = selectedStates.map(stObj => {
-      return stObj.state_id === "custom" ? stObj.custom_name : stObj.state_id;
-    }).filter(Boolean);
+    const resolvedStates = selectedStates.map(s => s.state_id);
 
     if (resolvedStates.length === 0) {
-      setError("At least one State is required.");
+      setError("Please select at least one State.");
       return;
     }
 
@@ -479,67 +463,33 @@ export default function AddProject() {
               </Typography>
             </Grid>
 
-            {/* State (Multiple Selection) */}
-            <Grid size={12}>
-              <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1, color: "#475569" }}>
-                Select States *
-              </Typography>
-              {selectedStates.map((stObj, index) => (
-                <Grid container spacing={2} key={index} sx={{ mb: 2, alignItems: "center" }}>
-                  <Grid size={{ xs: 12, sm: 5 }}>
-                    <FormControl fullWidth required>
-                      <InputLabel>State</InputLabel>
-                      <Select
-                        value={stObj.state_id}
-                        label="State"
-                        onChange={(e) => handleStateChange(index, "state_id", e.target.value)}
-                      >
-                        <MenuItem value="">Select State</MenuItem>
-                        {states.map((s) => (
-                          <MenuItem key={s.state_id} value={s.state_id}>{s.state_name}</MenuItem>
-                        ))}
-                        <MenuItem value="custom" sx={{ fontStyle: "italic", color: "#2563eb", fontWeight: "bold" }}>
-                          + Add New State
-                        </MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 5 }}>
-                    {stObj.state_id === "custom" && (
-                      <TextField
-                        fullWidth
-                        label="Enter New State Name"
-                        required
-                        variant="outlined"
-                        size="small"
-                        value={stObj.custom_name}
-                        onChange={(e) => handleStateChange(index, "custom_name", e.target.value)}
-                      />
-                    )}
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 2 }}>
-                    {selectedStates.length > 1 && (
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={() => handleRemoveStateRow(index)}
-                        sx={{ textTransform: "none", fontWeight: "bold" }}
-                      >
-                        Remove
-                      </Button>
-                    )}
-                  </Grid>
-                </Grid>
-              ))}
-              <Button
-                variant="outlined"
-                color="primary"
-                size="small"
-                onClick={handleAddStateRow}
-                sx={{ textTransform: "none", fontWeight: "bold", mt: 1 }}
-              >
-                + Add Another State
-              </Button>
+            {/* State */}
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Autocomplete
+                multiple
+                options={states}
+                getOptionLabel={(option) => option.state_name}
+                value={selectedStates}
+                onChange={(_, newValue) => setSelectedStates(newValue)}
+                isOptionEqualToValue={(opt, val) => opt.state_id === val.state_id}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip
+                      key={option.state_id}
+                      label={option.state_name}
+                      size="small"
+                      {...getTagProps({ index })}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="State(s)"
+                    placeholder={selectedStates.length === 0 ? "Select one or more states" : ""}
+                  />
+                )}
+              />
             </Grid>
 
             {/* District */}

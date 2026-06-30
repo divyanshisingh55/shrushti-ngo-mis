@@ -34,6 +34,8 @@ import {
   PictureAsPdf as PdfIcon
 } from "@mui/icons-material";
 
+const AGE_PRESETS = ["0-3", "0-6", "3-6", "4-14", "6-14", "15-18", "19-35", "36-59", "60+"];
+
 export default function ProjectDetails() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -104,6 +106,9 @@ export default function ProjectDetails() {
       "adolescent boys",
       "youth boys"
     ],
+    "All gender": [
+      "all gender"
+    ],
     "Women": [
       "SHG members",
       "pregnant women",
@@ -133,6 +138,9 @@ export default function ProjectDetails() {
       "women farmers",
       "tenant farmers",
       "tribal farmers"
+    ],
+    "Teachers": [
+      "teachers"
     ],
     "Elderly": [
       "Senior citizens",
@@ -176,7 +184,7 @@ export default function ProjectDetails() {
   const [fundingSelect2, setFundingSelect2] = useState("");
   const [customFunding2, setCustomFunding2] = useState("");
   const [fcraNature, setFcraNature] = useState("");
-  const [selectedStates, setSelectedStates] = useState([{ state_id: "", custom_name: "" }]);
+  const [selectedStates, setSelectedStates] = useState([]);
 
   // Classification States — 4-level taxonomy shape with multiple subthemes under one theme
   const [selectedThemes, setSelectedThemes] = useState([{ themeId: "", subThemes: [{ category: "", subCategory: "", activity: "" }] }]);
@@ -209,6 +217,8 @@ export default function ProjectDetails() {
   const [outcomeImpactNotes, setOutcomeImpactNotes] = useState("");
   const [durationMonths, setDurationMonths] = useState("");
   const [staffCount, setStaffCount] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [projectImages, setProjectImages] = useState([]);
   const [inputUrl, setInputUrl] = useState("");
 
@@ -221,6 +231,25 @@ export default function ProjectDetails() {
   const handleBeneficiaryCountChange = (index, field, value) => {
     const updated = [...beneficiaryCounts];
     updated[index][field] = value;
+
+    if (field === "type") {
+      if (value === "Indirect") {
+        updated[index].ageGroup = "";
+        if (updated[index].educationStage === "ECCE") {
+          updated[index].educationStage = "";
+        }
+        const indirectGenders = ["Parents", "Community members", "Teachers", "PRI members"];
+        if (!indirectGenders.includes(updated[index].gender)) {
+          updated[index].gender = "";
+        }
+      } else {
+        const directGenders = ["Male", "Female", "Boy", "Girl", "Transgender", "All gender", "Other", "Not specified"];
+        if (!directGenders.includes(updated[index].gender)) {
+          updated[index].gender = "";
+        }
+      }
+    }
+
     setBeneficiaryCounts(updated);
   };
 
@@ -315,19 +344,17 @@ export default function ProjectDetails() {
     loadData();
   }, [id]);
 
-  const handleStateChange = (index, field, value) => {
-    const updated = [...selectedStates];
-    updated[index][field] = value;
-    setSelectedStates(updated);
-  };
+  useEffect(() => {
+    if (directBeneficiaries === "" && indirectBeneficiaries === "") {
+      setTotalBeneficiaries("");
+    } else {
+      const direct = parseInt(directBeneficiaries, 10) || 0;
+      const indirect = parseInt(indirectBeneficiaries, 10) || 0;
+      setTotalBeneficiaries(String(direct + indirect));
+    }
+  }, [directBeneficiaries, indirectBeneficiaries]);
 
-  const handleAddStateRow = () => {
-    setSelectedStates([...selectedStates, { state_id: "", custom_name: "" }]);
-  };
 
-  const handleRemoveStateRow = (index) => {
-    setSelectedStates(selectedStates.filter((_, idx) => idx !== index));
-  };
 
   const handleThemeChange = (index, themeId) => {
     const updated = [...selectedThemes];
@@ -438,11 +465,12 @@ export default function ProjectDetails() {
       setFundingSelect(proj.funding_source_id || "");
       setFundingSelect2(proj.funding_source2_id || "");
 
-      if (proj.state_ids && proj.state_ids.length > 0) {
-        setSelectedStates(proj.state_ids.map(sid => ({ state_id: sid, custom_name: "" })));
-      } else {
-        setSelectedStates([{ state_id: proj.state_id || "", custom_name: "" }]);
-      }
+      // Populate selectedStates as array of full state objects for Autocomplete
+      const existingIds = proj.state_ids && proj.state_ids.length > 0
+        ? proj.state_ids
+        : (proj.state_id ? [proj.state_id] : []);
+      // We set a temporary placeholder; will be resolved once states list loads
+      setSelectedStates(existingIds.map(id => ({ state_id: id, state_name: "" })));
 
       // Pre-populate classification dropdowns
       if (proj.classification) {
@@ -550,6 +578,8 @@ export default function ProjectDetails() {
       setOutcomeImpactNotes(proj.outcome_impact_notes || "");
       setDurationMonths(proj.duration_months !== null && proj.duration_months !== undefined ? proj.duration_months : "");
       setStaffCount(proj.staff_count !== null && proj.staff_count !== undefined ? proj.staff_count : "");
+      setStartDate(proj.start_date ? proj.start_date.substring(0, 10) : "");
+      setEndDate(proj.end_date ? proj.end_date.substring(0, 10) : "");
 
       if (proj.images) {
         try {
@@ -604,6 +634,13 @@ export default function ProjectDetails() {
       setAgencies(agenciesRes.data);
       setFundingSources(fundingRes.data);
       setStates(statesRes.data);
+      // After states are loaded, resolve the state names in selectedStates
+      setSelectedStates(prev =>
+        prev.map(sel => {
+          const match = statesRes.data.find(s => s.state_id === sel.state_id || s.state_id === Number(sel.state_id));
+          return match ? match : sel;
+        }).filter(s => s.state_name)
+      );
       setStatuses(statusesRes.data.filter(s => s.status_name === 'Pending' || s.status_name === 'Ongoing'));
       setSdgs(sdgsRes.data);
       setTaxonomy(taxonomyRes.data.data?.themes || []);
@@ -623,9 +660,7 @@ export default function ProjectDetails() {
     const fundingVal = fundingSelect === "custom" ? customFunding : fundingSelect;
     const fundingVal2 = fundingSelect2 === "custom" ? customFunding2 : fundingSelect2;
 
-    const resolvedStates = selectedStates.map(stObj => {
-      return stObj.state_id === "custom" ? stObj.custom_name : stObj.state_id;
-    }).filter(Boolean);
+    const resolvedStates = selectedStates.map(s => s.state_id).filter(Boolean);
 
     const isFcraSelected = 
       (fundingSelect && fundingSources.find(f => f.funding_source_id === Number(fundingSelect))?.source_name === 'FCRA') || 
@@ -714,7 +749,7 @@ export default function ProjectDetails() {
       const response = await axios.post(`http://localhost:5000/classify-project/${id}`, {
         themes: activeThemes,
         targetGroupIds: selectedTargetGroups,
-        activityTypeIds: selectedActivityTypes,
+        activityTypeIds: [],
         sdgIds: selectedSdgs,
         projectSummary: projectSummary,
         beneficiaryGroups: selectedBeneficiaries.map(x => x.mainGroup).filter(Boolean),
@@ -740,7 +775,9 @@ export default function ProjectDetails() {
         images: projectImages,
         documents: projectDocuments,
         duration_months: durationMonths ? Number(durationMonths) : null,
-        staff_count: staffCount ? Number(staffCount) : null
+        staff_count: staffCount ? Number(staffCount) : null,
+        startDate: startDate || null,
+        endDate: endDate || null
       });
 
       alert(response.data.message);
@@ -937,10 +974,6 @@ export default function ProjectDetails() {
               </Grid>
 
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField fullWidth label="Donor Agency Name" value={editDonorAgencyName} onChange={(e) => setEditDonorAgencyName(e.target.value)} />
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Donor Category</InputLabel>
                   <Select value={editDonorCategory} label="Donor Category" onChange={(e) => setEditDonorCategory(e.target.value)}>
@@ -957,62 +990,31 @@ export default function ProjectDetails() {
               </Grid>
 
               <Grid size={12}>
-                <Typography variant="caption" sx={{ fontWeight: "bold", mb: 1, color: "#475569", display: "block" }}>
-                  Select States *
-                </Typography>
-                {selectedStates.map((stObj, index) => (
-                  <Grid container spacing={2} key={index} sx={{ mb: 2, alignItems: "center" }}>
-                    <Grid size={{ xs: 12, sm: 5 }}>
-                      <FormControl fullWidth required>
-                        <InputLabel>State</InputLabel>
-                        <Select
-                          value={stObj.state_id}
-                          label="State"
-                          onChange={(e) => handleStateChange(index, "state_id", e.target.value)}
-                        >
-                          <MenuItem value="">Select State</MenuItem>
-                          {states.map((s) => (
-                            <MenuItem key={s.state_id} value={s.state_id}>{s.state_name}</MenuItem>
-                          ))}
-                          <MenuItem value="custom" sx={{ color: "#3b82f6", fontWeight: "bold" }}>+ Add New State</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 5 }}>
-                      {stObj.state_id === "custom" && (
-                        <TextField
-                          fullWidth
-                          label="Custom State Name"
-                          required
-                          size="small"
-                          value={stObj.custom_name}
-                          onChange={(e) => handleStateChange(index, "custom_name", e.target.value)}
-                        />
-                      )}
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 2 }}>
-                      {selectedStates.length > 1 && (
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          onClick={() => handleRemoveStateRow(index)}
-                          sx={{ textTransform: "none", fontWeight: "bold" }}
-                        >
-                          Remove
-                        </Button>
-                      )}
-                    </Grid>
-                  </Grid>
-                ))}
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  size="small"
-                  onClick={handleAddStateRow}
-                  sx={{ textTransform: "none", fontWeight: "bold", mt: 1 }}
-                >
-                  + Add Another State
-                </Button>
+                <Autocomplete
+                  multiple
+                  options={states}
+                  getOptionLabel={(option) => option.state_name || ""}
+                  value={selectedStates}
+                  onChange={(_, newValue) => setSelectedStates(newValue)}
+                  isOptionEqualToValue={(opt, val) => opt.state_id === val.state_id}
+                  renderTags={(value, getTagProps) =>
+                    value.map((option, index) => (
+                      <Chip
+                        key={option.state_id}
+                        label={option.state_name}
+                        size="small"
+                        {...getTagProps({ index })}
+                      />
+                    ))
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="State(s)"
+                      placeholder={selectedStates.length === 0 ? "Select one or more states" : ""}
+                    />
+                  )}
+                />
               </Grid>
 
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -1087,7 +1089,19 @@ export default function ProjectDetails() {
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Approval Date</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>
-                  {project.approval_date ? new Date(project.approval_date).toLocaleDateString() : "-"}
+                  {project.approval_date ? new Date(project.approval_date).toLocaleDateString("en-GB") : "-"}
+                </Typography>
+              </Grid>
+              <Grid size={{ xs: 6, sm: 6, md: 4 }}>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Start Date</Typography>
+                <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>
+                  {project.start_date ? new Date(project.start_date).toLocaleDateString("en-GB") : "-"}
+                </Typography>
+              </Grid>
+              <Grid size={{ xs: 6, sm: 6, md: 4 }}>
+                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>End Date</Typography>
+                <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>
+                  {project.end_date ? new Date(project.end_date).toLocaleDateString("en-GB") : "-"}
                 </Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
@@ -1099,10 +1113,6 @@ export default function ProjectDetails() {
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Funding Type</Typography>
                 <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.funding_type || "-"}</Typography>
-              </Grid>
-              <Grid size={{ xs: 6, sm: 6, md: 4 }}>
-                <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Donor Agency Name</Typography>
-                <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155" }}>{project.donor_agency_name || "-"}</Typography>
               </Grid>
               <Grid size={{ xs: 6, sm: 6, md: 4 }}>
                 <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Donor Category</Typography>
@@ -1251,7 +1261,7 @@ export default function ProjectDetails() {
             )}
 
             <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid", borderColor: "divider" }}>
                   <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Theme Suggestion (Confidence: {aiSuggestion.themeConfidence}%)</Typography>
                   <Typography variant="body1" sx={{ fontWeight: "600", color: "#334155", mt: 0.5 }}>
@@ -1259,7 +1269,7 @@ export default function ProjectDetails() {
                   </Typography>
                 </Paper>
               </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid", borderColor: "divider" }}>
                   <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Sub-Themes Suggestion (Confidence: {aiSuggestion.subThemeConfidence}%)</Typography>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
@@ -1270,24 +1280,13 @@ export default function ProjectDetails() {
                   </Box>
                 </Paper>
               </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid", borderColor: "divider" }}>
                   <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Target Groups Suggestion (Confidence: {aiSuggestion.targetGroupConfidence}%)</Typography>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
                     {aiSuggestion.targetGroupIds.length === 0 ? "-" : aiSuggestion.targetGroupIds.map(tgId => {
                       const tg = targetGroups.find(x => x.target_group_id === tgId);
                       return tg ? <Chip key={tgId} label={`${tg.main_group} - ${tg.sub_group}`} size="small" variant="outlined" /> : null;
-                    })}
-                  </Box>
-                </Paper>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <Paper sx={{ p: 2, borderRadius: "8px", border: "1px solid", borderColor: "divider" }}>
-                  <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>Activity Types Suggestion (Confidence: {aiSuggestion.activityConfidence}%)</Typography>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}>
-                    {aiSuggestion.activityTypeIds.length === 0 ? "-" : aiSuggestion.activityTypeIds.map(atId => {
-                      const at = activityTypes.find(x => x.activity_type_id === atId);
-                      return at ? <Chip key={atId} label={at.activity_type_name} size="small" variant="outlined" /> : null;
                     })}
                   </Box>
                 </Paper>
@@ -1305,7 +1304,6 @@ export default function ProjectDetails() {
                   }]);
                 }
                 setSelectedTargetGroups(aiSuggestion.targetGroupIds || []);
-                setSelectedActivityTypes(aiSuggestion.activityTypeIds || []);
               }}
               sx={{
                 textTransform: "none",
@@ -1621,7 +1619,7 @@ export default function ProjectDetails() {
                 </Typography>
                 <Grid container spacing={2}>
                   {/* Beneficiary Type */}
-                  <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
+                  <Grid size={{ xs: 12, sm: 6, md: bc.type === "Indirect" ? 3 : 2.4 }}>
                     <FormControl fullWidth size="small" required>
                       <InputLabel>Beneficiary Type</InputLabel>
                       <Select
@@ -1638,7 +1636,7 @@ export default function ProjectDetails() {
                   </Grid>
 
                   {/* Gender */}
-                  <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
+                  <Grid size={{ xs: 12, sm: 6, md: bc.type === "Indirect" ? 3 : 2.4 }}>
                     <FormControl fullWidth size="small" required>
                       <InputLabel>Gender</InputLabel>
                       <Select
@@ -1647,39 +1645,71 @@ export default function ProjectDetails() {
                         onChange={(e) => handleBeneficiaryCountChange(index, "gender", e.target.value)}
                       >
                         <MenuItem value="">Select Gender</MenuItem>
-                        <MenuItem value="Male">Male</MenuItem>
-                        <MenuItem value="Female">Female</MenuItem>
-                        <MenuItem value="Boy">Boy</MenuItem>
-                        <MenuItem value="Girl">Girl</MenuItem>
-                        <MenuItem value="Transgender">Transgender</MenuItem>
-                        <MenuItem value="Other">Other</MenuItem>
-                        <MenuItem value="Not specified">Not specified</MenuItem>
+                        {bc.type === "Indirect" ? [
+                          <MenuItem key="Parents" value="Parents">Parents</MenuItem>,
+                          <MenuItem key="Community members" value="Community members">Community members</MenuItem>,
+                          <MenuItem key="Teachers" value="Teachers">Teachers</MenuItem>,
+                          <MenuItem key="PRI members" value="PRI members">PRI members</MenuItem>
+                        ] : [
+                          <MenuItem key="Male" value="Male">Male</MenuItem>,
+                          <MenuItem key="Female" value="Female">Female</MenuItem>,
+                          <MenuItem key="Boy" value="Boy">Boy</MenuItem>,
+                          <MenuItem key="Girl" value="Girl">Girl</MenuItem>,
+                          <MenuItem key="Transgender" value="Transgender">Transgender</MenuItem>,
+                          <MenuItem key="All gender" value="All gender">All gender</MenuItem>,
+                          <MenuItem key="Other" value="Other">Other</MenuItem>,
+                          <MenuItem key="Not specified" value="Not specified">Not specified</MenuItem>
+                        ]}
                       </Select>
                     </FormControl>
                   </Grid>
 
                   {/* Age Group */}
-                  <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
-                    <FormControl fullWidth size="small" required>
-                      <InputLabel>Age Group</InputLabel>
-                      <Select
-                        value={bc.ageGroup}
-                        label="Age Group"
-                        onChange={(e) => handleBeneficiaryCountChange(index, "ageGroup", e.target.value)}
-                      >
-                        <MenuItem value="">Select Age Group</MenuItem>
-                        <MenuItem value="0-6">0-6</MenuItem>
-                        <MenuItem value="6-14">6-14</MenuItem>
-                        <MenuItem value="15-18">15-18</MenuItem>
-                        <MenuItem value="19-35">19-35</MenuItem>
-                        <MenuItem value="36-59">36-59</MenuItem>
-                        <MenuItem value="60+">60+</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
+                  {bc.type !== "Indirect" && (
+                    <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
+                      <FormControl fullWidth size="small" required>
+                        <InputLabel>Age Group</InputLabel>
+                        <Select
+                          value={AGE_PRESETS.includes(bc.ageGroup) ? bc.ageGroup : (bc.ageGroup ? "Other" : "")}
+                          label="Age Group"
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "Other") {
+                              handleBeneficiaryCountChange(index, "ageGroup", "Custom Age");
+                            } else {
+                              handleBeneficiaryCountChange(index, "ageGroup", val);
+                            }
+                          }}
+                        >
+                          <MenuItem value="">Select Age Group</MenuItem>
+                          <MenuItem value="0-3">0-3</MenuItem>
+                          <MenuItem value="0-6">0-6</MenuItem>
+                          <MenuItem value="3-6">3-6</MenuItem>
+                          <MenuItem value="4-14">4-14</MenuItem>
+                          <MenuItem value="6-14">6-14</MenuItem>
+                          <MenuItem value="15-18">15-18</MenuItem>
+                          <MenuItem value="19-35">19-35</MenuItem>
+                          <MenuItem value="36-59">36-59</MenuItem>
+                          <MenuItem value="60+">60+</MenuItem>
+                          <MenuItem value="Other">Other (Specify)</MenuItem>
+                        </Select>
+                      </FormControl>
+                      {bc.ageGroup && !AGE_PRESETS.includes(bc.ageGroup) && (
+                        <TextField
+                          size="small"
+                          fullWidth
+                          label="Specify Age Group"
+                          value={bc.ageGroup === "Custom Age" ? "" : bc.ageGroup}
+                          onChange={(e) => handleBeneficiaryCountChange(index, "ageGroup", e.target.value)}
+                          sx={{ mt: 1 }}
+                          required
+                        />
+                      )}
+                    </Grid>
+                  )}
 
                   {/* Education Stage */}
-                  <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
+                  <Grid size={{ xs: 12, sm: 6, md: bc.type === "Indirect" ? 3 : 2.4 }}>
                     <FormControl fullWidth size="small">
                       <InputLabel>Education Stage</InputLabel>
                       <Select
@@ -1688,19 +1718,21 @@ export default function ProjectDetails() {
                         onChange={(e) => handleBeneficiaryCountChange(index, "educationStage", e.target.value)}
                       >
                         <MenuItem value="">Select Education Stage</MenuItem>
-                        <MenuItem value="ECCE">ECCE</MenuItem>
+                        {bc.type !== "Indirect" && <MenuItem value="ECCE">ECCE</MenuItem>}
                         <MenuItem value="primary">primary</MenuItem>
                         <MenuItem value="upper primary">upper primary</MenuItem>
                         <MenuItem value="secondary">secondary</MenuItem>
                         <MenuItem value="senior secondary">senior secondary</MenuItem>
                         <MenuItem value="higher education">higher education</MenuItem>
                         <MenuItem value="non-formal education">non-formal education</MenuItem>
+                        <MenuItem value="Literate">Literate</MenuItem>
+                        <MenuItem value="Illiterate">Illiterate</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
 
                   {/* Vulnerability */}
-                  <Grid size={{ xs: 12, sm: 12, md: 2.4 }}>
+                  <Grid size={{ xs: 12, sm: 12, md: bc.type === "Indirect" ? 3 : 2.4 }}>
                     <Autocomplete
                       multiple
                       options={["Tribal", "SC", "ST", "OBC", "minority", "disability", "migrant", "BPL", "single parent household"]}
@@ -1938,6 +1970,28 @@ export default function ProjectDetails() {
                     placeholder="Enter total number of staff..."
                   />
                 </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    type="date"
+                    size="small"
+                    label="Start Date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    slotProps={{ inputLabel: { shrink: true } }}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    type="date"
+                    size="small"
+                    label="End Date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    slotProps={{ inputLabel: { shrink: true } }}
+                  />
+                </Grid>
               </Grid>
             </Paper>
           </Grid>
@@ -1983,48 +2037,10 @@ export default function ProjectDetails() {
           </Grid>
 
           {/* Activity Types */}
-          <Grid size={12}>
-            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
-              8. Activity Types
-            </Typography>
-            <Autocomplete
-              multiple
-              options={activityTypes.filter(at => !selectedActivityTypes.includes(at.activity_type_id))}
-              getOptionLabel={(option) => option.activity_type_name || ""}
-              value={activityTypes.filter(at => selectedActivityTypes.includes(at.activity_type_id))}
-              onChange={(event, newValue) => {
-                setSelectedActivityTypes(newValue.map(option => option.activity_type_id));
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Choose Activity Types"
-                  placeholder="Select activity types..."
-                  size="small"
-                />
-              )}
-              renderTags={(tagValue, getTagProps) =>
-                tagValue.map((option, index) => {
-                  const { key, ...chipProps } = getTagProps({ index });
-                  return (
-                    <Chip
-                      key={key || option.activity_type_id}
-                      label={option.activity_type_name}
-                      {...chipProps}
-                      color="info"
-                      variant="outlined"
-                      size="small"
-                    />
-                  );
-                })
-              }
-            />
-          </Grid>
-
           {/* Project Summary */}
           <Grid size={12}>
             <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
-              9. Project Summary
+              8. Project Summary
             </Typography>
             <TextField
               fullWidth
@@ -2040,7 +2056,7 @@ export default function ProjectDetails() {
           {/* Project Images */}
           <Grid size={12}>
             <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
-              10. Project Images
+              9. Project Images
             </Typography>
             <Paper sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: "8px", mb: 2 }}>
               <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -2134,7 +2150,7 @@ export default function ProjectDetails() {
           {/* Documents Upload Section */}
           <Grid size={12}>
             <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", borderBottom: "2px solid", borderColor: "divider", pb: 1 }}>
-              11. Project Documents (MOU, Agreements &amp; Other)
+              10. Project Documents (MOU, Agreements &amp; Other)
             </Typography>
             <Paper sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: "8px", mb: 2 }}>
               {/* Row 1: Type selector + local upload button */}
