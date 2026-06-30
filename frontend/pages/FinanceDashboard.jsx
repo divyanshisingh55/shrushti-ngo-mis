@@ -171,37 +171,65 @@ export default function FinanceDashboard() {
     if (!svgEl) return;
 
     try {
-      const serializer = new XMLSerializer();
-      let svgString = serializer.serializeToString(svgEl);
+      // Create a cloned SVG to modify attributes without altering the UI
+      const clonedSvg = svgEl.cloneNode(true);
       const rect = svgEl.getBoundingClientRect();
       const svgWidth = rect.width || 800;
       const svgHeight = rect.height || 400;
-      const bgRect = `<rect width="100%" height="100%" fill="#ffffff"/>`;
-      const svgTagIndex = svgString.indexOf(">");
-      if (svgTagIndex !== -1) {
-        svgString = svgString.slice(0, svgTagIndex + 1) + bgRect + svgString.slice(svgTagIndex + 1);
+
+      clonedSvg.setAttribute("width", svgWidth);
+      clonedSvg.setAttribute("height", svgHeight);
+
+      if (!clonedSvg.getAttribute("xmlns")) {
+        clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
       }
-      const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-      const URL = window.URL || window.webkitURL || window;
-      const blobURL = URL.createObjectURL(svgBlob);
+
+      // Inject a background rectangle to ensure standard white background for saved file
+      const bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      bgRect.setAttribute("width", "100%");
+      bgRect.setAttribute("height", "100%");
+      bgRect.setAttribute("fill", "#ffffff");
+      clonedSvg.insertBefore(bgRect, clonedSvg.firstChild);
+
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(clonedSvg);
+
+      // Encode correctly supporting multi-byte Unicode strings
+      const svgBase64 = btoa(unescape(encodeURIComponent(svgString)));
+      const svgDataUrl = `data:image/svg+xml;base64,${svgBase64}`;
+
       const image = new Image();
+      image.crossOrigin = "anonymous";
       image.onload = () => {
         const canvas = document.createElement("canvas");
-        canvas.width = svgWidth * 2;
-        canvas.height = svgHeight * 2;
+        const scale = 2; // double size for high definition
+        canvas.width = svgWidth * scale;
+        canvas.height = svgHeight * scale;
+
         const context = canvas.getContext("2d");
-        context.scale(2, 2);
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.scale(scale, scale);
         context.drawImage(image, 0, 0, svgWidth, svgHeight);
-        const pngURL = canvas.toDataURL("image/png");
-        const downloadLink = document.createElement("a");
-        downloadLink.href = pngURL;
-        downloadLink.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        URL.revokeObjectURL(blobURL);
+
+        try {
+          const pngURL = canvas.toDataURL("image/png");
+          const downloadLink = document.createElement("a");
+          downloadLink.href = pngURL;
+          downloadLink.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+        } catch (e) {
+          console.error("Canvas toDataURL failed", e);
+        }
       };
-      image.src = blobURL;
+
+      image.onerror = (e) => {
+        console.error("Image render failed", e);
+      };
+
+      image.src = svgDataUrl;
     } catch (err) {
       console.error("Failed to export image:", err);
     }
