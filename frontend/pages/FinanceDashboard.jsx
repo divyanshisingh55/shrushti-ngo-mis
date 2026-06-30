@@ -19,7 +19,8 @@ import {
   ArrowDownward as ArrowDownIcon,
   Fullscreen as FullscreenIcon,
   FullscreenExit as FullscreenExitIcon,
-  Download as DownloadIcon
+  Download as DownloadIcon,
+  Image as ImageIcon
 } from "@mui/icons-material";
 import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar,
@@ -159,6 +160,51 @@ export default function FinanceDashboard() {
       url += `?${params.join("&")}`;
     }
     window.open(url, "_blank");
+  };
+
+  const handleDownloadImage = (chartKey, title) => {
+    const isFullscreen = !!fullscreenChart;
+    const containerId = isFullscreen ? "fullscreen-chart-dialog-content" : `card-${chartKey}`;
+    const containerEl = document.getElementById(containerId);
+    if (!containerEl) return;
+    const svgEl = containerEl.querySelector("svg");
+    if (!svgEl) return;
+
+    try {
+      const serializer = new XMLSerializer();
+      let svgString = serializer.serializeToString(svgEl);
+      const rect = svgEl.getBoundingClientRect();
+      const svgWidth = rect.width || 800;
+      const svgHeight = rect.height || 400;
+      const bgRect = `<rect width="100%" height="100%" fill="#ffffff"/>`;
+      const svgTagIndex = svgString.indexOf(">");
+      if (svgTagIndex !== -1) {
+        svgString = svgString.slice(0, svgTagIndex + 1) + bgRect + svgString.slice(svgTagIndex + 1);
+      }
+      const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+      const URL = window.URL || window.webkitURL || window;
+      const blobURL = URL.createObjectURL(svgBlob);
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = svgWidth * 2;
+        canvas.height = svgHeight * 2;
+        const context = canvas.getContext("2d");
+        context.scale(2, 2);
+        context.drawImage(image, 0, 0, svgWidth, svgHeight);
+        const pngURL = canvas.toDataURL("image/png");
+        const downloadLink = document.createElement("a");
+        downloadLink.href = pngURL;
+        downloadLink.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(blobURL);
+      };
+      image.src = blobURL;
+    } catch (err) {
+      console.error("Failed to export image:", err);
+    }
   };
 
   useEffect(() => {
@@ -530,12 +576,15 @@ export default function FinanceDashboard() {
         {/* Income vs Expenditure Area Chart */}
         {(chartView === "all" || chartView === "financial") && (
           <Grid size={{ xs: 12, lg: 8 }}>
-            <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5 }}>
+            <Card id="card-income_vs_exp" elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   📈 Income vs Expenditure (Annual)
                 </Typography>
                 <Box>
+                  <IconButton size="small" onClick={() => handleDownloadImage('income_vs_exp', 'Income vs Expenditure')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph as PNG Image">
+                    <ImageIcon fontSize="small" />
+                  </IconButton>
                   <IconButton size="small" onClick={() => handleExportExcel('income_vs_exp')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
                     <DownloadIcon fontSize="small" />
                   </IconButton>
@@ -572,12 +621,15 @@ export default function FinanceDashboard() {
         {/* Surplus Bar Chart */}
         {(chartView === "all" || chartView === "financial") && (
           <Grid size={{ xs: 12, lg: 4 }}>
-            <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5 }}>
+            <Card id="card-surplus" elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   💰 Annual Surplus / Deficit
                 </Typography>
                 <Box>
+                  <IconButton size="small" onClick={() => handleDownloadImage('surplus', 'Annual Surplus')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph as PNG Image">
+                    <ImageIcon fontSize="small" />
+                  </IconButton>
                   <IconButton size="small" onClick={() => handleExportExcel('surplus')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
                     <DownloadIcon fontSize="small" />
                   </IconButton>
@@ -609,12 +661,15 @@ export default function FinanceDashboard() {
         {/* Grants Received Bar Chart */}
         {(chartView === "all" || chartView === "grants") && (
           <Grid size={{ xs: 12, lg: 7 }}>
-            <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5 }}>
+            <Card id="card-grants_cat" elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   🤝 Grants Received by Category (Annual)
                 </Typography>
                 <Box>
+                  <IconButton size="small" onClick={() => handleDownloadImage('grants_cat', 'Grants Received by Category')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph as PNG Image">
+                    <ImageIcon fontSize="small" />
+                  </IconButton>
                   <IconButton size="small" onClick={() => handleExportExcel('grants_cat')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
                     <DownloadIcon fontSize="small" />
                   </IconButton>
@@ -641,12 +696,15 @@ export default function FinanceDashboard() {
         {/* Grant Source Breakdown Pie */}
         {(chartView === "all" || chartView === "grants") && (
           <Grid size={{ xs: 12, lg: 5 }}>
-            <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5 }}>
+            <Card id="card-grants_source" elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   🥧 Grant Received — Source Breakdown (All Years)
                 </Typography>
                 <Box>
+                  <IconButton size="small" onClick={() => handleDownloadImage('grants_source', 'Grant Received Breakdown')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph as PNG Image">
+                    <ImageIcon fontSize="small" />
+                  </IconButton>
                   <IconButton size="small" onClick={() => handleExportExcel('grants_source')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
                     <DownloadIcon fontSize="small" />
                   </IconButton>
@@ -676,12 +734,15 @@ export default function FinanceDashboard() {
         {/* Networth & Assets Line Chart */}
         {(chartView === "all" || chartView === "balance") && (
           <Grid size={{ xs: 12, lg: 8 }}>
-            <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5 }}>
+            <Card id="card-balance_sheet" elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   🏦 Balance Sheet — Assets, Liabilities & Networth
                 </Typography>
                 <Box>
+                  <IconButton size="small" onClick={() => handleDownloadImage('balance_sheet', 'Balance Sheet')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph as PNG Image">
+                    <ImageIcon fontSize="small" />
+                  </IconButton>
                   <IconButton size="small" onClick={() => handleExportExcel('balance_sheet')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
                     <DownloadIcon fontSize="small" />
                   </IconButton>
@@ -708,12 +769,15 @@ export default function FinanceDashboard() {
         {/* Grant in Aid Pie */}
         {(chartView === "all" || chartView === "grants") && (
           <Grid size={{ xs: 12, lg: 4 }}>
-            <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5 }}>
+            <Card id="card-gia_source" elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   🥧 Grant in Aid — Source Breakdown
                 </Typography>
                 <Box>
+                  <IconButton size="small" onClick={() => handleDownloadImage('gia_source', 'Grant in Aid Breakdown')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph as PNG Image">
+                    <ImageIcon fontSize="small" />
+                  </IconButton>
                   <IconButton size="small" onClick={() => handleExportExcel('gia_source')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
                     <DownloadIcon fontSize="small" />
                   </IconButton>
@@ -740,12 +804,15 @@ export default function FinanceDashboard() {
 
       {/* Turnover Trend */}
       {(chartView === "all" || chartView === "financial") && (
-        <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5, mb: 3 }}>
+        <Card id="card-turnover_trend" elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3, p: 2.5, mb: 3 }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
               📊 Annual Turnover Trend (1998–2025)
             </Typography>
             <Box>
+              <IconButton size="small" onClick={() => handleDownloadImage('turnover_trend', 'Annual Turnover Trend')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph as PNG Image">
+                <ImageIcon fontSize="small" />
+              </IconButton>
               <IconButton size="small" onClick={() => handleExportExcel('turnover_trend')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
                 <DownloadIcon fontSize="small" />
               </IconButton>
@@ -839,6 +906,15 @@ export default function FinanceDashboard() {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             <Button
               variant="outlined"
+              startIcon={<ImageIcon />}
+              onClick={() => handleDownloadImage(fullscreenChart, getFullscreenChartTitle())}
+              sx={{ textTransform: "none", fontWeight: "bold", borderColor: "#0d9488", color: "#0d9488" }}
+              size="small"
+            >
+              Download Image
+            </Button>
+            <Button
+              variant="outlined"
               startIcon={<DownloadIcon />}
               onClick={() => handleExportExcel(fullscreenChart)}
               sx={{ textTransform: "none", fontWeight: "bold", borderColor: "#0d9488", color: "#0d9488" }}
@@ -851,7 +927,7 @@ export default function FinanceDashboard() {
             </IconButton>
           </Box>
         </DialogTitle>
-        <DialogContent sx={{ height: "70vh", minHeight: "500px", mt: 3, display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <DialogContent id="fullscreen-chart-dialog-content" sx={{ height: "70vh", minHeight: "500px", mt: 3, display: "flex", justifyContent: "center", alignItems: "center" }}>
           {renderFullscreenChart()}
         </DialogContent>
         <DialogActions sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}>
