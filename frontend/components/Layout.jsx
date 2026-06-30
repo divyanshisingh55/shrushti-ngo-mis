@@ -26,7 +26,9 @@ import {
   Search as SearchIcon,
   NotificationsNone as NotificationsIcon,
   DarkModeOutlined as DarkModeIcon,
-  LightModeOutlined as LightModeIcon
+  LightModeOutlined as LightModeIcon,
+  AttachMoney as FinanceIcon,
+  TableChart as TableChartIcon
 } from "@mui/icons-material";
 import { useColorMode } from "../src/ThemeContext";
 
@@ -53,6 +55,11 @@ export default function Layout({ children }) {
     { text: "Projects List", icon: <ListIcon />, path: "/projects" },
     { text: "Classify Queue", icon: <CategoryIcon />, path: "/classify-projects" },
     { text: "Add New Project", icon: <AddBoxIcon />, path: "/projects/add" }
+  ];
+
+  const financeMenuItems = [
+    { text: "Finance Dashboard", icon: <FinanceIcon />, path: "/finance" },
+    { text: "Finance Data Entry", icon: <TableChartIcon />, path: "/finance/entry" }
   ];
 
   const drawer = (
@@ -113,6 +120,44 @@ export default function Layout({ children }) {
                 />
                 {isActive && (
                   <Box sx={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#0d9488" }} />
+                )}
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
+      </List>
+      <Divider sx={{ borderColor: "divider" }} />
+      <Box sx={{ px: 2, pt: 1.5, pb: 0.5 }}>
+        <Typography variant="caption" sx={{ color: "#94a3b8", fontWeight: 700, fontSize: "10px", textTransform: "uppercase", letterSpacing: 1 }}>
+          Finance
+        </Typography>
+      </Box>
+      <List sx={{ p: 1.5, pt: 0.5 }}>
+        {financeMenuItems.map((item) => {
+          const isActive = location.pathname === item.path ||
+            (item.path !== "/" && location.pathname.startsWith(item.path));
+          return (
+            <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+              <ListItemButton
+                component={Link}
+                to={item.path}
+                sx={{
+                  borderRadius: "10px",
+                  py: 1, px: 2,
+                  backgroundColor: isActive ? "rgba(59, 130, 246, 0.08)" : "transparent",
+                  color: isActive ? "#3b82f6" : "text.secondary",
+                  "&:hover": { backgroundColor: "rgba(59, 130, 246, 0.04)", color: "text.primary" }
+                }}
+              >
+                <ListItemIcon sx={{ color: isActive ? "#3b82f6" : "#94a3b8", minWidth: "35px" }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  primaryTypographyProps={{ fontWeight: isActive ? "700" : "600", fontSize: "13.5px" }}
+                />
+                {isActive && (
+                  <Box sx={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#3b82f6" }} />
                 )}
               </ListItemButton>
             </ListItem>

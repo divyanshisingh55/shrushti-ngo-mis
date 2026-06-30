@@ -29,6 +29,7 @@ const districtRoutes = require("./routes/districts");
 const blockRoutes = require("./routes/blocks");
 const sdgRoutes = require("./routes/sdgs");
 const taxonomyRoutes = require("./routes/taxonomy");
+const financeRoutes = require("./routes/finance");
 
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
@@ -52,6 +53,7 @@ app.use("/districts", districtRoutes);
 app.use("/blocks", blockRoutes);
 app.use("/sdgs", sdgRoutes);
 app.use("/taxonomy", taxonomyRoutes);
+app.use("/finance", financeRoutes);
 
 app.get("/", async (req, res) => {
   try {

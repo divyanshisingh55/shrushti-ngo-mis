@@ -5,6 +5,8 @@ import Projects from "../pages/projects";
 import ProjectDetails from "../pages/ProjectDetails";
 import ClassifyProjects from "../pages/classifyProjects";
 import AddProject from "../pages/AddProject";
+import FinanceDashboard from "../pages/FinanceDashboard";
+import FinanceEntry from "../pages/FinanceEntry";
 import { ColorModeProvider } from "./ThemeContext";
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
             <Route path="/projects/add" element={<AddProject />} />
             <Route path="/project/:id" element={<ProjectDetails />} />
             <Route path="/classify-projects" element={<ClassifyProjects />} />
+            <Route path="/finance" element={<FinanceDashboard />} />
+            <Route path="/finance/entry" element={<FinanceEntry />} />
           </Routes>
         </Layout>
       </BrowserRouter>
