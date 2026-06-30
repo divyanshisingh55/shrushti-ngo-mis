@@ -149,11 +149,12 @@ export default function FinanceDashboard() {
     setDetailsDialogOpen(true);
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = (exportType) => {
     let url = "http://localhost:5000/finance/export/excel";
     const params = [];
     if (fromYear) params.push(`from_year=${fromYear}`);
     if (toYear) params.push(`to_year=${toYear}`);
+    if (exportType && typeof exportType === 'string') params.push(`export_type=${exportType}`);
     if (params.length > 0) {
       url += `?${params.join("&")}`;
     }
