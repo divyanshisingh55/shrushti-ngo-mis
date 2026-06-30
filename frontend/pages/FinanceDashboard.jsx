@@ -534,9 +534,14 @@ export default function FinanceDashboard() {
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   📈 Income vs Expenditure (Annual)
                 </Typography>
-                <IconButton size="small" onClick={() => setFullscreenChart('income_vs_exp')} sx={{ color: "#0d9488" }}>
-                  <FullscreenIcon />
-                </IconButton>
+                <Box>
+                  <IconButton size="small" onClick={() => handleExportExcel('income_vs_exp')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
+                    <DownloadIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => setFullscreenChart('income_vs_exp')} sx={{ color: "#0d9488" }}>
+                    <FullscreenIcon />
+                  </IconButton>
+                </Box>
               </Box>
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 20 }}>
@@ -571,9 +576,14 @@ export default function FinanceDashboard() {
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   💰 Annual Surplus / Deficit
                 </Typography>
-                <IconButton size="small" onClick={() => setFullscreenChart('surplus')} sx={{ color: "#0d9488" }}>
-                  <FullscreenIcon />
-                </IconButton>
+                <Box>
+                  <IconButton size="small" onClick={() => handleExportExcel('surplus')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
+                    <DownloadIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => setFullscreenChart('surplus')} sx={{ color: "#0d9488" }}>
+                    <FullscreenIcon />
+                  </IconButton>
+                </Box>
               </Box>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={chartData} margin={{ top: 5, right: 10, bottom: 5, left: 10 }}>
@@ -603,9 +613,14 @@ export default function FinanceDashboard() {
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   🤝 Grants Received by Category (Annual)
                 </Typography>
-                <IconButton size="small" onClick={() => setFullscreenChart('grants_cat')} sx={{ color: "#f59e0b" }}>
-                  <FullscreenIcon />
-                </IconButton>
+                <Box>
+                  <IconButton size="small" onClick={() => handleExportExcel('grants_cat')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
+                    <DownloadIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => setFullscreenChart('grants_cat')} sx={{ color: "#f59e0b" }}>
+                    <FullscreenIcon />
+                  </IconButton>
+                </Box>
               </Box>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 20 }}>
@@ -630,9 +645,14 @@ export default function FinanceDashboard() {
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   🥧 Grant Received — Source Breakdown (All Years)
                 </Typography>
-                <IconButton size="small" onClick={() => setFullscreenChart('grants_source')} sx={{ color: "#f59e0b" }}>
-                  <FullscreenIcon />
-                </IconButton>
+                <Box>
+                  <IconButton size="small" onClick={() => handleExportExcel('grants_source')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
+                    <DownloadIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => setFullscreenChart('grants_source')} sx={{ color: "#f59e0b" }}>
+                    <FullscreenIcon />
+                  </IconButton>
+                </Box>
               </Box>
               <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
@@ -660,9 +680,14 @@ export default function FinanceDashboard() {
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   🏦 Balance Sheet — Assets, Liabilities & Networth
                 </Typography>
-                <IconButton size="small" onClick={() => setFullscreenChart('balance_sheet')} sx={{ color: "#3b82f6" }}>
-                  <FullscreenIcon />
-                </IconButton>
+                <Box>
+                  <IconButton size="small" onClick={() => handleExportExcel('balance_sheet')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
+                    <DownloadIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => setFullscreenChart('balance_sheet')} sx={{ color: "#3b82f6" }}>
+                    <FullscreenIcon />
+                  </IconButton>
+                </Box>
               </Box>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 20 }}>
@@ -687,9 +712,14 @@ export default function FinanceDashboard() {
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   🥧 Grant in Aid — Source Breakdown
                 </Typography>
-                <IconButton size="small" onClick={() => setFullscreenChart('gia_source')} sx={{ color: "#8b5cf6" }}>
-                  <FullscreenIcon />
-                </IconButton>
+                <Box>
+                  <IconButton size="small" onClick={() => handleExportExcel('gia_source')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
+                    <DownloadIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => setFullscreenChart('gia_source')} sx={{ color: "#8b5cf6" }}>
+                    <FullscreenIcon />
+                  </IconButton>
+                </Box>
               </Box>
               <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
@@ -714,9 +744,14 @@ export default function FinanceDashboard() {
             <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
               📊 Annual Turnover Trend (1998–2025)
             </Typography>
-            <IconButton size="small" onClick={() => setFullscreenChart('turnover_trend')} sx={{ color: "#6366f1" }}>
-              <FullscreenIcon />
-            </IconButton>
+            <Box>
+              <IconButton size="small" onClick={() => handleExportExcel('turnover_trend')} sx={{ mr: 0.5, color: "text.secondary" }} title="Export Graph Data to Excel">
+                <DownloadIcon fontSize="small" />
+              </IconButton>
+              <IconButton size="small" onClick={() => setFullscreenChart('turnover_trend')} sx={{ color: "#6366f1" }}>
+                <FullscreenIcon />
+              </IconButton>
+            </Box>
           </Box>
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 20 }}>
@@ -800,9 +835,20 @@ export default function FinanceDashboard() {
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "text.primary" }}>
             {getFullscreenChartTitle()}
           </Typography>
-          <IconButton onClick={() => setFullscreenChart(null)}>
-            <FullscreenExitIcon fontSize="large" />
-          </IconButton>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              onClick={() => handleExportExcel(fullscreenChart)}
+              sx={{ textTransform: "none", fontWeight: "bold", borderColor: "#0d9488", color: "#0d9488" }}
+              size="small"
+            >
+              Download Excel
+            </Button>
+            <IconButton onClick={() => setFullscreenChart(null)}>
+              <FullscreenExitIcon fontSize="large" />
+            </IconButton>
+          </Box>
         </DialogTitle>
         <DialogContent sx={{ height: "70vh", minHeight: "500px", mt: 3, display: "flex", justifyContent: "center", alignItems: "center" }}>
           {renderFullscreenChart()}

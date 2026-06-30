@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
 // GET export to excel of filtered years
 router.get("/export/excel", async (req, res) => {
   try {
-    const { from_year, to_year } = req.query;
+    const { from_year, to_year, export_type } = req.query;
     let query = "SELECT * FROM finance_records";
     const params = [];
 
@@ -37,27 +37,96 @@ router.get("/export/excel", async (req, res) => {
 
     const result = await pool.query(query, params);
     
-    // Map rows to match Excel columns
-    const mapped = result.rows.map(r => ({
-      "Year": r.year,
-      "Income": Number(r.income || 0),
-      "Expenditure": Number(r.expenditure || 0),
-      "Surplus": Number(r.surplus || 0),
-      "Turnover": Number(r.turnover || 0),
-      "Total Assets": Number(r.total_assets || 0),
-      "Total Liabilities": Number(r.total_liabilities || 0),
-      "Networth": Number(r.networth || 0),
-      "Grant Received (Total)": Number(r.grant_received_total || 0),
-      "Grant Received (Government)": Number(r.grant_received_govt || 0),
-      "Grant Received (CSR)": Number(r.grant_received_csr || 0),
-      "Grant Received (Funding Agency)": Number(r.grant_received_funding_agency || 0),
-      "Grant Received (FCRA)": Number(r.grant_received_fcra || 0),
-      "Grant in Aid (Total)": Number(r.grant_in_aid_total || 0),
-      "Grant in Aid (Government)": Number(r.grant_in_aid_govt || 0),
-      "Grant in Aid (CSR)": Number(r.grant_in_aid_csr || 0),
-      "Grant in Aid (Funding Agency)": Number(r.grant_in_aid_funding_agency || 0),
-      "Grant in Aid (FCRA)": Number(r.grant_in_aid_fcra || 0)
-    }));
+    // Map rows depending on export_type
+    let mapped = [];
+    let sheetName = "Financial Report";
+    let filename = `finance_report_${from_year || 'all'}_to_${to_year || 'all'}`;
+
+    if (export_type === 'income_vs_exp') {
+      sheetName = "Income vs Expenditure";
+      filename = `income_vs_expenditure_${from_year || 'all'}_to_${to_year || 'all'}`;
+      mapped = result.rows.map(r => ({
+        "Year": r.year,
+        "Income": Number(r.income || 0),
+        "Expenditure": Number(r.expenditure || 0),
+        "Surplus": Number(r.surplus || 0)
+      }));
+    } else if (export_type === 'surplus') {
+      sheetName = "Annual Surplus";
+      filename = `surplus_deficit_${from_year || 'all'}_to_${to_year || 'all'}`;
+      mapped = result.rows.map(r => ({
+        "Year": r.year,
+        "Surplus / Deficit": Number(r.surplus || 0)
+      }));
+    } else if (export_type === 'grants_cat') {
+      sheetName = "Grants Categories";
+      filename = `grants_by_category_${from_year || 'all'}_to_${to_year || 'all'}`;
+      mapped = result.rows.map(r => ({
+        "Year": r.year,
+        "Grant Received (Total)": Number(r.grant_received_total || 0),
+        "Grant in Aid (Total)": Number(r.grant_in_aid_total || 0)
+      }));
+    } else if (export_type === 'grants_source') {
+      sheetName = "Grants Received Sources";
+      filename = `grants_received_sources_${from_year || 'all'}_to_${to_year || 'all'}`;
+      mapped = result.rows.map(r => ({
+        "Year": r.year,
+        "Government": Number(r.grant_received_govt || 0),
+        "CSR": Number(r.grant_received_csr || 0),
+        "Funding Agency": Number(r.grant_received_funding_agency || 0),
+        "FCRA": Number(r.grant_received_fcra || 0),
+        "Total": Number(r.grant_received_total || 0)
+      }));
+    } else if (export_type === 'gia_source') {
+      sheetName = "Grant in Aid Sources";
+      filename = `grant_in_aid_sources_${from_year || 'all'}_to_${to_year || 'all'}`;
+      mapped = result.rows.map(r => ({
+        "Year": r.year,
+        "Government": Number(r.grant_in_aid_govt || 0),
+        "CSR": Number(r.grant_in_aid_csr || 0),
+        "Funding Agency": Number(r.grant_in_aid_funding_agency || 0),
+        "FCRA": Number(r.grant_in_aid_fcra || 0),
+        "Total": Number(r.grant_in_aid_total || 0)
+      }));
+    } else if (export_type === 'balance_sheet') {
+      sheetName = "Balance Sheet";
+      filename = `balance_sheet_${from_year || 'all'}_to_${to_year || 'all'}`;
+      mapped = result.rows.map(r => ({
+        "Year": r.year,
+        "Total Assets": Number(r.total_assets || 0),
+        "Total Liabilities": Number(r.total_liabilities || 0),
+        "Networth": Number(r.networth || 0)
+      }));
+    } else if (export_type === 'turnover_trend') {
+      sheetName = "Annual Turnover";
+      filename = `turnover_trend_${from_year || 'all'}_to_${to_year || 'all'}`;
+      mapped = result.rows.map(r => ({
+        "Year": r.year,
+        "Turnover": Number(r.turnover || 0)
+      }));
+    } else {
+      // Default: full export
+      mapped = result.rows.map(r => ({
+        "Year": r.year,
+        "Income": Number(r.income || 0),
+        "Expenditure": Number(r.expenditure || 0),
+        "Surplus": Number(r.surplus || 0),
+        "Turnover": Number(r.turnover || 0),
+        "Total Assets": Number(r.total_assets || 0),
+        "Total Liabilities": Number(r.total_liabilities || 0),
+        "Networth": Number(r.networth || 0),
+        "Grant Received (Total)": Number(r.grant_received_total || 0),
+        "Grant Received (Government)": Number(r.grant_received_govt || 0),
+        "Grant Received (CSR)": Number(r.grant_received_csr || 0),
+        "Grant Received (Funding Agency)": Number(r.grant_received_funding_agency || 0),
+        "Grant Received (FCRA)": Number(r.grant_received_fcra || 0),
+        "Grant in Aid (Total)": Number(r.grant_in_aid_total || 0),
+        "Grant in Aid (Government)": Number(r.grant_in_aid_govt || 0),
+        "Grant in Aid (CSR)": Number(r.grant_in_aid_csr || 0),
+        "Grant in Aid (Funding Agency)": Number(r.grant_in_aid_funding_agency || 0),
+        "Grant in Aid (FCRA)": Number(r.grant_in_aid_fcra || 0)
+      }));
+    }
 
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(mapped);
@@ -68,12 +137,12 @@ router.get("/export/excel", async (req, res) => {
     }));
     ws["!cols"] = cols;
 
-    XLSX.utils.book_append_sheet(wb, ws, "Financial Report");
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
     
     const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
 
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    res.setHeader("Content-Disposition", `attachment; filename=finance_report_${from_year || 'all'}_to_${to_year || 'all'}.xlsx`);
+    res.setHeader("Content-Disposition", `attachment; filename=${filename}.xlsx`);
     res.send(buf);
   } catch (error) {
     console.error("Finance Excel Export Error:", error);
