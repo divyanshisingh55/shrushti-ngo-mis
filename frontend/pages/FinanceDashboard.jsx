@@ -18,7 +18,8 @@ import {
   ArrowUpward as ArrowUpIcon,
   ArrowDownward as ArrowDownIcon,
   Fullscreen as FullscreenIcon,
-  FullscreenExit as FullscreenExitIcon
+  FullscreenExit as FullscreenExitIcon,
+  Download as DownloadIcon
 } from "@mui/icons-material";
 import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar,
@@ -146,6 +147,17 @@ export default function FinanceDashboard() {
     else if (type === 'surplus') title = "Breakdown of Annual Surplus";
     setDetailsDialogTitle(title);
     setDetailsDialogOpen(true);
+  };
+
+  const handleExportExcel = () => {
+    let url = "http://localhost:5000/finance/export/excel";
+    const params = [];
+    if (fromYear) params.push(`from_year=${fromYear}`);
+    if (toYear) params.push(`to_year=${toYear}`);
+    if (params.length > 0) {
+      url += `?${params.join("&")}`;
+    }
+    window.open(url, "_blank");
   };
 
   useEffect(() => {
@@ -406,14 +418,24 @@ export default function FinanceDashboard() {
             <Chip label={`${records.length} years of data`} size="small" variant="outlined" />
           </Stack>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<EditIcon />}
-          onClick={() => navigate("/finance/entry")}
-          sx={{ bgcolor: "#0d9488", "&:hover": { bgcolor: "#0f766e" }, borderRadius: 2, fontWeight: 700, textTransform: "none", px: 3 }}
-        >
-          Add / Edit Records
-        </Button>
+        <Stack direction="row" spacing={1.5}>
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={handleExportExcel}
+            sx={{ borderColor: "#0d9488", color: "#0d9488", borderRadius: 2, fontWeight: 700, textTransform: "none", px: 3 }}
+          >
+            Export to Excel
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<EditIcon />}
+            onClick={() => navigate("/finance/entry")}
+            sx={{ bgcolor: "#0d9488", "&:hover": { bgcolor: "#0f766e" }, borderRadius: 2, fontWeight: 700, textTransform: "none", px: 3 }}
+          >
+            Add / Edit Records
+          </Button>
+        </Stack>
       </Box>
 
       {/* KPI Cards */}

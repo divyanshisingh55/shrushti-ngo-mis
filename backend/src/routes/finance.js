@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
+const XLSX = require("xlsx");
 
 // GET all finance records ordered by year
 router.get("/", async (req, res) => {
@@ -11,6 +12,72 @@ router.get("/", async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// GET export to excel of filtered years
+router.get("/export/excel", async (req, res) => {
+  try {
+    const { from_year, to_year } = req.query;
+    let query = "SELECT * FROM finance_records";
+    const params = [];
+
+    if (from_year && to_year) {
+      query += " WHERE year >= $1 AND year <= $2";
+      params.push(from_year, to_year);
+    } else if (from_year) {
+      query += " WHERE year >= $1";
+      params.push(from_year);
+    } else if (to_year) {
+      query += " WHERE year <= $1";
+      params.push(to_year);
+    }
+
+    query += " ORDER BY year ASC";
+
+    const result = await pool.query(query, params);
+    
+    // Map rows to match Excel columns
+    const mapped = result.rows.map(r => ({
+      "Year": r.year,
+      "Income": Number(r.income || 0),
+      "Expenditure": Number(r.expenditure || 0),
+      "Surplus": Number(r.surplus || 0),
+      "Turnover": Number(r.turnover || 0),
+      "Total Assets": Number(r.total_assets || 0),
+      "Total Liabilities": Number(r.total_liabilities || 0),
+      "Networth": Number(r.networth || 0),
+      "Grant Received (Total)": Number(r.grant_received_total || 0),
+      "Grant Received (Government)": Number(r.grant_received_govt || 0),
+      "Grant Received (CSR)": Number(r.grant_received_csr || 0),
+      "Grant Received (Funding Agency)": Number(r.grant_received_funding_agency || 0),
+      "Grant Received (FCRA)": Number(r.grant_received_fcra || 0),
+      "Grant in Aid (Total)": Number(r.grant_in_aid_total || 0),
+      "Grant in Aid (Government)": Number(r.grant_in_aid_govt || 0),
+      "Grant in Aid (CSR)": Number(r.grant_in_aid_csr || 0),
+      "Grant in Aid (Funding Agency)": Number(r.grant_in_aid_funding_agency || 0),
+      "Grant in Aid (FCRA)": Number(r.grant_in_aid_fcra || 0)
+    }));
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(mapped);
+    
+    // Auto-size columns for neat display
+    const cols = Object.keys(mapped[0] || {}).map(key => ({
+      wch: Math.max(key.length + 2, 12)
+    }));
+    ws["!cols"] = cols;
+
+    XLSX.utils.book_append_sheet(wb, ws, "Financial Report");
+    
+    const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename=finance_report_${from_year || 'all'}_to_${to_year || 'all'}.xlsx`);
+    res.send(buf);
+  } catch (error) {
+    console.error("Finance Excel Export Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
