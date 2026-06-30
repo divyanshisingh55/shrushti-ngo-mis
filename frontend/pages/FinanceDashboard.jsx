@@ -167,7 +167,16 @@ export default function FinanceDashboard() {
     const containerId = isFullscreen ? "fullscreen-chart-dialog-content" : `card-${chartKey}`;
     const containerEl = document.getElementById(containerId);
     if (!containerEl) return;
-    const svgEl = containerEl.querySelector("svg");
+    let svgEl = containerEl.querySelector(".recharts-surface");
+    if (!svgEl) {
+      const svgs = containerEl.querySelectorAll("svg");
+      for (let i = 0; i < svgs.length; i++) {
+        if (!svgs[i].classList.contains("MuiSvgIcon-root") && !svgs[i].getAttribute("data-testid")) {
+          svgEl = svgs[i];
+          break;
+        }
+      }
+    }
     if (!svgEl) return;
 
     try {
