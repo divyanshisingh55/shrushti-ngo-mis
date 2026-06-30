@@ -48,12 +48,11 @@ router.get("/export/excel", async (req, res) => {
       mapped = result.rows.map(r => ({
         "Year": r.year,
         "Income": Number(r.income || 0),
-        "Expenditure": Number(r.expenditure || 0),
-        "Surplus": Number(r.surplus || 0)
+        "Expenditure": Number(r.expenditure || 0)
       }));
     } else if (export_type === 'surplus') {
       sheetName = "Annual Surplus";
-      filename = `surplus_deficit_${from_year || 'all'}_to_${to_year || 'all'}`;
+      filename = `surplus_${from_year || 'all'}_to_${to_year || 'all'}`;
       mapped = result.rows.map(r => ({
         "Year": r.year,
         "Surplus / Deficit": Number(r.surplus || 0)
@@ -67,34 +66,37 @@ router.get("/export/excel", async (req, res) => {
         "Grant in Aid (Total)": Number(r.grant_in_aid_total || 0)
       }));
     } else if (export_type === 'grants_source') {
-      sheetName = "Grants Received Sources";
-      filename = `grants_received_sources_${from_year || 'all'}_to_${to_year || 'all'}`;
-      mapped = result.rows.map(r => ({
-        "Year": r.year,
-        "Government": Number(r.grant_received_govt || 0),
-        "CSR": Number(r.grant_received_csr || 0),
-        "Funding Agency": Number(r.grant_received_funding_agency || 0),
-        "FCRA": Number(r.grant_received_fcra || 0),
-        "Total": Number(r.grant_received_total || 0)
-      }));
+      sheetName = "Grant Received Sources";
+      filename = `grant_received_sources_${from_year || 'all'}_to_${to_year || 'all'}`;
+      const govt = result.rows.reduce((s, r) => s + Number(r.grant_received_govt || 0), 0);
+      const csr = result.rows.reduce((s, r) => s + Number(r.grant_received_csr || 0), 0);
+      const fa = result.rows.reduce((s, r) => s + Number(r.grant_received_funding_agency || 0), 0);
+      const fcra = result.rows.reduce((s, r) => s + Number(r.grant_received_fcra || 0), 0);
+      mapped = [
+        { "Grant Source": "Government", "Total Amount (in ₹)": govt },
+        { "Grant Source": "CSR", "Total Amount (in ₹)": csr },
+        { "Grant Source": "Funding Agency", "Total Amount (in ₹)": fa },
+        { "Grant Source": "FCRA", "Total Amount (in ₹)": fcra }
+      ].filter(d => d["Total Amount (in ₹)"] > 0);
     } else if (export_type === 'gia_source') {
       sheetName = "Grant in Aid Sources";
       filename = `grant_in_aid_sources_${from_year || 'all'}_to_${to_year || 'all'}`;
-      mapped = result.rows.map(r => ({
-        "Year": r.year,
-        "Government": Number(r.grant_in_aid_govt || 0),
-        "CSR": Number(r.grant_in_aid_csr || 0),
-        "Funding Agency": Number(r.grant_in_aid_funding_agency || 0),
-        "FCRA": Number(r.grant_in_aid_fcra || 0),
-        "Total": Number(r.grant_in_aid_total || 0)
-      }));
+      const govt = result.rows.reduce((s, r) => s + Number(r.grant_in_aid_govt || 0), 0);
+      const csr = result.rows.reduce((s, r) => s + Number(r.grant_in_aid_csr || 0), 0);
+      const fa = result.rows.reduce((s, r) => s + Number(r.grant_in_aid_funding_agency || 0), 0);
+      const fcra = result.rows.reduce((s, r) => s + Number(r.grant_in_aid_fcra || 0), 0);
+      mapped = [
+        { "Grant Source": "Government", "Total Amount (in ₹)": govt },
+        { "Grant Source": "CSR", "Total Amount (in ₹)": csr },
+        { "Grant Source": "Funding Agency", "Total Amount (in ₹)": fa },
+        { "Grant Source": "FCRA", "Total Amount (in ₹)": fcra }
+      ].filter(d => d["Total Amount (in ₹)"] > 0);
     } else if (export_type === 'balance_sheet') {
       sheetName = "Balance Sheet";
       filename = `balance_sheet_${from_year || 'all'}_to_${to_year || 'all'}`;
       mapped = result.rows.map(r => ({
         "Year": r.year,
         "Total Assets": Number(r.total_assets || 0),
-        "Total Liabilities": Number(r.total_liabilities || 0),
         "Networth": Number(r.networth || 0)
       }));
     } else if (export_type === 'turnover_trend') {
