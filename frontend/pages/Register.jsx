@@ -86,13 +86,15 @@ export default function Register() {
         top: 0,
         left: 0,
         px: 2,
-        background: "linear-gradient(135deg, #0b1329 0%, #0d9488 100%)",
+        background: "rgba(11, 19, 41, 0.3)",
+        backdropFilter: "blur(10px)",
         overflowY: "auto",
         py: { xs: 4, md: 0 }
       }}
     >
       <Paper
         elevation={24}
+        className="premium-card"
         sx={{
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
@@ -100,8 +102,11 @@ export default function Register() {
           maxWidth: "1060px",
           borderRadius: "20px",
           overflow: "hidden",
-          backgroundColor: "background.paper",
-          boxShadow: "0 24px 64px rgba(0, 0, 0, 0.3)",
+          backgroundColor: (theme) => theme.palette.mode === 'light' ? "rgba(255, 255, 255, 0.88)" : "rgba(15, 23, 42, 0.88)",
+          backdropFilter: "blur(16px)",
+          border: "1px solid",
+          borderColor: (theme) => theme.palette.mode === 'light' ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0.08)",
+          boxShadow: "0 24px 64px rgba(0, 0, 0, 0.25)",
           my: { xs: 4, md: 0 }
         }}
       >
@@ -292,6 +297,7 @@ export default function Register() {
                   fullWidth
                   variant="contained"
                   disabled={loading}
+                  className="premium-btn"
                   sx={{
                     py: 1.3,
                     backgroundColor: "#0d9488",
