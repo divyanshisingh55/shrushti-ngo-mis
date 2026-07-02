@@ -86,8 +86,7 @@ export default function Register() {
         top: 0,
         left: 0,
         px: 2,
-        background: "rgba(11, 19, 41, 0.3)",
-        backdropFilter: "blur(10px)",
+        background: "transparent",
         overflowY: "auto",
         py: { xs: 4, md: 0 }
       }}
@@ -102,10 +101,9 @@ export default function Register() {
           maxWidth: "1060px",
           borderRadius: "20px",
           overflow: "hidden",
-          backgroundColor: (theme) => theme.palette.mode === 'light' ? "rgba(255, 255, 255, 0.88)" : "rgba(15, 23, 42, 0.88)",
-          backdropFilter: "blur(16px)",
+          backgroundColor: (theme) => theme.palette.mode === 'light' ? "#ffffff" : "#1e293b",
           border: "1px solid",
-          borderColor: (theme) => theme.palette.mode === 'light' ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0.08)",
+          borderColor: "divider",
           boxShadow: "0 24px 64px rgba(0, 0, 0, 0.25)",
           my: { xs: 4, md: 0 }
         }}

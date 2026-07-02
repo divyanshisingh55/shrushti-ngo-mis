@@ -36,7 +36,6 @@ import {
 } from "@mui/icons-material";
 import { useColorMode } from "../src/ThemeContext";
 import api from "../services/api";
-import MeshGradientBackground from "./MeshGradientBackground";
 
 const drawerWidth = 240;
 
@@ -53,9 +52,8 @@ export default function Layout({ children }) {
 
   if (isPublicPath) {
     return (
-      <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column", position: "relative", bgcolor: "background.default", overflow: "hidden" }}>
-        <MeshGradientBackground />
-        <Box sx={{ position: "relative", zIndex: 1, flexGrow: 1, display: "flex", flexDirection: "column" }}>
+      <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "linear-gradient(135deg, #0b1329 0%, #0d9488 100%)", overflow: "hidden" }}>
+        <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
           {children}
         </Box>
       </Box>
@@ -343,16 +341,11 @@ export default function Layout({ children }) {
           transition: "width 0.2s ease-in-out, margin-left 0.2s ease-in-out",
           display: "flex",
           flexDirection: "column",
-          minWidth: 0,
-          position: "relative",
-          overflow: "hidden"
+          minWidth: 0
         }}
       >
-        <MeshGradientBackground />
-        <Box sx={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", flexGrow: 1 }}>
-          <Toolbar />
-          {children}
-        </Box>
+        <Toolbar />
+        {children}
       </Box>
     </Box>
   );
