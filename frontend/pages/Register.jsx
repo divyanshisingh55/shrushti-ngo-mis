@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import api from "../services/api";
+import MeshGradientBackground from "../components/MeshGradientBackground";
 import {
   Box,
   Typography,
@@ -112,15 +113,13 @@ export default function Register() {
         <Box
           sx={{
             width: { xs: "100%", md: "40%" },
-            backgroundImage: "url(/ngo_work.png)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
             position: "relative",
             minHeight: { xs: "250px", md: "580px" },
             display: "flex",
             flexDirection: "column",
             justifyContent: "flex-end",
             p: 4,
+            overflow: "hidden",
             "&::before": {
               content: '""',
               position: "absolute",
@@ -129,11 +128,31 @@ export default function Register() {
               right: 0,
               bottom: 0,
               background: "linear-gradient(180deg, rgba(11, 19, 41, 0.1) 0%, rgba(11, 19, 41, 0.85) 100%)",
-              zIndex: 1
+              zIndex: 2
             }
           }}
         >
-          <Box sx={{ position: "relative", zIndex: 2, color: "#ffffff" }}>
+          {/* Dynamic Mesh Animation Canvas in Left Panel background */}
+          <MeshGradientBackground />
+
+          {/* Photo blended on top of the moving background */}
+          <Box
+            component="img"
+            src="/ngo_work.png"
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              opacity: 0.78,
+              mixBlendMode: "luminosity",
+              zIndex: 1
+            }}
+          />
+
+          <Box sx={{ position: "relative", zIndex: 3, color: "#ffffff" }}>
             <Typography
               variant="h4"
               sx={{

@@ -14,22 +14,22 @@ export default function MeshGradientBackground() {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    // Dynamic brand colors list (RGBA format)
+    // Dynamic brand colors list (RGBA format) - Strictly Blue and Teal
     const colors = [
-      "rgba(88, 28, 28, 0.4)",   // Deep maroon
-      "rgba(69, 10, 10, 0.45)",  // Burgundy
-      "rgba(250, 250, 249, 0.35)", // Warm white
-      "rgba(231, 229, 228, 0.4)",  // Muted beige
-      "rgba(148, 163, 184, 0.25)"  // Subtle blue-gray
+      "rgba(11, 19, 41, 0.95)",    // Deep blue
+      "rgba(13, 148, 136, 0.85)",   // Teal green
+      "rgba(15, 118, 110, 0.9)",    // Dark teal
+      "rgba(11, 19, 41, 0.9)",      // Deep blue variation
+      "rgba(13, 148, 136, 0.75)"    // Teal variation
     ];
 
-    // Node objects floating in the mesh
+    // Node objects floating in the mesh - Speed reduced by 80%
     const nodes = [
-      { x: width * 0.2, y: height * 0.3, vx: 0.4, vy: 0.3, radius: Math.min(width, height) * 0.35, color: colors[0] },
-      { x: width * 0.8, y: height * 0.2, vx: -0.3, vy: 0.4, radius: Math.min(width, height) * 0.4, color: colors[1] },
-      { x: width * 0.5, y: height * 0.7, vx: 0.2, vy: -0.4, radius: Math.min(width, height) * 0.3, color: colors[2] },
-      { x: width * 0.3, y: height * 0.8, vx: -0.4, vy: 0.2, radius: Math.min(width, height) * 0.35, color: colors[3] },
-      { x: width * 0.7, y: height * 0.8, vx: 0.3, vy: -0.3, radius: Math.min(width, height) * 0.45, color: colors[4] }
+      { x: width * 0.2, y: height * 0.3, vx: 0.08, vy: 0.06, radius: Math.min(width, height) * 0.35, color: colors[0] },
+      { x: width * 0.8, y: height * 0.2, vx: -0.06, vy: 0.08, radius: Math.min(width, height) * 0.4, color: colors[1] },
+      { x: width * 0.5, y: height * 0.7, vx: 0.04, vy: -0.07, radius: Math.min(width, height) * 0.3, color: colors[2] },
+      { x: width * 0.3, y: height * 0.8, vx: -0.07, vy: 0.05, radius: Math.min(width, height) * 0.35, color: colors[3] },
+      { x: width * 0.7, y: height * 0.8, vx: 0.06, vy: -0.06, radius: Math.min(width, height) * 0.45, color: colors[4] }
     ];
 
     // Tracking mouse with inertia LERP
@@ -73,8 +73,8 @@ export default function MeshGradientBackground() {
     };
     window.addEventListener("resize", handleResize);
 
-    // Easing factor for mouse lag/inertia
-    const LERP_FACTOR = 0.04;
+    // Easing factor for mouse lag/inertia (Luxurious 0.012)
+    const LERP_FACTOR = 0.012;
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
@@ -97,13 +97,13 @@ export default function MeshGradientBackground() {
           if (node.y < 0 || node.y > height) node.vy *= -1;
         }
 
-        // Apply mouse pull to color nodes for interactive depth feel
+        // Apply mouse pull to color nodes for interactive depth feel - reduced coefficient for gentle reaction
         let dx = 0;
         let dy = 0;
         
         if (!hoverMedia.matches) {
-          dx = (mouseX - node.x) * 0.02 * (1.2 - idx * 0.15);
-          dy = (mouseY - node.y) * 0.02 * (1.2 - idx * 0.15);
+          dx = (mouseX - node.x) * 0.005 * (1.2 - idx * 0.15);
+          dy = (mouseY - node.y) * 0.005 * (1.2 - idx * 0.15);
         }
 
         const drawX = node.x + dx;
