@@ -7,9 +7,9 @@ const pool = new Pool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
 
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  ssl: (process.env.DB_HOST === "localhost" || process.env.DB_HOST === "127.0.0.1")
+    ? false
+    : { rejectUnauthorized: false },
 });
 
 pool.connect()
