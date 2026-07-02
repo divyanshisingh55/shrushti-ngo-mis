@@ -534,7 +534,7 @@ export default function Projects() {
       params.append("is_archived", "false");
     }
 
-    const url = `${api.defaults.baseURL || "http://localhost:5000"}/reports/export/${format}?${params.toString()}`;
+    const url = `${api.defaults.baseURL}/reports/export/${format}?${params.toString()}`;
     window.open(url, "_blank");
   };
 

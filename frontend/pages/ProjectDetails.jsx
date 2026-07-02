@@ -662,8 +662,8 @@ export default function ProjectDetails() {
 
     const resolvedStates = selectedStates.map(s => s.state_id).filter(Boolean);
 
-    const isFcraSelected = 
-      (fundingSelect && fundingSources.find(f => f.funding_source_id === Number(fundingSelect))?.source_name === 'FCRA') || 
+    const isFcraSelected =
+      (fundingSelect && fundingSources.find(f => f.funding_source_id === Number(fundingSelect))?.source_name === 'FCRA') ||
       (fundingSelect2 && fundingSources.find(f => f.funding_source_id === Number(fundingSelect2))?.source_name === 'FCRA') ||
       (fundingSelect === 'custom' && customFunding?.toUpperCase() === 'FCRA') ||
       (fundingSelect2 === 'custom' && customFunding2?.toUpperCase() === 'FCRA');
@@ -789,7 +789,7 @@ export default function ProjectDetails() {
   };
 
   const handleExportPdf = () => {
-    const url = `${api.defaults.baseURL || "http://localhost:5000"}/reports/export/pdf?project_ids=${id}`;
+    const url = `${api.defaults.baseURL}/reports/export/pdf?project_ids=${id}`;
     window.open(url, "_blank");
   };
 
@@ -811,8 +811,8 @@ export default function ProjectDetails() {
 
 
 
-  const isFcraSelected = 
-    (fundingSelect && fundingSources.find(f => f.funding_source_id === Number(fundingSelect))?.source_name === 'FCRA') || 
+  const isFcraSelected =
+    (fundingSelect && fundingSources.find(f => f.funding_source_id === Number(fundingSelect))?.source_name === 'FCRA') ||
     (fundingSelect2 && fundingSources.find(f => f.funding_source_id === Number(fundingSelect2))?.source_name === 'FCRA') ||
     (fundingSelect === 'custom' && customFunding?.toUpperCase() === 'FCRA') ||
     (fundingSelect2 === 'custom' && customFunding2?.toUpperCase() === 'FCRA');
@@ -1186,10 +1186,10 @@ export default function ProjectDetails() {
                   {projectImages.map((img, idx) => (
                     <Grid size={{ xs: 12, sm: 6, md: 4 }} key={idx}>
                       <Paper sx={{ p: 1, border: "1px solid", borderColor: "divider", borderRadius: "8px", overflow: "hidden", backgroundColor: "#fff" }}>
-                        <img 
-                          src={img.url} 
-                          alt={img.remarks || `Project Image ${idx + 1}`} 
-                          style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "4px" }} 
+                        <img
+                          src={img.url}
+                          alt={img.remarks || `Project Image ${idx + 1}`}
+                          style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "4px" }}
                         />
                         {img.remarks && (
                           <Typography variant="caption" sx={{ display: "block", mt: 1, textAlign: "center", color: "text.secondary", fontWeight: "500" }}>
@@ -1807,7 +1807,7 @@ export default function ProjectDetails() {
                   </FormControl>
                 </Grid>
 
-                <Grid size={{xs: 12, sm: 6, md: 3}}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <FormControl fullWidth size="small" disabled={areaType !== "Urban" && areaType !== "Both"}>
                     <InputLabel>Urban Subtype</InputLabel>
                     <Select
@@ -2249,9 +2249,9 @@ export default function ProjectDetails() {
                     >
                       <Box sx={{ fontSize: "28px", lineHeight: 1, flexShrink: 0 }}>
                         {doc.type === "MOU" || doc.type === "Agreement" ? "📝" :
-                         doc.type === "Report" || doc.type === "Proposal" ? "📋" :
-                         doc.type === "Budget" || doc.type === "Invoice" ? "💰" :
-                         doc.type === "Completion Certificate" ? "🏆" : "📄"}
+                          doc.type === "Report" || doc.type === "Proposal" ? "📋" :
+                            doc.type === "Budget" || doc.type === "Invoice" ? "💰" :
+                              doc.type === "Completion Certificate" ? "🏆" : "📄"}
                       </Box>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5, flexWrap: "wrap" }}>

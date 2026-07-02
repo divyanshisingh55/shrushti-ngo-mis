@@ -143,7 +143,7 @@ export default function Reports() {
       if (selectedAgency) params.append("agency_id", selectedAgency);
       if (selectedStatus) params.append("status", selectedStatus);
     }
-    return `${api.defaults.baseURL || "http://localhost:5000"}/reports/export/${format}?${params.toString()}`;
+    return `${api.defaults.baseURL}/reports/export/${format}?${params.toString()}`;
   };
 
   const handleExport = (format) => {

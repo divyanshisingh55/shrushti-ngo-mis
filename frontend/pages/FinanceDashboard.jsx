@@ -151,7 +151,7 @@ export default function FinanceDashboard() {
   };
 
   const handleExportExcel = (exportType) => {
-    let url = `${api.defaults.baseURL || "http://localhost:5000"}/finance/export/excel`;
+    let url = `${api.defaults.baseURL}/finance/export/excel`;
     const params = [];
     if (fromYear) params.push(`from_year=${fromYear}`);
     if (toYear) params.push(`to_year=${toYear}`);
