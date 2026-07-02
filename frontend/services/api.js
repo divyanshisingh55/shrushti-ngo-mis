@@ -1,7 +1,15 @@
 import axios from "axios";
 
+const getBaseURL = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  return isLocal ? `${window.location.protocol}//${window.location.hostname}:5000` : "";
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: getBaseURL(),
 });
 
 // Auto-attach JWT token if present in localStorage
