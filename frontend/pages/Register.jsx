@@ -36,7 +36,7 @@ export default function Register() {
     }
 
     // Password policy check
-    const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\/]).{6,}$/;
     if (!pwRegex.test(password)) {
       setError("Password must be at least 6 characters and include uppercase, lowercase, number, and special character.");
       return;

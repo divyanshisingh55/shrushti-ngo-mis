@@ -85,7 +85,7 @@ export default function UserProfile() {
   const hasUpper = /[A-Z]/.test(newPassword);
   const hasLower = /[a-z]/.test(newPassword);
   const hasDigit = /\d/.test(newPassword);
-  const hasSymbol = /[@$!%*?&]/.test(newPassword);
+  const hasSymbol = /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\/]/.test(newPassword);
   const isPasswordValid = hasMinLen && hasUpper && hasLower && hasDigit && hasSymbol;
 
   useEffect(() => {

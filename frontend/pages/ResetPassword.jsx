@@ -33,7 +33,7 @@ export default function ResetPassword() {
   const hasUpper = /[A-Z]/.test(password);
   const hasLower = /[a-z]/.test(password);
   const hasDigit = /\d/.test(password);
-  const hasSymbol = /[@$!%*?&]/.test(password);
+  const hasSymbol = /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\/]/.test(password);
 
   const isPasswordValid = hasMinLen && hasUpper && hasLower && hasDigit && hasSymbol;
 
