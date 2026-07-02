@@ -81,7 +81,7 @@ export default function UserProfile() {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   // Password strength checks
-  const hasMinLen = newPassword.length >= 12;
+  const hasMinLen = newPassword.length >= 6;
   const hasUpper = /[A-Z]/.test(newPassword);
   const hasLower = /[a-z]/.test(newPassword);
   const hasDigit = /\d/.test(newPassword);
@@ -514,7 +514,7 @@ export default function UserProfile() {
                         required
                       />
                       <Stack spacing={0.5} sx={{ mt: 1 }}>
-                        <RuleItem checked={hasMinLen} text="Min 12 characters" />
+                        <RuleItem checked={hasMinLen} text="Min 6 characters" />
                         <RuleItem checked={hasUpper} text="Uppercase letter" />
                         <RuleItem checked={hasLower} text="Lowercase letter" />
                         <RuleItem checked={hasDigit} text="Number" />

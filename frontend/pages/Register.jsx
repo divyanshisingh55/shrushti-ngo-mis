@@ -36,9 +36,9 @@ export default function Register() {
     }
 
     // Password policy check
-    const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
+    const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
     if (!pwRegex.test(password)) {
-      setError("Password must be at least 12 characters and include uppercase, lowercase, number, and special character.");
+      setError("Password must be at least 6 characters and include uppercase, lowercase, number, and special character.");
       return;
     }
 
@@ -136,7 +136,7 @@ export default function Register() {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Password (min 12 chars, upper, lower, number, symbol) *"
+                label="Password (min 6 chars, upper, lower, number, symbol) *"
                 type="password"
                 variant="outlined"
                 size="small"

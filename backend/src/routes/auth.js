@@ -325,10 +325,10 @@ router.post("/reset-password", async (req, res) => {
   }
 
   // Password policy check
-  const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
+  const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
   if (!pwRegex.test(newPassword)) {
     return res.status(400).json({ 
-      message: "Password must be at least 12 characters and include uppercase, lowercase, number, and special character." 
+      message: "Password must be at least 6 characters and include uppercase, lowercase, number, and special character." 
     });
   }
 

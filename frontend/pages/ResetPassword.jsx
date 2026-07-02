@@ -29,7 +29,7 @@ export default function ResetPassword() {
   const [error, setError] = useState("");
 
   // Complexity states
-  const hasMinLen = password.length >= 12;
+  const hasMinLen = password.length >= 6;
   const hasUpper = /[A-Z]/.test(password);
   const hasLower = /[a-z]/.test(password);
   const hasDigit = /\d/.test(password);
@@ -124,7 +124,7 @@ export default function ResetPassword() {
               />
 
               <List sx={{ pt: 0, pb: 1 }}>
-                <RuleItem checked={hasMinLen} text="At least 12 characters" />
+                <RuleItem checked={hasMinLen} text="At least 6 characters" />
                 <RuleItem checked={hasUpper} text="Contains uppercase letter" />
                 <RuleItem checked={hasLower} text="Contains lowercase letter" />
                 <RuleItem checked={hasDigit} text="Contains number" />
