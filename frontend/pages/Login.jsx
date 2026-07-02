@@ -49,75 +49,210 @@ export default function Login() {
   };
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh", px: 2 }}>
-      <Paper sx={{ p: 4, width: "100%", maxWidth: "420px", borderRadius: "12px", boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)" }}>
-        <Box sx={{ textAlign: "center", mb: 3 }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold", color: "#0d9488", mb: 1 }}>
-            Shrushti MIS Portal
-          </Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Sign in to access the NGO dashboard
-          </Typography>
-        </Box>
-
-        {error && (
-          <Alert severity="error" sx={{ mb: 3, borderRadius: "8px" }} onClose={() => setError("")}>
-            {error}
-          </Alert>
-        )}
-
-        <Box component="form" onSubmit={handleSubmit}>
-          <Stack spacing={2.5}>
-            <TextField
-              fullWidth
-              label="Email Address"
-              type="email"
-              variant="outlined"
-              size="small"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <TextField
-              fullWidth
-              label="Password"
-              type="password"
-              variant="outlined"
-              size="small"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              <Link component={RouterLink} to="/forgot-password" sx={{ fontSize: "13px", color: "#0d9488", textDecoration: "none", fontWeight: "600" }}>
-                Forgot Password?
-              </Link>
-            </Box>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={loading}
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        width: "100vw",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        px: 2,
+        background: "linear-gradient(135deg, #0b1329 0%, #0d9488 100%)",
+        overflowY: "auto"
+      }}
+    >
+      <Paper
+        elevation={24}
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          width: "100%",
+          maxWidth: "960px",
+          minHeight: "560px",
+          borderRadius: "20px",
+          overflow: "hidden",
+          backgroundColor: "background.paper",
+          boxShadow: "0 24px 64px rgba(0, 0, 0, 0.3)"
+        }}
+      >
+        {/* Left Side: NGO Work Image Banner */}
+        <Box
+          sx={{
+            width: { xs: "100%", md: "50%" },
+            backgroundImage: "url(/ngo_work.png)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            position: "relative",
+            minHeight: { xs: "250px", md: "auto" },
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-end",
+            p: 4,
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "linear-gradient(180deg, rgba(11, 19, 41, 0.1) 0%, rgba(11, 19, 41, 0.85) 100%)",
+              zIndex: 1
+            }
+          }}
+        >
+          <Box sx={{ position: "relative", zIndex: 2, color: "#ffffff" }}>
+            <Typography
+              variant="h4"
               sx={{
-                py: 1.2,
-                backgroundColor: "#0d9488",
-                "&:hover": { backgroundColor: "#0f766e" },
-                textTransform: "none",
-                fontWeight: "bold",
-                borderRadius: "8px"
+                fontWeight: 800,
+                mb: 1,
+                fontFamily: "'Playfair Display', serif",
+                textShadow: "0 2px 4px rgba(0,0,0,0.5)"
               }}
             >
-              {loading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Sign In"}
-            </Button>
-          </Stack>
+              Shrushti Seva Samiti
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "rgba(255, 255, 255, 0.85)",
+                fontWeight: 500,
+                lineHeight: 1.4,
+                textShadow: "0 1px 2px rgba(0,0,0,0.5)"
+              }}
+            >
+              Empowering communities, driving rural development, and building a sustainable future.
+            </Typography>
+          </Box>
         </Box>
 
-        <Box sx={{ mt: 3, textAlign: "center" }}>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Don't have an account?{" "}
-            <Link component={RouterLink} to="/register" sx={{ color: "#0d9488", textDecoration: "none", fontWeight: "600" }}>
-              Create Account
-            </Link>
-          </Typography>
+        {/* Right Side: Login Form */}
+        <Box
+          sx={{
+            width: { xs: "100%", md: "50%" },
+            p: { xs: 4, md: 6 },
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center"
+          }}
+        >
+          <Box sx={{ textAlign: "center", mb: 4 }}>
+            {/* Shrushti Logo */}
+            <Box
+              component="img"
+              src="/shrushti-logo.png"
+              alt="Shrushti Logo"
+              sx={{
+                width: 90,
+                height: 90,
+                mx: "auto",
+                mb: 2,
+                objectFit: "contain",
+                borderRadius: "50%",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.06)"
+              }}
+            />
+            <Typography variant="h5" sx={{ fontWeight: 800, color: "#0d9488", mb: 0.5, letterSpacing: "-0.5px" }}>
+              SHRUSHTI MIS
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 500 }}>
+              Management Information System Portal
+            </Typography>
+          </Box>
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 3, borderRadius: "10px" }} onClose={() => setError("")}>
+              {error}
+            </Alert>
+          )}
+
+          <Box component="form" onSubmit={handleSubmit}>
+            <Stack spacing={2.5}>
+              <TextField
+                fullWidth
+                label="Email Address"
+                type="email"
+                variant="outlined"
+                size="small"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "10px"
+                  }
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Password"
+                type="password"
+                variant="outlined"
+                size="small"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "10px"
+                  }
+                }}
+              />
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Link
+                  component={RouterLink}
+                  to="/forgot-password"
+                  sx={{
+                    fontSize: "13px",
+                    color: "#0d9488",
+                    textDecoration: "none",
+                    fontWeight: "600",
+                    "&:hover": { color: "#0f766e" }
+                  }}
+                >
+                  Forgot Password?
+                </Link>
+              </Box>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={loading}
+                sx={{
+                  py: 1.3,
+                  backgroundColor: "#0d9488",
+                  "&:hover": { backgroundColor: "#0f766e" },
+                  textTransform: "none",
+                  fontWeight: "bold",
+                  fontSize: "15px",
+                  borderRadius: "10px",
+                  boxShadow: "0 4px 12px rgba(13, 148, 136, 0.2)"
+                }}
+              >
+                {loading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Sign In"}
+              </Button>
+            </Stack>
+          </Box>
+
+          <Box sx={{ mt: 4, textAlign: "center" }}>
+            <Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 500 }}>
+              Don't have an account?{" "}
+              <Link
+                component={RouterLink}
+                to="/register"
+                sx={{
+                  color: "#0d9488",
+                  textDecoration: "none",
+                  fontWeight: "600",
+                  "&:hover": { color: "#0f766e" }
+                }}
+              >
+                Request Access
+              </Link>
+            </Typography>
+          </Box>
         </Box>
       </Paper>
     </Box>
