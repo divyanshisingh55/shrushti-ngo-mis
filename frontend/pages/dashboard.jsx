@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Grid,
@@ -147,9 +147,9 @@ export default function Dashboard() {
     try {
       const yearsParam = selectedYears.length > 0 ? `?years=${selectedYears.join(",")}` : "";
       const [summaryRes, chartsRes, projectsRes] = await Promise.all([
-        axios.get(`http://localhost:5000/dashboard/summary${yearsParam}`),
-        axios.get(`http://localhost:5000/dashboard/charts${yearsParam}`),
-        axios.get("http://localhost:5000/projects?include_archived=false")
+        api.get(`/dashboard/summary${yearsParam}`),
+        api.get(`/dashboard/charts${yearsParam}`),
+        api.get("/projects?include_archived=false")
       ]);
 
       setSummary(summaryRes.data);
@@ -183,7 +183,7 @@ export default function Dashboard() {
       if (selectedYears.length > 0) {
         params.year = selectedYears.join(",");
       }
-      const res = await axios.get("http://localhost:5000/projects", { params });
+      const res = await api.get("/projects", { params });
       const list = res.data.data || res.data;
       setDialogData(list);
     } catch (err) {
@@ -202,7 +202,7 @@ export default function Dashboard() {
       if (selectedYears.length > 0) {
         params.year = selectedYears.join(",");
       }
-      const res = await axios.get("http://localhost:5000/projects", { params });
+      const res = await api.get("/projects", { params });
       const list = res.data.data || res.data;
       setDialogData(list);
     } catch (err) {
@@ -221,7 +221,7 @@ export default function Dashboard() {
       if (selectedYears.length > 0) {
         params.year = selectedYears.join(",");
       }
-      const res = await axios.get("http://localhost:5000/projects", { params });
+      const res = await api.get("/projects", { params });
       const list = res.data.data || res.data;
       setDialogData(list);
     } catch (err) {
@@ -240,7 +240,7 @@ export default function Dashboard() {
       if (selectedYears.length > 0) {
         params.year = selectedYears.join(",");
       }
-      const res = await axios.get("http://localhost:5000/projects", { params });
+      const res = await api.get("/projects", { params });
       const list = res.data.data || res.data;
       setDialogData(list);
     } catch (err) {
@@ -281,7 +281,7 @@ export default function Dashboard() {
       setDialogLoading(true);
       
       try {
-        const res = await axios.get("http://localhost:5000/projects", { params });
+        const res = await api.get("/projects", { params });
         let list = res.data.data || res.data;
         if (type === 'manual') {
           list = list.filter(p => p.classification_method === 'Manual');
@@ -298,7 +298,7 @@ export default function Dashboard() {
       setDialogLoading(true);
       setDialogOpen(true);
       try {
-        const res = await axios.get("http://localhost:5000/agencies");
+        const res = await api.get("/agencies");
         setDialogData(res.data);
       } catch (err) {
         console.error(err);
@@ -311,7 +311,7 @@ export default function Dashboard() {
       setDialogOpen(true);
       setDialogLoading(true);
       try {
-        const res = await axios.get("http://localhost:5000/taxonomy");
+        const res = await api.get("/taxonomy");
         const list = res.data.data?.themes || res.data.themes || res.data.data || [];
         setDialogData(list);
       } catch (err) {
@@ -325,7 +325,7 @@ export default function Dashboard() {
       setDialogLoading(true);
       setDialogOpen(true);
       try {
-        const res = await axios.get("http://localhost:5000/projects?include_archived=false");
+        const res = await api.get("/projects?include_archived=false");
         const list = res.data.data || res.data;
         const filtered = list.filter(p => p.classification_status === 'Completed' && p.classification_method === 'AI');
         setDialogData(filtered);
@@ -342,7 +342,7 @@ export default function Dashboard() {
       return;
     }
     try {
-      await axios.post(`http://localhost:5000/projects/${projectId}/unclassify`);
+      await api.post(`/projects/${projectId}/unclassify`);
       alert("Project moved to unclassified successfully.");
       setDialogData(prev => prev.filter(p => p.project_id !== projectId));
     } catch (err) {
@@ -1361,7 +1361,7 @@ export default function Dashboard() {
                   setDialogTitle('Registered Themes & Subthemes Taxonomy');
                   setDialogLoading(true);
                   try {
-                    const res = await axios.get("http://localhost:5000/taxonomy");
+                    const res = await api.get("/taxonomy");
                     const list = res.data.data?.themes || res.data.themes || res.data.data || [];
                     setDialogData(list);
                   } catch (err) {

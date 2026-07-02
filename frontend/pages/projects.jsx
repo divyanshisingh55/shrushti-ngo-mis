@@ -1,6 +1,6 @@
 import { useEffect, useState, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api";
 import {
   Box,
   Typography,
@@ -215,7 +215,7 @@ export default function Projects() {
   // Handle dynamic district/block cascade
   useEffect(() => {
     if (stateId) {
-      axios.get(`http://localhost:5000/districts?state_id=${stateId}`)
+      api.get(`/districts?state_id=${stateId}`)
         .then(res => setDistricts(res.data))
         .catch(err => console.error(err));
     } else {
@@ -228,7 +228,7 @@ export default function Projects() {
 
   useEffect(() => {
     if (districtId) {
-      axios.get(`http://localhost:5000/blocks?district_id=${districtId}`)
+      api.get(`/blocks?district_id=${districtId}`)
         .then(res => setBlocks(res.data))
         .catch(err => console.error(err));
     } else {
@@ -240,15 +240,15 @@ export default function Projects() {
   const fetchMetadata = async () => {
     try {
       const [agenciesRes, fundingRes, statesRes, statusesRes, themesRes, subThemesRes, targetGroupsRes, activityTypesRes, sdgsRes] = await Promise.all([
-        axios.get("http://localhost:5000/agencies"),
-        axios.get("http://localhost:5000/fundingsources"),
-        axios.get("http://localhost:5000/states"),
-        axios.get("http://localhost:5000/statuses"),
-        axios.get("http://localhost:5000/themes"),
-        axios.get("http://localhost:5000/subthemes"),
-        axios.get("http://localhost:5000/targetgroups"),
-        axios.get("http://localhost:5000/activitytypes"),
-        axios.get("http://localhost:5000/sdgs")
+        api.get("/agencies"),
+        api.get("/fundingsources"),
+        api.get("/states"),
+        api.get("/statuses"),
+        api.get("/themes"),
+        api.get("/subthemes"),
+        api.get("/targetgroups"),
+        api.get("/activitytypes"),
+        api.get("/sdgs")
       ]);
 
       setAgencies(agenciesRes.data);
@@ -291,7 +291,7 @@ export default function Projects() {
       is_archived: false
     };
 
-    axios.get("http://localhost:5000/projects", { params })
+    api.get("/projects", { params })
       .then((response) => {
         setProjects(response.data.data || response.data);
         setLoading(false);
@@ -306,7 +306,7 @@ export default function Projects() {
   const handleDelete = async (id, name) => {
     if (window.confirm(`Are you sure you want to delete the project: "${name}"? This action cannot be undone.`)) {
       try {
-        await axios.delete(`http://localhost:5000/projects/${id}`);
+        await api.delete(`/projects/${id}`);
         alert("Project deleted successfully");
         fetchProjects();
       } catch (error) {
@@ -318,7 +318,7 @@ export default function Projects() {
 
   const handleDuplicate = async (id) => {
     try {
-      await axios.post(`http://localhost:5000/projects/${id}/duplicate`);
+      await api.post(`/projects/${id}/duplicate`);
       alert("Project duplicated successfully!");
       fetchProjects();
     } catch (error) {
@@ -330,10 +330,10 @@ export default function Projects() {
   const handleArchiveToggle = async (id, archived) => {
     try {
       if (archived) {
-        await axios.post(`http://localhost:5000/projects/${id}/unarchive`);
+        await api.post(`/projects/${id}/unarchive`);
         alert("Project restored successfully!");
       } else {
-        await axios.post(`http://localhost:5000/projects/${id}/archive`);
+        await api.post(`/projects/${id}/archive`);
         alert("Project archived successfully!");
       }
       fetchProjects();
@@ -456,7 +456,7 @@ export default function Projects() {
     setBulkOpen(true);
     setBulkLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/ai-classify/bulk-suggest", {
+      const res = await api.post("/ai-classify/bulk-suggest", {
         projectIds: selectedIds
       });
       setBulkSuggestions(res.data.suggestions || []);
@@ -492,7 +492,7 @@ export default function Projects() {
         activityTypeIds: x.suggestion.activityTypeIds
       }));
 
-      await axios.post("http://localhost:5000/ai-classify/bulk-save", {
+      await api.post("/ai-classify/bulk-save", {
         classifications: payload
       });
 
@@ -534,7 +534,7 @@ export default function Projects() {
       params.append("is_archived", "false");
     }
 
-    const url = `http://localhost:5000/reports/export/${format}?${params.toString()}`;
+    const url = `${api.defaults.baseURL || "http://localhost:5000"}/reports/export/${format}?${params.toString()}`;
     window.open(url, "_blank");
   };
 

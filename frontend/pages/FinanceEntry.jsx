@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import {
   Box, Typography, Grid, Card, CardContent, Button, TextField,
@@ -18,7 +18,7 @@ import {
   Info as InfoIcon
 } from "@mui/icons-material";
 
-const API = "http://localhost:5000/finance";
+const API = "/finance";
 
 const EMPTY_FORM = {
   year: "",
@@ -84,7 +84,7 @@ export default function FinanceEntry() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(API);
+      const res = await api.get(API);
       setRecords(res.data.sort((a, b) => b.year.localeCompare(a.year)));
     } catch (err) {
       setError("Failed to load records");
@@ -168,10 +168,10 @@ export default function FinanceEntry() {
     setError("");
     try {
       if (editId) {
-        await axios.put(`${API}/${editId}`, form);
+        await api.put(`${API}/${editId}`, form);
         setSnack({ open: true, msg: `Record for ${form.year} updated successfully!`, severity: "success" });
       } else {
-        await axios.post(API, form);
+        await api.post(API, form);
         setSnack({ open: true, msg: `Record for ${form.year} added successfully!`, severity: "success" });
       }
       await fetchData();
@@ -186,7 +186,7 @@ export default function FinanceEntry() {
   const handleDelete = async () => {
     if (!deleteDialog.record) return;
     try {
-      await axios.delete(`${API}/${deleteDialog.record.id}`);
+      await api.delete(`${API}/${deleteDialog.record.id}`);
       setSnack({ open: true, msg: `Record for ${deleteDialog.record.year} deleted.`, severity: "info" });
       await fetchData();
     } catch (err) {

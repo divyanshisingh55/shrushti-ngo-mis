@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api";
 import {
   Box,
   Typography,
@@ -73,10 +73,10 @@ export default function AddProject() {
   const fetchMetadata = async () => {
     try {
       const [agenciesRes, fundingRes, statesRes, statusesRes] = await Promise.all([
-        axios.get("http://localhost:5000/agencies"),
-        axios.get("http://localhost:5000/fundingsources"),
-        axios.get("http://localhost:5000/states"),
-        axios.get("http://localhost:5000/statuses")
+        api.get("/agencies"),
+        api.get("/fundingsources"),
+        api.get("/states"),
+        api.get("/statuses")
       ]);
 
       setAgencies(agenciesRes.data);
@@ -128,7 +128,7 @@ export default function AddProject() {
       (fundingSelect2 === 'custom' && customFunding2?.toUpperCase() === 'FCRA');
 
     try {
-      await axios.post("http://localhost:5000/projects", {
+      await api.post("/projects", {
         project_name: projectName,
         agency: agencyVal,
         year: year,

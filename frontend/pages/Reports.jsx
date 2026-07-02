@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../services/api";
 import {
   Box,
   Typography,
@@ -71,7 +71,7 @@ export default function Reports() {
   // Handle dynamic district cascade
   useEffect(() => {
     if (selectedState) {
-      axios.get(`http://localhost:5000/districts?state_id=${selectedState}`)
+      api.get(`/districts?state_id=${selectedState}`)
         .then(res => setDistricts(res.data))
         .catch(err => console.error(err));
     } else {
@@ -83,12 +83,12 @@ export default function Reports() {
   const loadFilters = async () => {
     try {
       const [themesRes, subThemesRes, targetGroupsRes, statesRes, agenciesRes, projectsRes] = await Promise.all([
-        axios.get("http://localhost:5000/themes"),
-        axios.get("http://localhost:5000/subthemes"),
-        axios.get("http://localhost:5000/targetgroups"),
-        axios.get("http://localhost:5000/states"),
-        axios.get("http://localhost:5000/agencies"),
-        axios.get("http://localhost:5000/projects")
+        api.get("/themes"),
+        api.get("/subthemes"),
+        api.get("/targetgroups"),
+        api.get("/states"),
+        api.get("/agencies"),
+        api.get("/projects")
       ]);
 
       setThemes(themesRes.data.data || themesRes.data);
@@ -109,7 +109,7 @@ export default function Reports() {
     setLoading(true);
     setSelectedIds([]);
     try {
-      const res = await axios.get("http://localhost:5000/reports", {
+      const res = await api.get("/reports", {
         params: {
           year: selectedYear,
           theme_id: selectedTheme,
@@ -143,7 +143,7 @@ export default function Reports() {
       if (selectedAgency) params.append("agency_id", selectedAgency);
       if (selectedStatus) params.append("status", selectedStatus);
     }
-    return `http://localhost:5000/reports/export/${format}?${params.toString()}`;
+    return `${api.defaults.baseURL || "http://localhost:5000"}/reports/export/${format}?${params.toString()}`;
   };
 
   const handleExport = (format) => {

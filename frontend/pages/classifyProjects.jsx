@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { Link } from "react-router-dom";
 import {
   Box,
@@ -27,8 +27,8 @@ export default function ClassifyProjects() {
 
   const loadProjects = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:5000/projects", {
+      const response = await api.get(
+        "/projects", {
         params: { status: "Pending" }
       }
       );

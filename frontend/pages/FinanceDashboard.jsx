@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import {
   Box, Typography, Grid, Card, CardContent, Divider,
@@ -28,7 +28,7 @@ import {
   PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis
 } from "recharts";
 
-const API = "http://localhost:5000/finance";
+const API = "/finance";
 
 const COLORS = ["#0d9488", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"];
 
@@ -151,7 +151,7 @@ export default function FinanceDashboard() {
   };
 
   const handleExportExcel = (exportType) => {
-    let url = "http://localhost:5000/finance/export/excel";
+    let url = `${api.defaults.baseURL || "http://localhost:5000"}/finance/export/excel`;
     const params = [];
     if (fromYear) params.push(`from_year=${fromYear}`);
     if (toYear) params.push(`to_year=${toYear}`);
@@ -253,7 +253,7 @@ export default function FinanceDashboard() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(API);
+      const res = await api.get(API);
       setRecords(res.data);
     } catch (err) {
       setError("Failed to load finance data");

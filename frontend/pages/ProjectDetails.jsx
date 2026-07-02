@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import {
   Box,
   Typography,
@@ -55,7 +55,7 @@ export default function ProjectDetails() {
   const fetchAiSuggestion = async () => {
     setAiLoading(true);
     try {
-      const res = await axios.post(`http://localhost:5000/ai-classify/${id}/suggest`);
+      const res = await api.post(`/ai-classify/${id}/suggest`);
       if (res.data.success) {
         setAiSuggestion(res.data.suggestion);
       } else {
@@ -440,7 +440,7 @@ export default function ProjectDetails() {
     setLoading(true);
     try {
       // 1. Fetch project details (with classification)
-      const projectRes = await axios.get(`http://localhost:5000/project/${id}`);
+      const projectRes = await api.get(`/project/${id}`);
       const proj = projectRes.data;
       setProject(proj);
 
@@ -615,16 +615,16 @@ export default function ProjectDetails() {
 
       // 2. Fetch all metadata dropdowns + taxonomy
       const [themesRes, subThemesRes, targetGroupsRes, activityTypesRes, agenciesRes, fundingRes, statesRes, statusesRes, sdgsRes, taxonomyRes] = await Promise.all([
-        axios.get("http://localhost:5000/themes"),
-        axios.get("http://localhost:5000/subthemes"),
-        axios.get("http://localhost:5000/targetgroups"),
-        axios.get("http://localhost:5000/activitytypes"),
-        axios.get("http://localhost:5000/agencies"),
-        axios.get("http://localhost:5000/fundingsources"),
-        axios.get("http://localhost:5000/states"),
-        axios.get("http://localhost:5000/statuses"),
-        axios.get("http://localhost:5000/sdgs"),
-        axios.get("http://localhost:5000/taxonomy")
+        api.get("/themes"),
+        api.get("/subthemes"),
+        api.get("/targetgroups"),
+        api.get("/activitytypes"),
+        api.get("/agencies"),
+        api.get("/fundingsources"),
+        api.get("/states"),
+        api.get("/statuses"),
+        api.get("/sdgs"),
+        api.get("/taxonomy")
       ]);
 
       setThemes(themesRes.data.data || themesRes.data);
@@ -669,7 +669,7 @@ export default function ProjectDetails() {
       (fundingSelect2 === 'custom' && customFunding2?.toUpperCase() === 'FCRA');
 
     try {
-      await axios.put(`http://localhost:5000/projects/${id}`, {
+      await api.put(`/projects/${id}`, {
         project_name: editName,
         agency: agencyVal,
         year: editYear,
@@ -746,7 +746,7 @@ export default function ProjectDetails() {
         return;
       }
 
-      const response = await axios.post(`http://localhost:5000/classify-project/${id}`, {
+      const response = await api.post(`/classify-project/${id}`, {
         themes: activeThemes,
         targetGroupIds: selectedTargetGroups,
         activityTypeIds: [],
@@ -789,7 +789,7 @@ export default function ProjectDetails() {
   };
 
   const handleExportPdf = () => {
-    const url = `http://localhost:5000/reports/export/pdf?project_ids=${id}`;
+    const url = `${api.defaults.baseURL || "http://localhost:5000"}/reports/export/pdf?project_ids=${id}`;
     window.open(url, "_blank");
   };
 

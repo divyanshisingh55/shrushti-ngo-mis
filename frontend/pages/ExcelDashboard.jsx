@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import api from "../services/api";
 import {
   Box,
   Typography,
@@ -145,7 +145,7 @@ export default function ExcelDashboard() {
   const fetchAgencies = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/reports/agencies/summary");
+      const res = await api.get("/reports/agencies/summary");
       setAgencies(res.data.data || []);
     } catch (err) {
       console.error("Error fetching agencies:", err);
@@ -164,7 +164,7 @@ export default function ExcelDashboard() {
     setStatsLoading(true);
     setAgencyStats(null);
     try {
-      const res = await axios.get(`http://localhost:5000/reports/agency/${agency.agency_id}/stats`);
+      const res = await api.get(`/reports/agency/${agency.agency_id}/stats`);
       setAgencyStats(res.data);
     } catch (err) {
       console.error("Error fetching agency stats:", err);
