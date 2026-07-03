@@ -1,0 +1,10 @@
+{
+  "name": "shrushti-mis-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npm start --prefix backend",
+    "build": "npm install --prefix backend",
+    "postinstall": "npm install --prefix backend"
+  }
+}
