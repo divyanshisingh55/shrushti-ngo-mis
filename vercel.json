@@ -1,34 +1,6 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "backend/src/app.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/src/app.js"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "frontend/dist/assets/$1"
-    },
-    {
-      "src": "/(favicon.svg|shrushti-logo.png|.*)",
-      "dest": "frontend/dist/$1"
-    },
-    {
-      "src": "/((?!api).*)",
-      "dest": "frontend/dist/index.html"
-    }
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/((?!assets|favicon.ico|.*\\.png|.*\\.jpg|.*\\.webp|.*\\.svg).*)", "destination": "/index.html" }
   ]
 }

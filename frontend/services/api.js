@@ -6,7 +6,7 @@ const getBaseURL = () => {
   }
   // Check if running on Vercel environment
   if (window.location.hostname === "shrushti-ngo-mis.vercel.app" || window.location.hostname.endsWith(".vercel.app")) {
-    return `${window.location.protocol}//${window.location.host}/api`;
+    return "https://shrushti-ngo-mis-production.up.railway.app";
   }
   // Local development fallback
   return `${window.location.protocol}//${window.location.hostname}:5000`;
