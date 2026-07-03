@@ -106,13 +106,11 @@ app.get("/", async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-runAllMigrations().then(() => {
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`🚀 Shrushti MIS Backend Running On Port ${PORT}`);
-  });
-}).catch(err => {
-  console.error("❌ Startup migrations failed, launching server anyway:", err);
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`🚀 Shrushti MIS Backend Running On Port ${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Shrushti MIS Backend Running On Port ${PORT}`);
+  
+  // Run database migrations in the background so slow connection handshakes do not block boot checks
+  runAllMigrations().catch(err => {
+    console.error("❌ Startup migrations failed:", err);
   });
 });
