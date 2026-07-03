@@ -60,31 +60,33 @@ app.use(cors({
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
-app.use("/auth", authRoutes);
-app.use("/profile", profileRoutes);
-app.use("/admin", adminRoutes);
-app.use("/projects", projectRoutes);
-app.use("/themes", themeRoutes);
-app.use("/dashboard", dashboardRoutes);
-app.use("/project", projectDetailsRoutes);
-app.use("/subthemes", subThemeRoutes);
-app.use("/targetgroups", targetGroupRoutes);
-app.use("/activitytypes", activityTypeRoutes);
-app.use("/classifyProject", classifyProjectRoutes);
-app.use("/classify-project", classifyProjectRoutes);
-app.use("/agencies", agencyRoutes);
-app.use("/fundingsources", fundingSourceRoutes);
-app.use("/statuses", statusRoutes);
-app.use("/states", stateRoutes);
-app.use("/reports", reportsRoutes);
-app.use("/ai-classify", aiClassificationRoutes);
-app.use("/districts", districtRoutes);
-app.use("/blocks", blockRoutes);
-app.use("/sdgs", sdgRoutes);
-app.use("/taxonomy", taxonomyRoutes);
-app.use("/finance", financeRoutes);
+const baseRouter = express.Router();
 
-app.get("/", async (req, res) => {
+baseRouter.use("/auth", authRoutes);
+baseRouter.use("/profile", profileRoutes);
+baseRouter.use("/admin", adminRoutes);
+baseRouter.use("/projects", projectRoutes);
+baseRouter.use("/themes", themeRoutes);
+baseRouter.use("/dashboard", dashboardRoutes);
+baseRouter.use("/project", projectDetailsRoutes);
+baseRouter.use("/subthemes", subThemeRoutes);
+baseRouter.use("/targetgroups", targetGroupRoutes);
+baseRouter.use("/activitytypes", activityTypeRoutes);
+baseRouter.use("/classifyProject", classifyProjectRoutes);
+baseRouter.use("/classify-project", classifyProjectRoutes);
+baseRouter.use("/agencies", agencyRoutes);
+baseRouter.use("/fundingsources", fundingSourceRoutes);
+baseRouter.use("/statuses", statusRoutes);
+baseRouter.use("/states", stateRoutes);
+baseRouter.use("/reports", reportsRoutes);
+baseRouter.use("/ai-classify", aiClassificationRoutes);
+baseRouter.use("/districts", districtRoutes);
+baseRouter.use("/blocks", blockRoutes);
+baseRouter.use("/sdgs", sdgRoutes);
+baseRouter.use("/taxonomy", taxonomyRoutes);
+baseRouter.use("/finance", financeRoutes);
+
+baseRouter.get("/", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
     res.json({
@@ -93,10 +95,8 @@ app.get("/", async (req, res) => {
       time: result.rows[0].now
     });
   } catch (error) {
-
     console.error("DATABASE ERROR:");
     console.error(error);
-  
     res.status(500).json({
       success: false,
       message: error.message
@@ -104,13 +104,19 @@ app.get("/", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
+app.use("/api", baseRouter);
+app.use("/", baseRouter);
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Shrushti MIS Backend Running On Port ${PORT}`);
-  
-  // Run database migrations in the background so slow connection handshakes do not block boot checks
-  runAllMigrations().catch(err => {
-    console.error("❌ Startup migrations failed:", err);
-  });
+// Run migrations in background on boot
+runAllMigrations().catch(err => {
+  console.error("❌ Startup migrations failed:", err);
 });
+
+if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Shrushti MIS Backend Running On Port ${PORT}`);
+  });
+}
+
+module.exports = app;
