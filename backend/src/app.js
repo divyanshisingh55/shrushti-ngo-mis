@@ -104,6 +104,12 @@ runAllMigrations().catch(err => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Shrushti MIS Backend Running On Port ${PORT}`);
-});
+
+// Start listener for Railway / local dev; Vercel imports the exported app instead
+if (require.main === module) {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Shrushti MIS Backend Running On Port ${PORT}`);
+  });
+}
+
+module.exports = app;

@@ -1,15 +1,16 @@
 import axios from "axios";
 
 const getBaseURL = () => {
+  // Explicit env var always wins (set VITE_API_URL=https://... in Vercel dashboard if needed)
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  // Check if running on Vercel environment
-  if (window.location.hostname === "shrushti-ngo-mis.vercel.app" || window.location.hostname.endsWith(".vercel.app")) {
-    return "https://shrushti-ngo-mis-production.up.railway.app";
+  // On Vercel (or any deployed host) — call /api on the same domain (no CORS, no Railway)
+  if (typeof window !== "undefined" && !window.location.hostname.includes("localhost")) {
+    return `${window.location.protocol}//${window.location.host}/api`;
   }
-  // Local development fallback
-  return `${window.location.protocol}//${window.location.hostname}:5000`;
+  // Local development
+  return "http://localhost:5000";
 };
 
 const api = axios.create({

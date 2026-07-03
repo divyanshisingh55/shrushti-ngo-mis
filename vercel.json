@@ -1,6 +1,13 @@
 {
-  "cleanUrls": true,
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "backend/**"
+    }
+  },
   "rewrites": [
-    { "source": "/((?!assets|favicon.ico|.*\\.png|.*\\.jpg|.*\\.webp|.*\\.svg).*)", "destination": "/index.html" }
+    { "source": "/api/:path*", "destination": "/api/index.js" },
+    { "source": "/((?!api).*)", "destination": "/index.html" }
   ]
 }
