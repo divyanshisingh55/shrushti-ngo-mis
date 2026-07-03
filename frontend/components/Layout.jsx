@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Box,
   Drawer,
@@ -12,11 +12,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  IconButton,
-  Avatar,
-  Badge,
-  Menu,
-  MenuItem
+  IconButton
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -24,19 +20,13 @@ import {
   ListAlt as ListIcon,
   Category as CategoryIcon,
   AddBox as AddBoxIcon,
-  Assessment as AssessmentIcon,
-  Search as SearchIcon,
-  NotificationsNone as NotificationsIcon,
   DarkModeOutlined as DarkModeIcon,
   LightModeOutlined as LightModeIcon,
   AttachMoney as FinanceIcon,
   TableChart as TableChartIcon,
-  Logout as LogoutIcon,
-  Settings as SettingsIcon,
   AdminPanelSettings as AdminIcon
 } from "@mui/icons-material";
 import { useColorMode } from "../src/ThemeContext";
-import api from "../services/api";
 
 const drawerWidth = 240;
 
@@ -45,33 +35,6 @@ export default function Layout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const publicPaths = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email"];
-  const isPublicPath = publicPaths.includes(location.pathname);
-
-  if (isPublicPath) {
-    return (
-      <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "linear-gradient(135deg, #0b1329 0%, #0d9488 100%)", overflow: "hidden" }}>
-        <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-          {children}
-        </Box>
-      </Box>
-    );
-  }
-
-  const user = JSON.parse(localStorage.getItem("user") || "null");
-
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
-
-  const handleLogout = () => {
-    localStorage.clear();
-    api.post("/auth/logout").catch(() => {});
-    navigate("/login");
-    window.location.reload();
-  };
 
   const handleDrawerToggle = () => {
     if (window.innerWidth < 600) {
@@ -83,18 +46,13 @@ export default function Layout({ children }) {
 
   const activeDrawerWidth = isCollapsed ? 0 : drawerWidth;
 
-  const isAdmin = user && (user.role === "Founder" || user.role === "Admin");
-
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
     { text: "Projects List", icon: <ListIcon />, path: "/projects" },
     { text: "Classify Queue", icon: <CategoryIcon />, path: "/classify-projects" },
-    { text: "Add New Project", icon: <AddBoxIcon />, path: "/projects/add" }
+    { text: "Add New Project", icon: <AddBoxIcon />, path: "/projects/add" },
+    { text: "Admin Panel", icon: <AdminIcon />, path: "/admin" }
   ];
-
-  if (isAdmin) {
-    menuItems.push({ text: "Admin Panel", icon: <AdminIcon />, path: "/admin" });
-  }
 
   const financeMenuItems = [
     { text: "Finance Dashboard", icon: <FinanceIcon />, path: "/finance" },
@@ -104,7 +62,7 @@ export default function Layout({ children }) {
   const drawer = (
     <Box sx={{ height: "100%", backgroundColor: "background.paper", color: "text.primary", overflowX: "hidden", borderRight: "1px solid", borderColor: "divider" }}>
       <Toolbar style={{ padding: "12px 20px", display: "flex", gap: "12px", alignItems: "center" }}>
-        <Box 
+        <Box
           component="img"
           src="/shrushti-logo.png"
           alt="Shrushti Logo"
@@ -240,57 +198,6 @@ export default function Layout({ children }) {
             <IconButton onClick={toggleColorMode} color="inherit" sx={{ color: mode === "light" ? "text.secondary" : "#eab308" }}>
               {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
-
-            {user && (
-              <>
-                <IconButton onClick={handleMenuOpen} sx={{ p: 0, ml: 1 }}>
-                  <Avatar
-                    src={user.profilePhoto ? (user.profilePhoto.startsWith("http") ? user.profilePhoto : `${api.defaults.baseURL}${user.profilePhoto}`) : ""}
-                    sx={{ bgcolor: "#0d9488", width: 36, height: 36, fontSize: "14px", fontWeight: "bold" }}
-                  >
-                    {user.fullName?.charAt(0).toUpperCase()}
-                  </Avatar>
-                </IconButton>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleMenuClose}
-                  onClick={handleMenuClose}
-                  PaperProps={{
-                    sx: {
-                      mt: 1.5,
-                      width: 220,
-                      borderRadius: "10px",
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.08)"
-                    }
-                  }}
-                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                >
-                  <Box sx={{ px: 2, py: 1.5 }}>
-                    <Typography variant="body2" sx={{ fontWeight: "bold", color: "text.primary" }}>
-                      {user.fullName}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>
-                      {user.role}
-                    </Typography>
-                  </Box>
-                  <Divider />
-                  <MenuItem onClick={() => navigate("/profile")} sx={{ py: 1 }}>
-                    <ListItemIcon>
-                      <SettingsIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary="Account Settings" primaryTypographyProps={{ fontSize: "14px" }} />
-                  </MenuItem>
-                  <MenuItem onClick={handleLogout} sx={{ py: 1, color: "error.main" }}>
-                    <ListItemIcon sx={{ color: "error.main" }}>
-                      <LogoutIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary="Sign Out" primaryTypographyProps={{ fontSize: "14px" }} />
-                  </MenuItem>
-                </Menu>
-              </>
-            )}
           </Box>
         </Toolbar>
       </AppBar>
@@ -307,9 +214,7 @@ export default function Layout({ children }) {
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true
-          }}
+          ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: "block", sm: "none" },
             "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, backgroundColor: "background.paper", borderRight: "1px solid", borderColor: "divider" }
