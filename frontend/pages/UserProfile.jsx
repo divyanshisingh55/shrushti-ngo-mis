@@ -362,7 +362,7 @@ export default function UserProfile() {
                 {/* Profile Photo Upload */}
                 <Stack direction="row" spacing={3} alignItems="center" sx={{ mb: 4 }}>
                   <Avatar
-                    src={profile?.profile_photo ? (profile.profile_photo.startsWith("http") ? profile.profile_photo : `http://localhost:5000${profile.profile_photo}`) : ""}
+                    src={profile?.profile_photo ? (profile.profile_photo.startsWith("http") ? profile.profile_photo : `${api.defaults.baseURL}${profile.profile_photo}`) : ""}
                     sx={{ width: 84, height: 84, fontSize: "32px", bgcolor: "#0d9488" }}
                   >
                     {profile?.full_name?.charAt(0).toUpperCase()}

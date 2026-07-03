@@ -13,6 +13,7 @@ import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
 import VerifyEmail from "../pages/VerifyEmail";
+import AdminDashboard from "../pages/AdminDashboard";
 import { ColorModeProvider } from "./ThemeContext";
 
 // Component to protect authentication-required pages
@@ -21,6 +22,23 @@ function ProtectedRoute({ children }) {
   if (!token) {
     return <Navigate to="/login" replace />;
   }
+  return children;
+}
+
+// Component to protect admin-only pages
+function AdminRoute({ children }) {
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  const isAdmin = user && (user.role === "Founder" || user.role === "Admin");
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+  
   return children;
 }
 
@@ -47,6 +65,7 @@ function App() {
             <Route path="/finance" element={<ProtectedRoute><FinanceDashboard /></ProtectedRoute>} />
             <Route path="/finance/entry" element={<ProtectedRoute><FinanceEntry /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+            <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           </Routes>
         </Layout>
       </BrowserRouter>

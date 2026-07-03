@@ -32,7 +32,8 @@ import {
   AttachMoney as FinanceIcon,
   TableChart as TableChartIcon,
   Logout as LogoutIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  AdminPanelSettings as AdminIcon
 } from "@mui/icons-material";
 import { useColorMode } from "../src/ThemeContext";
 import api from "../services/api";
@@ -82,12 +83,18 @@ export default function Layout({ children }) {
 
   const activeDrawerWidth = isCollapsed ? 0 : drawerWidth;
 
+  const isAdmin = user && (user.role === "Founder" || user.role === "Admin");
+
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
     { text: "Projects List", icon: <ListIcon />, path: "/projects" },
     { text: "Classify Queue", icon: <CategoryIcon />, path: "/classify-projects" },
     { text: "Add New Project", icon: <AddBoxIcon />, path: "/projects/add" }
   ];
+
+  if (isAdmin) {
+    menuItems.push({ text: "Admin Panel", icon: <AdminIcon />, path: "/admin" });
+  }
 
   const financeMenuItems = [
     { text: "Finance Dashboard", icon: <FinanceIcon />, path: "/finance" },
@@ -238,7 +245,7 @@ export default function Layout({ children }) {
               <>
                 <IconButton onClick={handleMenuOpen} sx={{ p: 0, ml: 1 }}>
                   <Avatar
-                    src={user.profilePhoto ? (user.profilePhoto.startsWith("http") ? user.profilePhoto : `http://localhost:5000${user.profilePhoto}`) : ""}
+                    src={user.profilePhoto ? (user.profilePhoto.startsWith("http") ? user.profilePhoto : `${api.defaults.baseURL}${user.profilePhoto}`) : ""}
                     sx={{ bgcolor: "#0d9488", width: 36, height: 36, fontSize: "14px", fontWeight: "bold" }}
                   >
                     {user.fullName?.charAt(0).toUpperCase()}

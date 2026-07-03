@@ -34,13 +34,35 @@ const blockRoutes = require("./routes/blocks");
 const sdgRoutes = require("./routes/sdgs");
 const taxonomyRoutes = require("./routes/taxonomy");
 const financeRoutes = require("./routes/finance");
+const adminRoutes = require("./routes/admin");
+const { runAllMigrations } = require("./config/migrations");
 
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://shrushti-ngo-mis.vercel.app"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    // Allow matching origins or any vercel subdomain
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith(".vercel.app")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Accept"]
+}));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/auth", authRoutes);
 app.use("/profile", profileRoutes);
+app.use("/admin", adminRoutes);
 app.use("/projects", projectRoutes);
 app.use("/themes", themeRoutes);
 app.use("/dashboard", dashboardRoutes);
@@ -82,6 +104,15 @@ app.get("/", async (req, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log("🚀 Shrushti MIS Backend Running On Port 5000");
+const PORT = process.env.PORT || 5000;
+
+runAllMigrations().then(() => {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Shrushti MIS Backend Running On Port ${PORT}`);
+  });
+}).catch(err => {
+  console.error("❌ Startup migrations failed, launching server anyway:", err);
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Shrushti MIS Backend Running On Port ${PORT}`);
+  });
 });

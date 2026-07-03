@@ -52,6 +52,19 @@ async function logAuditEvent(userId, action, ip, device, details) {
   }
 }
 
+// Write helper for login logs
+async function logLoginLog({ userId, name, email, ip, browser, os, device, country, success, failureReason, sessionId }) {
+  try {
+    await pool.query(
+      `INSERT INTO login_logs (user_id, name, email, ip_address, browser, os, device_type, country, success, failure_reason, session_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [userId, name, email, ip, browser, os, device, country || "Unknown", success, failureReason, sessionId]
+    );
+  } catch (err) {
+    console.error("Login log write error:", err);
+  }
+}
+
 // 1. POST /register
 router.post("/register", async (req, res) => {
   const { fullName, email, password, phone, designation, department, employeeId } = req.body;
@@ -123,9 +136,12 @@ router.post("/register", async (req, res) => {
 // 2. POST /login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  const ip = req.ip || req.connection.remoteAddress;
+  const rawIp = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.ip || req.connection.remoteAddress;
+  // Standardize IPv6 loopback
+  const ip = rawIp === "::1" ? "127.0.0.1" : rawIp;
   const userAgent = req.headers["user-agent"];
   const { browser, os, device } = parseUserAgent(userAgent);
+  const country = req.headers["x-vercel-ip-country"] || req.headers["cf-ipcountry"] || "Unknown";
 
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required." });
@@ -133,25 +149,100 @@ router.post("/login", async (req, res) => {
 
   try {
     const userRes = await pool.query("SELECT * FROM users WHERE email = $1", [email.toLowerCase().trim()]);
+    
     if (userRes.rows.length === 0) {
+      // Log failed login attempt for non-existent email
+      await logLoginLog({
+        userId: null,
+        name: null,
+        email: email.toLowerCase().trim(),
+        ip, browser, os, device, country,
+        success: false,
+        failureReason: "Invalid email or password.",
+        sessionId: null
+      });
       return res.status(401).json({ message: "Invalid email or password." });
     }
 
     const user = userRes.rows[0];
 
+    // Check if account is temporarily locked
+    if (user.lockout_until && new Date(user.lockout_until) > new Date()) {
+      const minutesLeft = Math.ceil((new Date(user.lockout_until) - new Date()) / 60000);
+      
+      await logLoginLog({
+        userId: user.user_id,
+        name: user.full_name,
+        email: user.email,
+        ip, browser, os, device, country,
+        success: false,
+        failureReason: `Account locked. Lockout expires in ${minutesLeft} mins.`,
+        sessionId: null
+      });
+      
+      return res.status(403).json({ 
+        message: `Your account is temporarily locked due to multiple failed login attempts. Please try again in ${minutesLeft} minutes.` 
+      });
+    }
+
     // Check password
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password." });
+      const attempts = (user.failed_login_attempts || 0) + 1;
+      let lockoutUntil = null;
+      let message = "";
+
+      if (attempts >= 5) {
+        lockoutUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes lockout
+        message = "Invalid email or password. Your account has been temporarily locked for 15 minutes.";
+      } else {
+        const remaining = 5 - attempts;
+        message = `Invalid email or password. You have ${remaining} attempts remaining before account lockout.`;
+      }
+
+      await pool.query(
+        "UPDATE users SET failed_login_attempts = $1, lockout_until = $2 WHERE user_id = $3",
+        [attempts, lockoutUntil, user.user_id]
+      );
+
+      await logLoginLog({
+        userId: user.user_id,
+        name: user.full_name,
+        email: user.email,
+        ip, browser, os, device, country,
+        success: false,
+        failureReason: attempts >= 5 ? "Account locked out (5 failed attempts)" : "Invalid password",
+        sessionId: null
+      });
+
+      return res.status(401).json({ message });
     }
 
     // Check verification status
     if (!user.email_verified) {
+      await logLoginLog({
+        userId: user.user_id,
+        name: user.full_name,
+        email: user.email,
+        ip, browser, os, device, country,
+        success: false,
+        failureReason: "Email not verified",
+        sessionId: null
+      });
       return res.status(403).json({ message: "Please verify your email address before logging in." });
     }
 
     // Check active status
     if (!user.is_active || user.account_status !== "active") {
+      await logLoginLog({
+        userId: user.user_id,
+        name: user.full_name,
+        email: user.email,
+        ip, browser, os, device, country,
+        success: false,
+        failureReason: "Account deactivated",
+        sessionId: null
+      });
       return res.status(403).json({ message: "Your account is deactivated. Please contact an administrator." });
     }
 
@@ -173,11 +264,28 @@ router.post("/login", async (req, res) => {
       [user.user_id, tokenHash, ip, device, browser, os, expiresAt]
     );
 
-    // Update last login details
+    // Reset failed attempts and update last login details
     await pool.query(
-      "UPDATE users SET last_login = NOW(), last_login_ip = $1, last_login_device = $2 WHERE user_id = $3",
+      `UPDATE users 
+       SET failed_login_attempts = 0, 
+           lockout_until = null, 
+           last_login = NOW(), 
+           last_login_ip = $1, 
+           last_login_device = $2 
+       WHERE user_id = $3`,
       [ip, `${os} / ${browser}`, user.user_id]
     );
+
+    // Log successful attempt
+    await logLoginLog({
+      userId: user.user_id,
+      name: user.full_name,
+      email: user.email,
+      ip, browser, os, device, country,
+      success: true,
+      failureReason: null,
+      sessionId: tokenHash
+    });
 
     await logAuditEvent(user.user_id, "USER_LOGIN_SUCCESS", ip, userAgent, `Logged in via ${browser} on ${os}`);
 
@@ -373,9 +481,18 @@ router.post("/logout", authenticateToken, async (req, res) => {
   try {
     const crypto = require("crypto");
     const tokenHash = crypto.createHash("sha256").update(req.token).digest("hex");
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.ip || req.connection.remoteAddress;
     
+    // Revoke session in database
     await pool.query("DELETE FROM user_sessions WHERE token_hash = $1", [tokenHash]);
-    await logAuditEvent(req.user.user_id, "USER_LOGOUT", req.ip || req.connection.remoteAddress, req.headers["user-agent"], "Session terminated.");
+    
+    // Update login log with logout_time
+    await pool.query(
+      "UPDATE login_logs SET logout_time = NOW() WHERE session_id = $1",
+      [tokenHash]
+    );
+
+    await logAuditEvent(req.user.user_id, "USER_LOGOUT", ip === "::1" ? "127.0.0.1" : ip, req.headers["user-agent"], "Session terminated.");
 
     res.json({ message: "Successfully logged out." });
   } catch (err) {
