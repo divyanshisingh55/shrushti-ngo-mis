@@ -1,24 +1,23 @@
 import axios from "axios";
 
-const getBaseURL = () => {
-  // Explicit override always wins (set VITE_API_URL in Vercel env vars)
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  // Production Vercel — point to Railway backend
-  if (typeof window !== "undefined" && !window.location.hostname.includes("localhost")) {
-    return "https://shrushti-ngo-mis-production.up.railway.app";
-  }
-  // Local development
-  return "http://localhost:5000";
-};
+// ── API Base URL ──────────────────────────────────────────────────────────────
+// Priority:
+//  1. VITE_API_URL env var (set in Vercel dashboard for production)
+//  2. localhost:5000 (local development)
+//
+// IMPORTANT: Never hardcode a production URL here. Always use VITE_API_URL.
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const api = axios.create({
-  baseURL: getBaseURL(),
-  timeout: 15000
+  baseURL: BASE_URL,
+  timeout: 20000,
+  headers: {
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+  }
 });
 
-// Attach JWT token to every request
+// ── Request interceptor: attach JWT ───────────────────────────────────────────
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -30,14 +29,14 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle 401 globally — redirect to login
+// ── Response interceptor: handle 401 globally ─────────────────────────────────
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      if (window.location.pathname !== "/login") {
+      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
     }

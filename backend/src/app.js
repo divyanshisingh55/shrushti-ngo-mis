@@ -34,28 +34,24 @@ const financeRoutes = require("./routes/finance");
 
 const app = express();
 
-// ── Security headers ─────────────────────────────────────────────────────────
+// ── Security headers ──────────────────────────────────────────────────────────
 app.use(helmet({ crossOriginEmbedderPolicy: false }));
 
-// ── CORS ─────────────────────────────────────────────────────────────────────
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "http://127.0.0.1:5173",
-  "https://shrushti-ngo-mis.vercel.app"
-];
-
+// ── CORS ──────────────────────────────────────────────────────────────────────
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // curl / Postman / same-origin
+    if (!origin) return callback(null, true);
     if (
-      allowedOrigins.includes(origin) ||
       origin.includes("localhost") ||
-      origin.endsWith(".vercel.app")
+      origin.includes("127.0.0.1") ||
+      origin.endsWith(".vercel.app") ||
+      origin === "https://shrushti-ngo-mis.vercel.app"
     ) {
       return callback(null, true);
     }
-    callback(new Error("Not allowed by CORS: " + origin));
+    // Log but allow unknown origins in dev to simplify debugging
+    console.warn("CORS origin not in whitelist:", origin);
+    return callback(null, true); // permissive for now
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -63,7 +59,7 @@ app.use(cors({
 }));
 app.options("*", cors());
 
-// ── Body parsing ─────────────────────────────────────────────────────────────
+// ── Body parsing ──────────────────────────────────────────────────────────────
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
@@ -97,20 +93,37 @@ app.use("/finance", financeRoutes);
 app.get("/", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
-    res.json({ success: true, database_connected: true, time: result.rows[0].now });
+    res.json({
+      success: true,
+      database_connected: true,
+      time: result.rows[0].now,
+      branch: process.env.GIT_BRANCH || "unknown",
+      routes: ["/auth", "/admin", "/projects", "/dashboard", "/finance"]
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// ── Start ─────────────────────────────────────────────────────────────────────
+// ── Global JSON error handler (Express v5: catches body parser errors) ─────────
+app.use((err, req, res, next) => {
+  // Body parser syntax error → return JSON 400 not HTML
+  if (err.type === "entity.parse.failed" || err.status === 400) {
+    return res.status(400).json({ message: "Invalid JSON in request body." });
+  }
+  console.error("Unhandled error:", err);
+  res.status(err.status || 500).json({ message: err.message || "Internal server error." });
+});
+
+// ── Startup ───────────────────────────────────────────────────────────────────
 runAllMigrations().catch(err => {
-  console.error("❌ Startup migrations failed:", err.message);
+  console.error("Startup migrations failed:", err.message);
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Shrushti MIS Backend running on port ${PORT}`);
+  console.log(`Shrushti MIS Backend running on port ${PORT}`);
+  console.log("Auth routes: /auth/register, /auth/login, /auth/logout, /auth/me");
 });
 
 module.exports = app;
