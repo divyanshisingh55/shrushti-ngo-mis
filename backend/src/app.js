@@ -57,7 +57,7 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept"]
 }));
-app.options("*", cors());
+app.options(/^(.*)$/, cors());
 
 // ── Body parsing ──────────────────────────────────────────────────────────────
 app.use(express.json({ limit: "50mb" }));
@@ -119,11 +119,60 @@ app.use((err, req, res, next) => {
 runAllMigrations().catch(err => {
   console.error("Startup migrations failed:", err.message);
 });
+function printRoutes(app) {
+  const routerPrefixes = new Map([
+    [authRoutes, "/auth"],
+    [profileRoutes, "/profile"],
+    [adminRoutes, "/admin"],
+    [projectRoutes, "/projects"],
+    [themeRoutes, "/themes"],
+    [dashboardRoutes, "/dashboard"],
+    [projectDetailsRoutes, "/project"],
+    [subThemeRoutes, "/subthemes"],
+    [targetGroupRoutes, "/targetgroups"],
+    [activityTypeRoutes, "/activitytypes"],
+    [classifyProjectRoutes, "/classifyProject"],
+    [agencyRoutes, "/agencies"],
+    [fundingSourceRoutes, "/fundingsources"],
+    [statusRoutes, "/statuses"],
+    [stateRoutes, "/states"],
+    [reportsRoutes, "/reports"],
+    [aiClassificationRoutes, "/ai-classify"],
+    [districtRoutes, "/districts"],
+    [blockRoutes, "/blocks"],
+    [sdgRoutes, "/sdgs"],
+    [taxonomyRoutes, "/taxonomy"],
+    [financeRoutes, "/finance"]
+  ]);
 
+  const routes = [];
+
+  if (app.router && app.router.stack) {
+    app.router.stack.forEach(layer => {
+      if (layer.route) {
+        const methods = Object.keys(layer.route.methods).map(m => m.toUpperCase());
+        routes.push(`${methods.join(", ")} ${layer.route.path}`);
+      } else if (layer.handle && layer.handle.stack) {
+        const prefix = routerPrefixes.get(layer.handle) || "/unknown";
+        layer.handle.stack.forEach(subLayer => {
+          if (subLayer.route) {
+            const methods = Object.keys(subLayer.route.methods).map(m => m.toUpperCase());
+            routes.push(`${methods.join(", ")} ${prefix}${subLayer.route.path}`);
+          }
+        });
+      }
+    });
+  }
+
+  console.log("=== REGISTERED ROUTES ===");
+  routes.forEach(r => console.log("Route:", r));
+  console.log("=========================");
+}
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Shrushti MIS Backend running on port ${PORT}`);
   console.log("Auth routes: /auth/register, /auth/login, /auth/logout, /auth/me");
+  printRoutes(app);
 });
 
 module.exports = app;
