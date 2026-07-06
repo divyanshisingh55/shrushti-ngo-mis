@@ -12,7 +12,9 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  IconButton
+  IconButton,
+  Avatar,
+  Badge
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -20,11 +22,13 @@ import {
   ListAlt as ListIcon,
   Category as CategoryIcon,
   AddBox as AddBoxIcon,
+  Assessment as AssessmentIcon,
+  Search as SearchIcon,
+  NotificationsNone as NotificationsIcon,
   DarkModeOutlined as DarkModeIcon,
   LightModeOutlined as LightModeIcon,
   AttachMoney as FinanceIcon,
-  TableChart as TableChartIcon,
-  AdminPanelSettings as AdminIcon
+  TableChart as TableChartIcon
 } from "@mui/icons-material";
 import { useColorMode } from "../src/ThemeContext";
 
@@ -50,8 +54,7 @@ export default function Layout({ children }) {
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
     { text: "Projects List", icon: <ListIcon />, path: "/projects" },
     { text: "Classify Queue", icon: <CategoryIcon />, path: "/classify-projects" },
-    { text: "Add New Project", icon: <AddBoxIcon />, path: "/projects/add" },
-    { text: "Admin Panel", icon: <AdminIcon />, path: "/admin" }
+    { text: "Add New Project", icon: <AddBoxIcon />, path: "/projects/add" }
   ];
 
   const financeMenuItems = [
@@ -62,7 +65,7 @@ export default function Layout({ children }) {
   const drawer = (
     <Box sx={{ height: "100%", backgroundColor: "background.paper", color: "text.primary", overflowX: "hidden", borderRight: "1px solid", borderColor: "divider" }}>
       <Toolbar style={{ padding: "12px 20px", display: "flex", gap: "12px", alignItems: "center" }}>
-        <Box
+        <Box 
           component="img"
           src="/shrushti-logo.png"
           alt="Shrushti Logo"
@@ -214,7 +217,9 @@ export default function Layout({ children }) {
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
+          ModalProps={{
+            keepMounted: true
+          }}
           sx={{
             display: { xs: "block", sm: "none" },
             "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, backgroundColor: "background.paper", borderRight: "1px solid", borderColor: "divider" }

@@ -667,13 +667,19 @@ export default function Dashboard() {
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card
             onClick={() => handleKpiClick('projects')}
-            className="premium-card"
             sx={{
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
               border: "1px solid", borderColor: "divider",
               borderLeft: "5px solid #2563eb",
               cursor: "pointer",
-              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(37, 99, 235, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(37, 99, 235, 0.03) 100%)'
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(37, 99, 235, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(37, 99, 235, 0.03) 100%)',
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 12px 20px -5px rgba(37, 99, 235, 0.12)",
+                borderColor: "#2563eb"
+              }
             }}
           >
             <CardContent sx={{ p: 2.5 }}>
@@ -705,13 +711,19 @@ export default function Dashboard() {
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card
             onClick={() => handleKpiClick('completed')}
-            className="premium-card"
             sx={{
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
               border: "1px solid", borderColor: "divider",
               borderLeft: "5px solid #10b981",
               cursor: "pointer",
-              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(16, 185, 129, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(16, 185, 129, 0.03) 100%)'
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(16, 185, 129, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(16, 185, 129, 0.03) 100%)',
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 12px 20px -5px rgba(16, 185, 129, 0.12)",
+                borderColor: "#10b981"
+              }
             }}
           >
             <CardContent sx={{ p: 2.5 }}>
@@ -743,13 +755,19 @@ export default function Dashboard() {
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card
             onClick={() => handleKpiClick('themes')}
-            className="premium-card"
             sx={{
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
               border: "1px solid", borderColor: "divider",
               borderLeft: "5px solid #14b8a6",
               cursor: "pointer",
-              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(20, 180, 166, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(20, 180, 166, 0.03) 100%)'
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(20, 180, 166, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(20, 180, 166, 0.03) 100%)',
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 12px 20px -5px rgba(20, 180, 166, 0.12)",
+                borderColor: "#14b8a6"
+              }
             }}
           >
             <CardContent sx={{ p: 2.5 }}>
@@ -781,13 +799,19 @@ export default function Dashboard() {
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card
             onClick={() => handleKpiClick('agencies')}
-            className="premium-card"
             sx={{
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
               border: "1px solid", borderColor: "divider",
               borderLeft: "5px solid #8b5cf6",
               cursor: "pointer",
-              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(139, 92, 246, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(139, 92, 246, 0.03) 100%)'
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(139, 92, 246, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(139, 92, 246, 0.03) 100%)',
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 12px 20px -5px rgba(139, 92, 246, 0.12)",
+                borderColor: "#8b5cf6"
+              }
             }}
           >
             <CardContent sx={{ p: 2.5 }}>
@@ -819,13 +843,19 @@ export default function Dashboard() {
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card
             onClick={() => handleKpiClick('manual')}
-            className="premium-card"
             sx={{
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
               border: "1px solid", borderColor: "divider",
               borderLeft: "5px solid #6366f1",
               cursor: "pointer",
-              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(99, 102, 241, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(99, 102, 241, 0.03) 100%)'
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(99, 102, 241, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(99, 102, 241, 0.03) 100%)',
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 12px 20px -5px rgba(99, 102, 241, 0.12)",
+                borderColor: "#6366f1"
+              }
             }}
           >
             <CardContent sx={{ p: 2.5 }}>
@@ -857,13 +887,19 @@ export default function Dashboard() {
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card
             onClick={() => handleKpiClick('sanctioned')}
-            className="premium-card"
             sx={{
+              boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.01)",
               borderRadius: "16px",
               border: "1px solid", borderColor: "divider",
               borderLeft: "5px solid #f59e0b",
               cursor: "pointer",
-              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(245, 158, 11, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(245, 158, 11, 0.03) 100%)'
+              transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              background: (theme) => theme.palette.mode === 'light' ? 'linear-gradient(135deg, #ffffff 0%, rgba(245, 158, 11, 0.01) 100%)' : 'linear-gradient(135deg, #111827 0%, rgba(245, 158, 11, 0.03) 100%)',
+              "&:hover": {
+                transform: "translateY(-4px)",
+                boxShadow: "0 12px 20px -5px rgba(245, 158, 11, 0.12)",
+                borderColor: "#f59e0b"
+              }
             }}
           >
             <CardContent sx={{ p: 2.5 }}>
@@ -898,7 +934,7 @@ export default function Dashboard() {
         
         {/* Left: Total Turnover Every Year */}
         <Grid size={{ xs: 12, md: 8 }}>
-          <Paper className="premium-card" sx={{ p: 3, borderRadius: "16px", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Total Turnover Every Year
@@ -934,7 +970,7 @@ export default function Dashboard() {
 
         {/* Right: Classification Status Distribution */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Paper className="premium-card" sx={{ p: 3, borderRadius: "16px", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", height: "100%", display: "flex", flexDirection: "column" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", height: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Classification Status
@@ -973,7 +1009,7 @@ export default function Dashboard() {
 
         {/* Column 1: Projects by Primary Theme */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Paper className="premium-card" sx={{ p: 3, borderRadius: "16px", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Primary Theme Distribution
@@ -1009,7 +1045,7 @@ export default function Dashboard() {
 
         {/* Column 2: Geographical Distribution */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Paper className="premium-card" sx={{ p: 3, borderRadius: "16px", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Geographical Distribution
@@ -1046,7 +1082,7 @@ export default function Dashboard() {
 
         {/* Column 3: Recent Activity (Dynamic Project List) */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Paper className="premium-card" sx={{ p: 3, borderRadius: "16px", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", height: "100%", display: "flex", flexDirection: "column" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", height: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Recent Projects
@@ -1086,7 +1122,7 @@ export default function Dashboard() {
 
         {/* Left: Projects By Financial Year */}
         <Grid size={{ xs: 12, md: 8 }}>
-          <Paper className="premium-card" sx={{ p: 3, borderRadius: "16px", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Projects by Financial Year
@@ -1122,7 +1158,7 @@ export default function Dashboard() {
 
         {/* Right: Funding Source Distribution */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Paper className="premium-card" sx={{ p: 3, borderRadius: "16px", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Funding Source Distribution
@@ -1160,7 +1196,7 @@ export default function Dashboard() {
 
         {/* Column 1: Top Agencies */}
         <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex" }}>
-          <Paper className="premium-card" sx={{ p: 3, borderRadius: "16px", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", width: "100%", display: "flex", flexDirection: "column" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", width: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 Top 10 Agencies
@@ -1196,7 +1232,7 @@ export default function Dashboard() {
 
         {/* Column 2: MIS Performance Stats */}
         <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex" }}>
-          <Paper className="premium-card" sx={{ p: 3, borderRadius: "16px", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", width: "100%", display: "flex", flexDirection: "column" }}>
+          <Paper sx={{ p: 3, borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)", border: "1px solid", borderColor: "divider", backgroundColor: "background.paper", width: "100%", display: "flex", flexDirection: "column" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: "700", color: "text.primary", fontSize: "15px" }}>
                 MIS Insights
