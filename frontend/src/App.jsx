@@ -12,6 +12,7 @@ import AdminDashboard from "../pages/AdminDashboard";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword";
 import { ColorModeProvider } from "./ThemeContext";
 
 // Guard: must be logged in
@@ -40,6 +41,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Redirect root to dashboard (which will redirect to login if not authed) */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
