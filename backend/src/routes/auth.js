@@ -1,503 +1,348 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const pool = require("../config/db");
-const { sendEmail } = require("../services/email");
-const { authenticateToken, JWT_SECRET } = require("../middleware/auth");
+const { generateTokens, authenticateToken } = require("../middleware/auth");
 
-const SALT_ROUNDS = 10;
-const SESSION_DURATION_HOURS = 24;
+const SALT_ROUNDS = 12;
 
-// Helper: parse basic User Agent info
-function parseUserAgent(uaString) {
-  let browser = "Other";
-  let os = "Other";
-  let device = "Desktop";
-
-  if (!uaString) return { browser, os, device };
-  const ua = uaString.toLowerCase();
-
-  if (ua.includes("firefox")) browser = "Firefox";
-  else if (ua.includes("chrome") && !ua.includes("chromium")) browser = "Chrome";
-  else if (ua.includes("safari") && !ua.includes("chrome")) browser = "Safari";
-  else if (ua.includes("edge")) browser = "Edge";
-  else if (ua.includes("opera") || ua.includes("opr")) browser = "Opera";
-
-  if (ua.includes("windows")) os = "Windows";
-  else if (ua.includes("macintosh") || ua.includes("mac os")) os = "macOS";
-  else if (ua.includes("linux")) os = "Linux";
-  else if (ua.includes("android")) os = "Android";
-  else if (ua.includes("iphone") || ua.includes("ipad")) os = "iOS";
-
-  if (ua.includes("mobi") || ua.includes("android") || ua.includes("iphone")) {
-    device = "Mobile";
-  } else if (ua.includes("ipad") || ua.includes("tablet")) {
-    device = "Tablet";
-  }
-
-  return { browser, os, device };
-}
-
-// Write helper for audit logs
-async function logAuditEvent(userId, action, ip, device, details) {
+// ─── Helper: log login attempt ─────────────────────────────────────────────────
+async function logLogin(userId, email, name, success, failureReason, req, sessionId) {
   try {
+    const ip =
+      req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+      req.socket?.remoteAddress ||
+      "unknown";
+
     await pool.query(
-      "INSERT INTO audit_logs (user_id, action, ip, device, details) VALUES ($1, $2, $3, $4, $5)",
-      [userId, action, ip, device, details]
+      `INSERT INTO login_logs (user_id, name, email, ip_address, success, failure_reason, session_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [userId || null, name || null, email || null, ip, success, failureReason || null, sessionId || null]
     );
   } catch (err) {
-    console.error("Audit log write error:", err);
+    // Never crash on log failure
+    console.error("Login log error:", err.message);
   }
 }
 
-// Write helper for login logs
-async function logLoginLog({ userId, name, email, ip, browser, os, device, country, success, failureReason, sessionId }) {
-  try {
-    await pool.query(
-      `INSERT INTO login_logs (user_id, name, email, ip_address, browser, os, device_type, country, success, failure_reason, session_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-      [userId, name, email, ip, browser, os, device, country || "Unknown", success, failureReason, sessionId]
-    );
-  } catch (err) {
-    console.error("Login log write error:", err);
-  }
-}
-
-// 1. POST /register
+// ─── POST /auth/register ───────────────────────────────────────────────────────
 router.post("/register", async (req, res) => {
-  const { fullName, email, password, phone, designation, department, employeeId } = req.body;
-  const ip = req.ip || req.connection.remoteAddress;
-  const deviceHeader = req.headers["user-agent"];
-
-  if (!fullName || !email || !password) {
-    return res.status(400).json({ message: "Full Name, Email, and Password are required." });
-  }
-
   try {
-    // Check if email already registered
-    const userExist = await pool.query("SELECT user_id FROM users WHERE email = $1", [email.toLowerCase().trim()]);
-    if (userExist.rows.length > 0) {
-      return res.status(400).json({ message: "An account with this email already exists." });
+    const {
+      fullName, email, password,
+      phone, designation, department, employeeId
+    } = req.body || {};
+
+    // ── Validation ──────────────────────────────────────────────────────────
+    if (!fullName || !email || !password) {
+      return res.status(400).json({ message: "Full name, email and password are required." });
+    }
+    if (typeof password !== "string" || password.length < 8) {
+      return res.status(400).json({ message: "Password must be at least 8 characters." });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email address." });
     }
 
-    // Check if first user in database
-    const usersCount = await pool.query("SELECT COUNT(*) FROM users");
-    const count = parseInt(usersCount.rows[0].count);
-    const assignedRole = count === 0 ? "Founder" : "Viewer"; // Auto-promote first user to Founder
+    // ── Check email uniqueness ──────────────────────────────────────────────
+    const existingEmail = await pool.query(
+      "SELECT user_id FROM users WHERE LOWER(email) = LOWER($1)",
+      [email.trim()]
+    );
+    if (existingEmail.rows.length > 0) {
+      return res.status(409).json({ message: "An account with this email already exists." });
+    }
 
-    // Hash password
+    // ── Check employee ID uniqueness ────────────────────────────────────────
+    if (employeeId) {
+      const existingEmpId = await pool.query(
+        "SELECT user_id FROM users WHERE employee_id = $1",
+        [employeeId.trim()]
+      );
+      if (existingEmpId.rows.length > 0) {
+        return res.status(409).json({ message: "This Employee ID is already registered." });
+      }
+    }
+
+    // ── Determine role — first user becomes Admin ───────────────────────────
+    const countResult = await pool.query("SELECT COUNT(*) FROM users");
+    const isFirstUser = parseInt(countResult.rows[0].count, 10) === 0;
+    const assignedRole = isFirstUser ? "Admin" : "User";
+
+    // ── Hash password ───────────────────────────────────────────────────────
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-    
-    // Generate verification token
-    const verificationToken = crypto.randomBytes(32).toString("hex");
 
-    // Insert user
-    const newUser = await pool.query(
-      `INSERT INTO users (full_name, email, password_hash, role, phone, designation, department, employee_id, verification_token, email_verified) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, false) RETURNING user_id, full_name, email, role`,
-      [fullName.trim(), email.toLowerCase().trim(), passwordHash, assignedRole, phone || null, designation || null, department || null, employeeId || null, verificationToken]
+    // ── Insert user ─────────────────────────────────────────────────────────
+    const insertResult = await pool.query(
+      `INSERT INTO users
+         (full_name, email, password_hash, phone, designation, department,
+          employee_id, role, account_status, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active', NOW())
+       RETURNING user_id, full_name, email, role`,
+      [
+        fullName.trim(),
+        email.toLowerCase().trim(),
+        passwordHash,
+        phone?.trim() || null,
+        designation?.trim() || null,
+        department?.trim() || null,
+        employeeId?.trim() || null,
+        assignedRole
+      ]
     );
 
-    const userId = newUser.rows[0].user_id;
+    const newUser = insertResult.rows[0];
 
-    // Send Verification Email
-    const verificationLink = `${process.env.VITE_APP_URL || "http://localhost:5173"}/verify-email?token=${verificationToken}`;
-    await sendEmail({
-      to: email.toLowerCase().trim(),
-      subject: "Verify your email - Shrushti MIS Portal",
-      text: `Hello ${fullName},\n\nPlease verify your email by clicking the link: ${verificationLink}`,
-      html: `
-        <div style="font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px;">
-          <h2 style="color: #0d9488;">Shrushti MIS Portal</h2>
-          <p>Hello ${fullName},</p>
-          <p>Please verify your email address to complete registration for the Shrushti Management Information System.</p>
-          <div style="margin: 24px 0;">
-            <a href="${verificationLink}" style="background-color: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Verify Email Address</a>
-          </div>
-          <p style="color: #64748b; font-size: 13px;">If you didn't register for Shrushti MIS, please ignore this email.</p>
-        </div>
-      `
+    // ── Generate JWT ─────────────────────────────────────────────────────────
+    const { accessToken } = generateTokens(newUser);
+
+    // ── Log registration as first login ──────────────────────────────────────
+    const sessionId = crypto.randomUUID();
+    await logLogin(newUser.user_id, newUser.email, newUser.full_name, true, null, req, sessionId);
+
+    return res.status(201).json({
+      message: isFirstUser
+        ? "Registration successful. You are the admin."
+        : "Registration successful.",
+      token: accessToken,
+      user: {
+        user_id: newUser.user_id,
+        full_name: newUser.full_name,
+        email: newUser.email,
+        role: newUser.role
+      }
     });
-
-    await logAuditEvent(userId, "USER_REGISTERED", ip, deviceHeader, `Assigned role: ${assignedRole}`);
-
-    res.status(201).json({
-      message: "Registration successful. Please check your email to verify your account.",
-      user: newUser.rows[0]
+  } catch (error) {
+    console.error("Register error:", error);
+    return res.status(500).json({
+      message: "Registration failed. Please try again.",
+      detail: process.env.NODE_ENV !== "production" ? error.message : undefined
     });
-  } catch (err) {
-    console.error("Register error:", err);
-    res.status(500).json({ message: "Server error during registration." });
   }
 });
 
-// 2. POST /login
+// ─── POST /auth/login ──────────────────────────────────────────────────────────
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  const rawIp = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.ip || req.connection.remoteAddress;
-  // Standardize IPv6 loopback
-  const ip = rawIp === "::1" ? "127.0.0.1" : rawIp;
-  const userAgent = req.headers["user-agent"];
-  const { browser, os, device } = parseUserAgent(userAgent);
-  const country = req.headers["x-vercel-ip-country"] || req.headers["cf-ipcountry"] || "Unknown";
-
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required." });
-  }
-
   try {
-    const userRes = await pool.query("SELECT * FROM users WHERE email = $1", [email.toLowerCase().trim()]);
-    
-    if (userRes.rows.length === 0) {
-      // Log failed login attempt for non-existent email
-      await logLoginLog({
-        userId: null,
-        name: null,
-        email: email.toLowerCase().trim(),
-        ip, browser, os, device, country,
-        success: false,
-        failureReason: "Invalid email or password.",
-        sessionId: null
-      });
+    const { email, password } = req.body || {};
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required." });
+    }
+
+    const result = await pool.query(
+      "SELECT * FROM users WHERE LOWER(email) = LOWER($1)",
+      [email.trim()]
+    );
+
+    if (result.rows.length === 0) {
+      await logLogin(null, email, null, false, "User not found", req, null);
       return res.status(401).json({ message: "Invalid email or password." });
     }
 
-    const user = userRes.rows[0];
+    const user = result.rows[0];
 
-    // Check if account is temporarily locked
+    // ── Account status check ────────────────────────────────────────────────
+    if (user.account_status === "disabled") {
+      await logLogin(user.user_id, email, user.full_name, false, "Account disabled", req, null);
+      return res.status(403).json({ message: "Your account has been disabled. Contact your administrator." });
+    }
+
+    // ── Lockout check ───────────────────────────────────────────────────────
     if (user.lockout_until && new Date(user.lockout_until) > new Date()) {
-      const minutesLeft = Math.ceil((new Date(user.lockout_until) - new Date()) / 60000);
-      
-      await logLoginLog({
-        userId: user.user_id,
-        name: user.full_name,
-        email: user.email,
-        ip, browser, os, device, country,
-        success: false,
-        failureReason: `Account locked. Lockout expires in ${minutesLeft} mins.`,
-        sessionId: null
-      });
-      
-      return res.status(403).json({ 
-        message: `Your account is temporarily locked due to multiple failed login attempts. Please try again in ${minutesLeft} minutes.` 
+      const mins = Math.ceil((new Date(user.lockout_until) - new Date()) / 60000);
+      await logLogin(user.user_id, email, user.full_name, false, "Account locked", req, null);
+      return res.status(429).json({
+        message: `Account locked due to too many failed attempts. Try again in ${mins} minute(s).`
       });
     }
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch) {
-      const attempts = (user.failed_login_attempts || 0) + 1;
-      let lockoutUntil = null;
-      let message = "";
+    // ── Password check ──────────────────────────────────────────────────────
+    const passwordMatch = await bcrypt.compare(password, user.password_hash);
 
-      if (attempts >= 5) {
-        lockoutUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes lockout
-        message = "Invalid email or password. Your account has been temporarily locked for 15 minutes.";
-      } else {
-        const remaining = 5 - attempts;
-        message = `Invalid email or password. You have ${remaining} attempts remaining before account lockout.`;
-      }
+    if (!passwordMatch) {
+      const failedCount = (user.failed_login_attempts || 0) + 1;
+      const lockoutUntil = failedCount >= 5 ? new Date(Date.now() + 15 * 60 * 1000) : null;
 
       await pool.query(
         "UPDATE users SET failed_login_attempts = $1, lockout_until = $2 WHERE user_id = $3",
-        [attempts, lockoutUntil, user.user_id]
+        [failedCount, lockoutUntil, user.user_id]
       );
+      await logLogin(user.user_id, email, user.full_name, false, "Wrong password", req, null);
 
-      await logLoginLog({
-        userId: user.user_id,
-        name: user.full_name,
-        email: user.email,
-        ip, browser, os, device, country,
-        success: false,
-        failureReason: attempts >= 5 ? "Account locked out (5 failed attempts)" : "Invalid password",
-        sessionId: null
-      });
-
-      return res.status(401).json({ message });
-    }
-
-    // Check verification status
-    if (!user.email_verified) {
-      await logLoginLog({
-        userId: user.user_id,
-        name: user.full_name,
-        email: user.email,
-        ip, browser, os, device, country,
-        success: false,
-        failureReason: "Email not verified",
-        sessionId: null
-      });
-      return res.status(403).json({ message: "Please verify your email address before logging in." });
-    }
-
-    // Check active status
-    if (!user.is_active || user.account_status !== "active") {
-      await logLoginLog({
-        userId: user.user_id,
-        name: user.full_name,
-        email: user.email,
-        ip, browser, os, device, country,
-        success: false,
-        failureReason: "Account deactivated",
-        sessionId: null
-      });
-      return res.status(403).json({ message: "Your account is deactivated. Please contact an administrator." });
-    }
-
-    // Generate token
-    const token = jwt.sign(
-      { user_id: user.user_id, email: user.email, role: user.role },
-      JWT_SECRET,
-      { expiresIn: `${SESSION_DURATION_HOURS}h` }
-    );
-
-    // Save session in database
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + SESSION_DURATION_HOURS);
-
-    await pool.query(
-      `INSERT INTO user_sessions (user_id, token_hash, ip, device, browser, os, expires_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [user.user_id, tokenHash, ip, device, browser, os, expiresAt]
-    );
-
-    // Reset failed attempts and update last login details
-    await pool.query(
-      `UPDATE users 
-       SET failed_login_attempts = 0, 
-           lockout_until = null, 
-           last_login = NOW(), 
-           last_login_ip = $1, 
-           last_login_device = $2 
-       WHERE user_id = $3`,
-      [ip, `${os} / ${browser}`, user.user_id]
-    );
-
-    // Log successful attempt
-    await logLoginLog({
-      userId: user.user_id,
-      name: user.full_name,
-      email: user.email,
-      ip, browser, os, device, country,
-      success: true,
-      failureReason: null,
-      sessionId: tokenHash
-    });
-
-    await logAuditEvent(user.user_id, "USER_LOGIN_SUCCESS", ip, userAgent, `Logged in via ${browser} on ${os}`);
-
-    res.json({
-      token,
-      user: {
-        userId: user.user_id,
-        fullName: user.full_name,
-        email: user.email,
-        role: user.role,
-        profilePhoto: user.profile_photo,
-        designation: user.designation,
-        department: user.department,
-        employeeId: user.employee_id
+      if (lockoutUntil) {
+        return res.status(429).json({ message: "Too many failed attempts. Account locked for 15 minutes." });
       }
-    });
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Server error during login." });
-  }
-});
-
-// 3. POST /verify-email
-router.post("/verify-email", async (req, res) => {
-  const { token } = req.body;
-  if (!token) return res.status(400).json({ message: "Verification token is required." });
-
-  try {
-    const userRes = await pool.query("SELECT user_id, full_name FROM users WHERE verification_token = $1", [token]);
-    if (userRes.rows.length === 0) {
-      return res.status(400).json({ message: "Invalid or expired verification token." });
+      return res.status(401).json({
+        message: `Invalid email or password. ${5 - failedCount} attempt(s) remaining before lockout.`
+      });
     }
 
-    const user = userRes.rows[0];
+    // ── Success ─────────────────────────────────────────────────────────────
     await pool.query(
-      "UPDATE users SET email_verified = true, email_verified_at = NOW(), verification_token = null WHERE user_id = $1",
+      "UPDATE users SET failed_login_attempts = 0, lockout_until = NULL, last_login = NOW() WHERE user_id = $1",
       [user.user_id]
     );
 
-    const ip = req.ip || req.connection.remoteAddress;
-    await logAuditEvent(user.user_id, "EMAIL_VERIFIED", ip, req.headers["user-agent"], "Email address successfully verified.");
+    const { accessToken } = generateTokens(user);
+    const sessionId = crypto.randomUUID();
 
-    res.json({ message: "Email verified successfully! You can now log in." });
-  } catch (err) {
-    console.error("Verify email error:", err);
-    res.status(500).json({ message: "Server error during email verification." });
-  }
-});
+    await logLogin(user.user_id, email, user.full_name, true, null, req, sessionId);
 
-// 4. POST /resend-verification
-router.post("/resend-verification", async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ message: "Email address is required." });
-
-  try {
-    const userRes = await pool.query("SELECT user_id, full_name, email_verified FROM users WHERE email = $1", [email.toLowerCase().trim()]);
-    if (userRes.rows.length === 0) {
-      return res.status(404).json({ message: "No account found with this email." });
-    }
-
-    const user = userRes.rows[0];
-    if (user.email_verified) {
-      return res.status(400).json({ message: "This email address is already verified." });
-    }
-
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-    await pool.query("UPDATE users SET verification_token = $1 WHERE user_id = $2", [verificationToken, user.user_id]);
-
-    const verificationLink = `${process.env.VITE_APP_URL || "http://localhost:5173"}/verify-email?token=${verificationToken}`;
-    await sendEmail({
-      to: email.toLowerCase().trim(),
-      subject: "Verify your email - Shrushti MIS Portal",
-      text: `Hello ${user.full_name},\n\nPlease verify your email by clicking the link: ${verificationLink}`,
-      html: `
-        <div style="font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px;">
-          <h2 style="color: #0d9488;">Shrushti MIS Portal</h2>
-          <p>Hello ${user.full_name},</p>
-          <p>Please click the button below to verify your email address:</p>
-          <div style="margin: 24px 0;">
-            <a href="${verificationLink}" style="background-color: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Verify Email Address</a>
-          </div>
-        </div>
-      `
+    return res.json({
+      message: "Login successful.",
+      token: accessToken,
+      user: {
+        user_id: user.user_id,
+        full_name: user.full_name,
+        email: user.email,
+        role: user.role,
+        designation: user.designation,
+        department: user.department,
+        phone: user.phone
+      }
     });
-
-    res.json({ message: "Verification link has been resent to your email address." });
-  } catch (err) {
-    console.error("Resend error:", err);
-    res.status(500).json({ message: "Server error resending verification token." });
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({
+      message: "Login failed. Please try again.",
+      detail: process.env.NODE_ENV !== "production" ? error.message : undefined
+    });
   }
 });
 
-// 5. POST /forgot-password
-router.post("/forgot-password", async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ message: "Email is required." });
-
+// ─── POST /auth/logout ─────────────────────────────────────────────────────────
+router.post("/logout", authenticateToken, async (req, res) => {
   try {
-    const userRes = await pool.query("SELECT user_id, full_name FROM users WHERE email = $1", [email.toLowerCase().trim()]);
-    if (userRes.rows.length === 0) {
-      // Return 200/success anyway to prevent user enumeration security vulnerability
-      return res.json({ message: "If that email is registered, we have sent a reset link." });
+    await pool.query(
+      `UPDATE login_logs SET logout_time = NOW()
+       WHERE user_id = $1 AND logout_time IS NULL
+       ORDER BY login_time DESC LIMIT 1`,
+      [req.user.user_id]
+    );
+    return res.json({ message: "Logged out successfully." });
+  } catch (error) {
+    console.error("Logout error:", error);
+    return res.status(500).json({ message: "Logout failed." });
+  }
+});
+
+// ─── GET /auth/me ──────────────────────────────────────────────────────────────
+router.get("/me", authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT user_id, full_name, email, role, phone, designation,
+              department, employee_id, account_status, created_at, last_login
+       FROM users WHERE user_id = $1`,
+      [req.user.user_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    return res.json({ user: result.rows[0] });
+  } catch (error) {
+    console.error("Me error:", error);
+    return res.status(500).json({ message: "Failed to fetch user." });
+  }
+});
+
+// ─── POST /auth/change-password ────────────────────────────────────────────────
+router.post("/change-password", authenticateToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Current and new password are required." });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: "New password must be at least 8 characters." });
     }
 
-    const user = userRes.rows[0];
+    const result = await pool.query("SELECT password_hash FROM users WHERE user_id = $1", [req.user.user_id]);
+    if (result.rows.length === 0) return res.status(404).json({ message: "User not found." });
+
+    const match = await bcrypt.compare(currentPassword, result.rows[0].password_hash);
+    if (!match) return res.status(401).json({ message: "Current password is incorrect." });
+
+    const hash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await pool.query("UPDATE users SET password_hash = $1 WHERE user_id = $2", [hash, req.user.user_id]);
+
+    return res.json({ message: "Password changed successfully." });
+  } catch (error) {
+    console.error("Change password error:", error);
+    return res.status(500).json({ message: "Failed to change password." });
+  }
+});
+
+// ─── POST /auth/forgot-password ────────────────────────────────────────────────
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ message: "Email is required." });
+
+    const result = await pool.query(
+      "SELECT user_id, full_name FROM users WHERE LOWER(email) = LOWER($1)",
+      [email.trim()]
+    );
+
+    // Always return same message — prevent email enumeration
+    if (result.rows.length === 0) {
+      return res.json({ message: "If this email exists, you will receive a reset link." });
+    }
+
+    const user = result.rows[0];
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetExpiry = new Date();
-    resetExpiry.setHours(resetExpiry.getHours() + 1); // 1 hour expiry
+    const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
     await pool.query(
       "UPDATE users SET password_reset_token = $1, password_reset_expiry = $2 WHERE user_id = $3",
-      [resetToken, resetExpiry, user.user_id]
+      [resetToken, expiry, user.user_id]
     );
 
-    const resetLink = `${process.env.VITE_APP_URL || "http://localhost:5173"}/reset-password?token=${resetToken}`;
-    await sendEmail({
-      to: email.toLowerCase().trim(),
-      subject: "Reset your password - Shrushti MIS Portal",
-      text: `Hello ${user.full_name},\n\nPlease reset your password via: ${resetLink}`,
-      html: `
-        <div style="font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px;">
-          <h2 style="color: #0d9488;">Shrushti MIS Password Recovery</h2>
-          <p>Hello ${user.full_name},</p>
-          <p>We received a password reset request. Click the button below to configure your new secure password:</p>
-          <div style="margin: 24px 0;">
-            <a href="${resetLink}" style="background-color: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Reset Password</a>
-          </div>
-          <p style="color: #64748b; font-size: 13px;">This link will expire in 1 hour.</p>
-        </div>
-      `
-    });
+    console.log(`[DEV] Password reset token for ${email}: ${resetToken}`);
 
-    res.json({ message: "If that email is registered, we have sent a reset link." });
-  } catch (err) {
-    console.error("Forgot password error:", err);
-    res.status(500).json({ message: "Server error generating reset token." });
+    return res.json({
+      message: "If this email exists, you will receive a reset link.",
+      dev_reset_token: process.env.NODE_ENV !== "production" ? resetToken : undefined
+    });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    return res.status(500).json({ message: "Failed to process request." });
   }
 });
 
-// 6. POST /reset-password
+// ─── POST /auth/reset-password ─────────────────────────────────────────────────
 router.post("/reset-password", async (req, res) => {
-  const { token, newPassword } = req.body;
-  if (!token || !newPassword) {
-    return res.status(400).json({ message: "Token and new password are required." });
-  }
-
-  // Password policy check
-  const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\/]).{6,}$/;
-  if (!pwRegex.test(newPassword)) {
-    return res.status(400).json({ 
-      message: "Password must be at least 6 characters and include uppercase, lowercase, number, and special character." 
-    });
-  }
-
   try {
-    const userRes = await pool.query(
-      "SELECT user_id, password_hash FROM users WHERE password_reset_token = $1 AND password_reset_expiry > NOW()",
+    const { token, newPassword } = req.body || {};
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: "Token and new password are required." });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: "Password must be at least 8 characters." });
+    }
+
+    const result = await pool.query(
+      "SELECT user_id FROM users WHERE password_reset_token = $1 AND password_reset_expiry > NOW()",
       [token]
     );
 
-    if (userRes.rows.length === 0) {
-      return res.status(400).json({ message: "Reset token is invalid or has expired." });
+    if (result.rows.length === 0) {
+      return res.status(400).json({ message: "Invalid or expired reset token." });
     }
 
-    const user = userRes.rows[0];
-
-    // Check that new password doesn't match the current hashed password
-    const isSame = await bcrypt.compare(newPassword, user.password_hash);
-    if (isSame) {
-      return res.status(400).json({ message: "Cannot reuse your current password." });
-    }
-
-    // Hash new password
-    const hashed = await bcrypt.hash(newPassword, SALT_ROUNDS);
-
+    const hash = await bcrypt.hash(newPassword, SALT_ROUNDS);
     await pool.query(
-      "UPDATE users SET password_hash = $1, password_reset_token = null, password_reset_expiry = null WHERE user_id = $2",
-      [hashed, user.user_id]
+      "UPDATE users SET password_hash = $1, password_reset_token = NULL, password_reset_expiry = NULL, failed_login_attempts = 0, lockout_until = NULL WHERE user_id = $2",
+      [hash, result.rows[0].user_id]
     );
 
-    const ip = req.ip || req.connection.remoteAddress;
-    await logAuditEvent(user.user_id, "PASSWORD_RESET_SUCCESS", ip, req.headers["user-agent"], "Password successfully recovered and updated.");
-
-    res.json({ message: "Password updated successfully. You can now log in." });
-  } catch (err) {
-    console.error("Reset password error:", err);
-    res.status(500).json({ message: "Server error resetting password." });
-  }
-});
-
-// 7. POST /logout
-router.post("/logout", authenticateToken, async (req, res) => {
-  try {
-    const crypto = require("crypto");
-    const tokenHash = crypto.createHash("sha256").update(req.token).digest("hex");
-    const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.ip || req.connection.remoteAddress;
-    
-    // Revoke session in database
-    await pool.query("DELETE FROM user_sessions WHERE token_hash = $1", [tokenHash]);
-    
-    // Update login log with logout_time
-    await pool.query(
-      "UPDATE login_logs SET logout_time = NOW() WHERE session_id = $1",
-      [tokenHash]
-    );
-
-    await logAuditEvent(req.user.user_id, "USER_LOGOUT", ip === "::1" ? "127.0.0.1" : ip, req.headers["user-agent"], "Session terminated.");
-
-    res.json({ message: "Successfully logged out." });
-  } catch (err) {
-    console.error("Logout error:", err);
-    res.status(500).json({ message: "Server error during logout." });
+    return res.json({ message: "Password reset successfully. You can now log in." });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    return res.status(500).json({ message: "Failed to reset password." });
   }
 });
 

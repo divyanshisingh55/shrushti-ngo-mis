@@ -1,23 +1,23 @@
 import axios from "axios";
 
-const getBaseURL = () => {
-  // Explicit env var always wins (set VITE_API_URL=https://... in Vercel dashboard if needed)
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  // On Vercel (or any deployed host) — call /api on the same domain (no CORS, no Railway)
-  if (typeof window !== "undefined" && !window.location.hostname.includes("localhost")) {
-    return `${window.location.protocol}//${window.location.host}/api`;
-  }
-  // Local development
-  return "http://localhost:5000";
-};
+// ── API Base URL ──────────────────────────────────────────────────────────────
+// Priority:
+//  1. VITE_API_URL env var (set in Vercel dashboard for production)
+//  2. localhost:5000 (local development)
+//
+// IMPORTANT: Never hardcode a production URL here. Always use VITE_API_URL.
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const api = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: BASE_URL,
+  timeout: 20000,
+  headers: {
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+  }
 });
 
-// Auto-attach JWT token if present in localStorage
+// ── Request interceptor: attach JWT ───────────────────────────────────────────
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -26,7 +26,20 @@ api.interceptors.request.use(
     }
     return config;
   },
+  (error) => Promise.reject(error)
+);
+
+// ── Response interceptor: handle 401 globally ─────────────────────────────────
+api.interceptors.response.use(
+  (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    }
     return Promise.reject(error);
   }
 );

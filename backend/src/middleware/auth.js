@@ -1,73 +1,62 @@
 const jwt = require("jsonwebtoken");
-const crypto = require("crypto");
-const pool = require("../config/db");
 
-const JWT_SECRET = process.env.JWT_SECRET || "shrushti_mis_super_secure_key_123";
+const JWT_SECRET = process.env.JWT_SECRET || "shrushti_dev_secret_change_in_production";
 
-async function authenticateToken(req, res, next) {
+/**
+ * Middleware: Verify JWT token from Authorization header.
+ * Attaches decoded user to req.user on success.
+ */
+function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const token = authHeader && authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : null;
 
   if (!token) {
-    return res.status(401).json({ message: "Access denied. No authentication token provided." });
+    return res.status(401).json({ message: "Authentication required. Please log in." });
   }
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    
-    // Hash token to verify session
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-
-    const sessionRes = await pool.query(
-      "SELECT * FROM user_sessions WHERE token_hash = $1 AND expires_at > NOW()",
-      [tokenHash]
-    );
-
-    if (sessionRes.rows.length === 0) {
-      return res.status(401).json({ message: "Session expired or revoked." });
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).json({ message: "Session expired. Please log in again." });
+      }
+      return res.status(403).json({ message: "Invalid token. Please log in again." });
     }
-
-    // Load active user details
-    const userRes = await pool.query(
-      "SELECT user_id, full_name, email, role, is_active, account_status, email_verified FROM users WHERE user_id = $1",
-      [decoded.user_id]
-    );
-
-    if (userRes.rows.length === 0) {
-      return res.status(403).json({ message: "User account not found." });
-    }
-
-    const user = userRes.rows[0];
-
-    if (!user.is_active || user.account_status !== "active") {
-      return res.status(403).json({ message: "Your account is deactivated or suspended." });
-    }
-
-    // Attach user and session to request
     req.user = user;
-    req.session = sessionRes.rows[0];
-    req.token = token;
-
-    // Asynchronously update last_active timestamp
-    pool.query(
-      "UPDATE user_sessions SET last_active = NOW() WHERE session_id = $1",
-      [req.session.session_id]
-    ).catch(err => console.error("Session update error:", err));
-
     next();
-  } catch (err) {
-    console.error("JWT Verification error:", err);
-    return res.status(401).json({ message: "Session expired or invalid token." });
+  });
+}
+
+/**
+ * Middleware: Require Admin or Founder role.
+ * Must be used after authenticateToken.
+ */
+function requireAdmin(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ message: "Authentication required." });
   }
+  if (req.user.role !== "Admin" && req.user.role !== "Founder") {
+    return res.status(403).json({ message: "Admin access required." });
+  }
+  next();
 }
 
-function requireRole(allowedRoles) {
-  return (req, res, next) => {
-    if (!req.user || !allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ message: "Access denied. Insufficient permissions." });
-    }
-    next();
+/**
+ * Generate access token (24h) and refresh token (7d)
+ */
+function generateTokens(user) {
+  const payload = {
+    user_id: user.user_id,
+    email: user.email,
+    role: user.role,
+    full_name: user.full_name
   };
+
+  const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
+  const refreshToken = jwt.sign({ user_id: user.user_id }, JWT_SECRET, { expiresIn: "7d" });
+
+  return { accessToken, refreshToken };
 }
 
-module.exports = { authenticateToken, requireRole, JWT_SECRET };
+module.exports = { authenticateToken, requireAdmin, generateTokens, JWT_SECRET };

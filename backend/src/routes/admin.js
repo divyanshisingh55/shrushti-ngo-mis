@@ -1,189 +1,196 @@
 const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcrypt");
 const pool = require("../config/db");
-const { authenticateToken, requireRole } = require("../middleware/auth");
+const { authenticateToken, requireAdmin } = require("../middleware/auth");
 
-// Protect all admin endpoints with authentication and Founder/Admin role restrictions
+// All admin routes require authentication + admin role
 router.use(authenticateToken);
-router.use(requireRole(["Founder", "Admin"]));
+router.use(requireAdmin);
 
-// 1. GET /admin/stats - Retrieve system stats
+// GET /admin/users — list all users
+router.get("/users", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT user_id, full_name, email, role, phone, designation, department,
+              employee_id, account_status, created_at, last_login, failed_login_attempts
+       FROM users
+       ORDER BY created_at DESC`
+    );
+    res.json({ users: result.rows });
+  } catch (error) {
+    console.error("Admin users error:", error);
+    res.status(500).json({ message: "Failed to fetch users." });
+  }
+});
+
+// GET /admin/users/:id — get single user with login history
+router.get("/users/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await pool.query(
+      `SELECT user_id, full_name, email, role, phone, designation, department,
+              employee_id, account_status, created_at, last_login
+       FROM users WHERE user_id = $1`,
+      [id]
+    );
+
+    if (user.rows.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const logs = await pool.query(
+      `SELECT log_id, login_time, logout_time, ip_address, success, failure_reason, session_id
+       FROM login_logs
+       WHERE user_id = $1
+       ORDER BY login_time DESC
+       LIMIT 50`,
+      [id]
+    );
+
+    res.json({ user: user.rows[0], loginHistory: logs.rows });
+  } catch (error) {
+    console.error("Admin user detail error:", error);
+    res.status(500).json({ message: "Failed to fetch user details." });
+  }
+});
+
+// PATCH /admin/users/:id/status — enable or disable user
+router.patch("/users/:id/status", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body; // 'active' or 'disabled'
+
+    if (!["active", "disabled"].includes(status)) {
+      return res.status(400).json({ message: "Status must be 'active' or 'disabled'." });
+    }
+
+    // Prevent disabling yourself
+    if (parseInt(id) === req.user.user_id) {
+      return res.status(400).json({ message: "You cannot disable your own account." });
+    }
+
+    await pool.query(
+      "UPDATE users SET account_status = $1 WHERE user_id = $2",
+      [status, id]
+    );
+
+    res.json({ message: `User account ${status === "active" ? "enabled" : "disabled"} successfully.` });
+  } catch (error) {
+    console.error("Status update error:", error);
+    res.status(500).json({ message: "Failed to update user status." });
+  }
+});
+
+// PATCH /admin/users/:id/role — change user role
+router.patch("/users/:id/role", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const validRoles = ["Admin", "User", "Viewer", "Founder"];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ message: `Role must be one of: ${validRoles.join(", ")}` });
+    }
+
+    if (parseInt(id) === req.user.user_id && role !== "Admin" && role !== "Founder") {
+      return res.status(400).json({ message: "You cannot demote your own account." });
+    }
+
+    await pool.query("UPDATE users SET role = $1 WHERE user_id = $2", [role, id]);
+    res.json({ message: "User role updated successfully." });
+  } catch (error) {
+    console.error("Role update error:", error);
+    res.status(500).json({ message: "Failed to update role." });
+  }
+});
+
+// DELETE /admin/users/:id — delete user
+router.delete("/users/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (parseInt(id) === req.user.user_id) {
+      return res.status(400).json({ message: "You cannot delete your own account." });
+    }
+
+    await pool.query("DELETE FROM users WHERE user_id = $1", [id]);
+    res.json({ message: "User deleted successfully." });
+  } catch (error) {
+    console.error("Delete user error:", error);
+    res.status(500).json({ message: "Failed to delete user." });
+  }
+});
+
+// POST /admin/users/:id/reset-password — admin reset user password
+router.post("/users/:id/reset-password", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 8) {
+      return res.status(400).json({ message: "Password must be at least 8 characters." });
+    }
+
+    const hash = await bcrypt.hash(newPassword, 12);
+    await pool.query(
+      "UPDATE users SET password_hash = $1, failed_login_attempts = 0, lockout_until = NULL WHERE user_id = $2",
+      [hash, id]
+    );
+
+    res.json({ message: "Password reset successfully." });
+  } catch (error) {
+    console.error("Admin reset password error:", error);
+    res.status(500).json({ message: "Failed to reset password." });
+  }
+});
+
+// GET /admin/login-logs — all login history
+router.get("/login-logs", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT ll.*, u.full_name
+       FROM login_logs ll
+       LEFT JOIN users u ON ll.user_id = u.user_id
+       ORDER BY ll.login_time DESC
+       LIMIT 200`
+    );
+    res.json({ logs: result.rows });
+  } catch (error) {
+    console.error("Login logs error:", error);
+    res.status(500).json({ message: "Failed to fetch login logs." });
+  }
+});
+
+// GET /admin/stats — admin dashboard metrics
 router.get("/stats", async (req, res) => {
   try {
-    const totalUsersRes = await pool.query("SELECT COUNT(*) FROM users");
-    const activeUsersRes = await pool.query("SELECT COUNT(*) FROM users WHERE account_status = 'active'");
-    
-    // Online: Sessions that have not expired and have been active in the last 15 minutes
-    const onlineUsersRes = await pool.query(`
-      SELECT COUNT(DISTINCT user_id) 
-      FROM user_sessions 
-      WHERE expires_at > NOW() AND last_active > NOW() - INTERVAL '15 minutes'
-    `);
-    
-    const failedLoginsRes = await pool.query("SELECT COUNT(*) FROM login_logs WHERE success = false");
+    const totalUsers = await pool.query("SELECT COUNT(*) FROM users");
+    const activeUsers = await pool.query("SELECT COUNT(*) FROM users WHERE account_status = 'active'");
+    const disabledUsers = await pool.query("SELECT COUNT(*) FROM users WHERE account_status = 'disabled'");
+    const totalLogins = await pool.query("SELECT COUNT(*) FROM login_logs WHERE success = true");
+    const failedLogins = await pool.query("SELECT COUNT(*) FROM login_logs WHERE success = false");
+    const recentLogins = await pool.query(
+      `SELECT ll.login_time, ll.ip_address, ll.success, u.full_name, u.email
+       FROM login_logs ll
+       LEFT JOIN users u ON ll.user_id = u.user_id
+       ORDER BY ll.login_time DESC LIMIT 10`
+    );
 
     res.json({
-      totalUsers: parseInt(totalUsersRes.rows[0].count),
-      activeUsers: parseInt(activeUsersRes.rows[0].count),
-      onlineUsers: parseInt(onlineUsersRes.rows[0].count),
-      failedLogins: parseInt(failedLoginsRes.rows[0].count)
+      stats: {
+        total_users: parseInt(totalUsers.rows[0].count),
+        active_users: parseInt(activeUsers.rows[0].count),
+        disabled_users: parseInt(disabledUsers.rows[0].count),
+        total_logins: parseInt(totalLogins.rows[0].count),
+        failed_logins: parseInt(failedLogins.rows[0].count)
+      },
+      recent_logins: recentLogins.rows
     });
-  } catch (err) {
-    console.error("Admin stats error:", err);
-    res.status(500).json({ message: "Server error fetching administrative stats." });
-  }
-});
-
-// 2. GET /admin/users - List and filter users
-router.get("/users", async (req, res) => {
-  const { search, role, status } = req.query;
-  const params = [];
-  let queryText = `
-    SELECT user_id, full_name, email, role, phone, designation, department, employee_id, last_login, account_status, created_at 
-    FROM users
-    WHERE 1=1
-  `;
-
-  if (search) {
-    params.push(`%${search.trim().toLowerCase()}%`);
-    queryText += ` AND (LOWER(full_name) LIKE $${params.length} OR LOWER(email) LIKE $${params.length} OR LOWER(designation) LIKE $${params.length})`;
-  }
-
-  if (role) {
-    params.push(role);
-    queryText += ` AND role = $${params.length}`;
-  }
-
-  if (status) {
-    params.push(status);
-    queryText += ` AND account_status = $${params.length}`;
-  }
-
-  queryText += " ORDER BY created_at DESC";
-
-  try {
-    const usersRes = await pool.query(queryText, params);
-    res.json(usersRes.rows);
-  } catch (err) {
-    console.error("Admin list users error:", err);
-    res.status(500).json({ message: "Server error listing users." });
-  }
-});
-
-// 3. PUT /admin/users/:userId/status - Change account status or role
-router.put("/users/:userId/status", async (req, res) => {
-  const { userId } = req.params;
-  const { status, role } = req.body;
-
-  // Prevent users from deactivating themselves
-  if (parseInt(userId) === req.user.user_id && status === "deactivated") {
-    return res.status(400).json({ message: "You cannot deactivate your own account." });
-  }
-
-  // Prevent modifying critical Founders unless the editor is a Founder
-  try {
-    const targetUser = await pool.query("SELECT role FROM users WHERE user_id = $1", [userId]);
-    if (targetUser.rows.length === 0) {
-      return res.status(404).json({ message: "Target user not found." });
-    }
-
-    if (targetUser.rows[0].role === "Founder" && req.user.role !== "Founder") {
-      return res.status(403).json({ message: "Only Founders can modify another Founder's details." });
-    }
-
-    const updates = [];
-    const params = [userId];
-
-    if (status) {
-      params.push(status);
-      updates.push(`account_status = $${params.length}`);
-    }
-
-    if (role) {
-      params.push(role);
-      updates.push(`role = $${params.length}`);
-    }
-
-    if (updates.length === 0) {
-      return res.status(400).json({ message: "No update parameters provided." });
-    }
-
-    const queryText = `
-      UPDATE users 
-      SET ${updates.join(", ")}, updated_at = NOW() 
-      WHERE user_id = $1 
-      RETURNING user_id, full_name, email, role, account_status
-    `;
-
-    const result = await pool.query(queryText, params);
-    
-    // Revoke sessions if deactivating
-    if (status === "deactivated") {
-      await pool.query("DELETE FROM user_sessions WHERE user_id = $1", [userId]);
-    }
-
-    res.json({
-      message: "User status updated successfully.",
-      user: result.rows[0]
-    });
-  } catch (err) {
-    console.error("Update user status error:", err);
-    res.status(500).json({ message: "Server error changing user status." });
-  }
-});
-
-// 4. GET /admin/login-logs - View detailed login history
-router.get("/login-logs", async (req, res) => {
-  const { search, success, limit = 100, offset = 0 } = req.query;
-  const params = [];
-  let queryText = `
-    SELECT log_id, user_id, name, email, login_time, logout_time, ip_address, browser, os, device_type, country, success, failure_reason
-    FROM login_logs
-    WHERE 1=1
-  `;
-
-  if (search) {
-    params.push(`%${search.trim().toLowerCase()}%`);
-    queryText += ` AND (LOWER(name) LIKE $${params.length} OR LOWER(email) LIKE $${params.length} OR LOWER(ip_address) LIKE $${params.length})`;
-  }
-
-  if (success !== undefined && success !== "") {
-    params.push(success === "true");
-    queryText += ` AND success = $${params.length}`;
-  }
-
-  queryText += " ORDER BY login_time DESC";
-
-  // Add pagination limits
-  params.push(parseInt(limit));
-  queryText += ` LIMIT $${params.length}`;
-  
-  params.push(parseInt(offset));
-  queryText += ` OFFSET $${params.length}`;
-
-  try {
-    const logsRes = await pool.query(queryText, params);
-    
-    // Get count for pagination
-    let countQuery = "SELECT COUNT(*) FROM login_logs WHERE 1=1";
-    const countParams = [];
-    if (search) {
-      countParams.push(`%${search.trim().toLowerCase()}%`);
-      countQuery += ` AND (LOWER(name) LIKE $1 OR LOWER(email) LIKE $1 OR LOWER(ip_address) LIKE $1)`;
-    }
-    if (success !== undefined && success !== "") {
-      countParams.push(success === "true");
-      countQuery += ` AND success = $${countParams.length}`;
-    }
-    const countRes = await pool.query(countQuery, countParams);
-
-    res.json({
-      logs: logsRes.rows,
-      totalCount: parseInt(countRes.rows[0].count)
-    });
-  } catch (err) {
-    console.error("Admin login-logs error:", err);
-    res.status(500).json({ message: "Server error fetching login logs." });
+  } catch (error) {
+    console.error("Admin stats error:", error);
+    res.status(500).json({ message: "Failed to fetch admin stats." });
   }
 });
 

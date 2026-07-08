@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Box,
   Drawer,
@@ -12,7 +12,10 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  IconButton
+  IconButton,
+  Avatar,
+  Menu,
+  MenuItem
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -24,6 +27,8 @@ import {
   LightModeOutlined as LightModeIcon,
   AttachMoney as FinanceIcon,
   TableChart as TableChartIcon,
+  Logout as LogoutIcon,
+  Settings as SettingsIcon,
   AdminPanelSettings as AdminIcon
 } from "@mui/icons-material";
 import { useColorMode } from "../src/ThemeContext";
@@ -34,7 +39,18 @@ export default function Layout({ children }) {
   const { mode, toggleColorMode } = useColorMode();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const isAdmin = user && (user.role === "Admin" || user.role === "Founder");
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
   const handleDrawerToggle = () => {
     if (window.innerWidth < 600) {
@@ -47,11 +63,11 @@ export default function Layout({ children }) {
   const activeDrawerWidth = isCollapsed ? 0 : drawerWidth;
 
   const menuItems = [
-    { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
+    { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
     { text: "Projects List", icon: <ListIcon />, path: "/projects" },
     { text: "Classify Queue", icon: <CategoryIcon />, path: "/classify-projects" },
     { text: "Add New Project", icon: <AddBoxIcon />, path: "/projects/add" },
-    { text: "Admin Panel", icon: <AdminIcon />, path: "/admin" }
+    ...(isAdmin ? [{ text: "Admin Panel", icon: <AdminIcon />, path: "/admin" }] : [])
   ];
 
   const financeMenuItems = [
@@ -62,7 +78,7 @@ export default function Layout({ children }) {
   const drawer = (
     <Box sx={{ height: "100%", backgroundColor: "background.paper", color: "text.primary", overflowX: "hidden", borderRight: "1px solid", borderColor: "divider" }}>
       <Toolbar style={{ padding: "12px 20px", display: "flex", gap: "12px", alignItems: "center" }}>
-        <Box
+        <Box 
           component="img"
           src="/shrushti-logo.png"
           alt="Shrushti Logo"
@@ -198,6 +214,34 @@ export default function Layout({ children }) {
             <IconButton onClick={toggleColorMode} color="inherit" sx={{ color: mode === "light" ? "text.secondary" : "#eab308" }}>
               {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
+            {user && (
+              <>
+                <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ p: 0.5 }}>
+                  <Avatar sx={{ bgcolor: "#0d9488", width: 34, height: 34, fontSize: 14, fontWeight: "bold" }}>
+                    {user.full_name?.charAt(0)?.toUpperCase() || "U"}
+                  </Avatar>
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl} open={Boolean(anchorEl)}
+                  onClose={() => setAnchorEl(null)}
+                  PaperProps={{ sx: { mt: 1, minWidth: 180, borderRadius: "10px" } }}
+                  transformOrigin={{ horizontal: "right", vertical: "top" }}
+                  anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                >
+                  <Box sx={{ px: 2, py: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{user.full_name}</Typography>
+                    <Typography variant="caption" sx={{ color: "text.secondary" }}>{user.role}</Typography>
+                  </Box>
+                  <Divider />
+                  <MenuItem onClick={() => { navigate("/profile"); setAnchorEl(null); }}>
+                    <SettingsIcon fontSize="small" sx={{ mr: 1.5 }} /> Account Settings
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
+                    <LogoutIcon fontSize="small" sx={{ mr: 1.5 }} /> Sign Out
+                  </MenuItem>
+                </Menu>
+              </>
+            )}
           </Box>
         </Toolbar>
       </AppBar>
@@ -214,7 +258,9 @@ export default function Layout({ children }) {
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
+          ModalProps={{
+            keepMounted: true
+          }}
           sx={{
             display: { xs: "block", sm: "none" },
             "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, backgroundColor: "background.paper", borderRight: "1px solid", borderColor: "divider" }

@@ -7,13 +7,7 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js"
   },
-  "keywords": [
-    "shrushti",
-    "ngo",
-    "mis",
-    "postgresql",
-    "express"
-  ],
+  "keywords": ["shrushti", "ngo", "mis", "postgresql", "express"],
   "author": "Divyanshi Singh",
   "license": "ISC",
   "dependencies": {
@@ -21,7 +15,10 @@
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
+    "express-list-endpoints": "^6.0.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
     "multer": "^2.2.0",
     "nodemailer": "^9.0.3",
     "pdfkit": "^0.19.1",
