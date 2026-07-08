@@ -1,0 +1,22 @@
+{
+  "name": "shrushti-mis-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "cd backend && node src/app.js",
+    "build": "cd frontend && npm install && npm run build",
+    "install-backend": "cd backend && npm install"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.2.0",
+    "nodemailer": "^9.0.3",
+    "pdfkit": "^0.19.1",
+    "pg": "^8.16.3",
+    "xlsx": "^0.18.5"
+  }
+}

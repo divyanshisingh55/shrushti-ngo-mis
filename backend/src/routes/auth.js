@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const pool = require("../config/db");
 const { generateTokens, authenticateToken } = require("../middleware/auth");
+const { sendEmail } = require("../services/email");
 
 const SALT_ROUNDS = 12;
 
@@ -302,6 +303,33 @@ router.post("/forgot-password", async (req, res) => {
     );
 
     console.log(`[DEV] Password reset token for ${email}: ${resetToken}`);
+
+    // Send the actual email
+    const resetUrl = `${req.headers.origin || "https://shrushti-ngo-mis.vercel.app"}/reset-password?token=${resetToken}`;
+    try {
+      await sendEmail({
+        to: email.trim(),
+        subject: "Password Reset Request - Shrushti MIS",
+        text: `Hello ${user.full_name},\n\nYou requested a password reset for your Shrushti MIS account. Click the link below to reset your password:\n\n${resetUrl}\n\nThis link is valid for 1 hour.\n\nIf you did not request this, please ignore this email.`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <h2 style="color: #00897b; text-align: center;">Shrushti Seva Samiti</h2>
+            <p>Hello <strong>${user.full_name}</strong>,</p>
+            <p>You requested a password reset for your Shrushti MIS account. Click the button below to reset your password:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" style="background-color: #00897b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Reset Password</a>
+            </div>
+            <p>This link is valid for 1 hour. If the button above doesn't work, copy and paste this URL into your browser:</p>
+            <p style="word-break: break-all; color: #64748b;">${resetUrl}</p>
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+            <p style="font-size: 12px; color: #64748b; text-align: center;">This is an automated email. Please do not reply.</p>
+          </div>
+        `
+      });
+    } catch (emailErr) {
+      console.error("Failed to send reset email:", emailErr.message);
+      // Do not return 500 error to user so we don't leak information, but log the error
+    }
 
     return res.json({
       message: "If this email exists, you will receive a reset link.",

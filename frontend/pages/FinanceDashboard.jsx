@@ -71,17 +71,16 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const KPICard = ({ title, value, subtitle, icon, color, trend, trendVal, onClick }) => (
-  <Card elevation={0} onClick={onClick} sx={{
-    border: "1px solid", borderColor: "divider", borderRadius: 3,
-    background: `linear-gradient(135deg, ${color}08 0%, ${color}03 100%)`,
-    transition: "all 0.2s",
-    cursor: onClick ? "pointer" : "default",
-    "&:hover": {
-      boxShadow: onClick ? 4 : 0,
-      transform: onClick ? "translateY(-2px)" : "none",
-      borderColor: onClick ? color : "divider"
-    }
-  }}>
+  <Card
+    elevation={0}
+    onClick={onClick}
+    className={onClick ? "premium-card" : ""}
+    sx={{
+      border: "1px solid", borderColor: "divider", borderRadius: 3,
+      background: `linear-gradient(135deg, ${color}08 0%, ${color}03 100%)`,
+      cursor: onClick ? "pointer" : "default"
+    }}
+  >
     <CardContent sx={{ p: 2.5 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <Box>
